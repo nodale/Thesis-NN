@@ -2,80 +2,94 @@ import os
 import torch
 import random
 import h5py
+import zarr
 
 from torch import nn
 
 import numpy as np
 
 class PolynomialGenerator:
-    def __init__(self, path, num_points, begin, end, len_batch):
+    def __init__(self, path, num_points, begin, end, len_batch, chunk=4096):
         self.path = path
         self.num_points = num_points
         self.begin = begin
         self.end = end
         self.len_batch = len_batch
+        self.chunk = chunk
 
         if self.path is not None:
-            self.file = h5py.File(self.path, "w")
-            self.xy_dset = self.file.create_dataset(
-                "xy",
+            self.store = zarr.storage.LocalStore(self.path)
+            self.root = zarr.group(store=self.store, overwrite=True)
+            self.data = self.root.create_group('data')
+
+            self.xy = self.data.create_array(
+                name="xy",
                 shape=(self.len_batch, self.num_points * 2),
-                dtype="float32"
-            )
-            self.param_dset = self.file.create_dataset(
-                "params",
-                shape=(self.len_batch, 3),
-               dtype="float32"
+                chunks=(self.chunk, self.num_points * 2),
+                dtype="f4"
             )
 
-        self.generate()
+            self.params = self.data.create_array(
+                name="params",
+                shape=(self.len_batch, 3),
+                chunks=(self.chunk, 3),
+                dtype="f4"
+            )
+
+            self.generate()
+
 
     def quadratic(self, x, a, b, c):
         return a * x**2 + b * x + c
 
     def generate(self):
-        #x_batches = []
-        #y_batches = []
-        #xy_batches = []
-        #params = []
+            B = self.len_batch
+            N = self.num_points
+            chunk = 1024
 
-        for i in range(self.len_batch):
-            #x = torch.linspace(begin, end, num_points)
-            x = torch.empty(self.num_points).uniform_(self.begin, self.end)
-            x, _ = torch.sort(x)
+            for i in range(0, B, chunk):
+                end = min(i + chunk, B)
+                bs = end - i
 
-            a = torch.empty(1).uniform_(-5, 5).item()
-            b = torch.empty(1).uniform_(-5, 5).item()
-            c = torch.empty(1).uniform_(-5, 5).item()
+                # ----------------------------
+                # 1. vectorized x sampling
+                # ----------------------------
+                x = torch.empty(bs, N).uniform_(self.begin, self.end)
+                x, _ = torch.sort(x, dim=1)
 
-            y = self.quadratic(x, a, b, c)
-            xy = torch.stack([x, y], dim=1) 
-            xy = xy.flatten()
+                # ----------------------------
+                # 2. vectorized parameters
+                # ----------------------------
+                params = torch.empty(bs, 3).uniform_(-5, 5)
+                a = params[:, 0]
+                b = params[:, 1]
+                c = params[:, 2]
 
-            #x_batches.append(x)
-            #y_batches.append(y)
-            #xy_batches.append(xy)
-            #params.append((a, b, c))
+                # ----------------------------
+                # 3. vectorized polynomial
+                # ----------------------------
+                y = a[:, None] * x**2 + b[:, None] * x + c[:, None]
 
-            if self.xy_dset is not None:
-                self.xy_dset[i] = xy.numpy()
-                self.param_dset[i] = np.array([a, b, c], dtype=np.float32)
+                # ----------------------------
+                # 4. flatten (x,y) → interleaved
+                # ----------------------------
+                xy = torch.stack([x, y], dim=2).reshape(bs, 2 * N)
 
-            if i % 10000 == 0:
-                print(f"progress : {i}/{self.len_batch}")
+                # ----------------------------
+                # 5. write chunk to Zarr
+                # ----------------------------
+                self.xy[i:end] = xy.numpy()
+                self.params[i:end] = params.numpy().astype("float32")
 
-        if self.file is not None:
-            self.file.close()
+                if i % (chunk * 5) == 0:
+                    print(f"progress: {i}/{B}")
 
-        #self.x_batch = torch.stack(x_batches)
-        #self.y_batch = torch.stack(y_batches)
-        #self.xy_batch = torch.stack(xy_batches) 
-        #self.param = torch.tensor(params)     
+            self.store.close()
 
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.h5', num_points=400, begin=-10, end=10, len_batch=1000000)
-    test_data = PolynomialGenerator(path='dataset/test_data.h5', num_points=400, begin=-10, end=10, len_batch=10000)
+    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=1000000)
+    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=10000)
 
 
 if __name__ == "__main__":

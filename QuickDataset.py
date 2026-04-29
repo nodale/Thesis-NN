@@ -1,5 +1,6 @@
 import torch
 import h5py
+import zarr
 import time
 
 from torch import nn
@@ -9,41 +10,33 @@ from torch.utils.data import DataLoader
 import numpy as np
 
 class QuickDataset(Dataset):
-    def __init__(self, path, batch_size=1024):
+    def __init__(self, path):
         self.path = path
-        self.batch_size = batch_size
 
-        self.file = h5py.File(self.path, "r")
-        self.dataset_len = self.file["xy"].shape[0]
-
-        self.num_batches = (self.dataset_len + batch_size - 1) // batch_size
+        self.root = zarr.open_group(self.path, mode="r")
+        self.xy = self.root["data"]["xy"]
+        self.params = self.root["data"]["params"]
 
     def __len__(self):
-        return self.num_batches
+        return self.xy.shape[0]
 
     def __getitem__(self, idx):
-        start = idx * self.batch_size
-        end = min(start + self.batch_size, self.dataset_len)
-
-        xy = self.file["xy"][start:end]
-        params = self.file["params"][start:end]
-
         return (
-            torch.from_numpy(xy).float(),
-            torch.from_numpy(params).float()
+            torch.from_numpy(self.xy[idx]).float(),
+            torch.from_numpy(self.params[idx]).float()
         )
 
 #main for testing purposes only
 def main():
     t0 = time.perf_counter()
 
-    train_dataset = QuickDataset(path='dataset/train_data.h5')
+    train_dataset = QuickDataset(path='dataset/train_data.zarr/')
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=None,
+        batch_size=4096,
         shuffle=True,
-        num_workers=4,
+        num_workers=16,
         pin_memory=True,
         persistent_workers=True
     )
