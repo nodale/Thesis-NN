@@ -2,6 +2,7 @@ import os
 import torch
 import random
 import h5py
+import time 
 
 from torch import nn
 from torch.utils.data import Dataset
@@ -70,12 +71,14 @@ def test_loop(loader, model, loss_fn):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
+    t0 = time.perf_counter()
+
     model = NeuralNetwork().to(device)
 
     loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    train_dataset = QuickDataset(path='dataset/train_data.h5')
+    train_dataset = QuickDataset(path='dataset/train_data.zarr/')
     train_loader = DataLoader(
         train_dataset,
         batch_size=None,
@@ -85,7 +88,7 @@ def main():
         persistent_workers=True
     )
 
-    test_dataset = QuickDataset(path='dataset/test_data.h5')
+    test_dataset = QuickDataset(path='dataset/test_data.zarr/')
     test_loader = DataLoader(
         test_dataset,
         batch_size=None,
@@ -100,7 +103,9 @@ def main():
         print(f"Epoch {t+1}\n-------------------------------")
         train_loop(train_loader, model, loss_fn, optimizer)
         test_loop(test_loader, model, loss_fn)
-    print("Done!")
+    
+    t1 = time.perf_counter()
+    print('time : ', t1 - t0)
 
 
 if __name__ == "__main__":

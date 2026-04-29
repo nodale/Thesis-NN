@@ -2,24 +2,28 @@ import os
 import torch
 import random
 import h5py
+import webdataset as wds
 
 from torch import nn
 
 import numpy as np
 
 class PolynomialGenerator:
-    def __init__(self, path, num_points, begin, end, len_batch):
+    def __init__(self, path, num_points, begin, end, len_batch, shard_size=25600, pred_len_percentage=0.2):
         self.path = path
         self.num_points = num_points
         self.begin = begin
         self.end = end
         self.len_batch = len_batch
+        
+        self.output = int(num_points * 0.2)
+        self.input = num_points - self.output
 
         if self.path is not None:
             self.file = h5py.File(self.path, "w")
             self.xy_dset = self.file.create_dataset(
                 "xy",
-                shape=(self.len_batch, self.num_points * 2),
+                shape=(self.len_batch, self.num_points, 2),
                 dtype="float32"
             )
             self.param_dset = self.file.create_dataset(
@@ -44,22 +48,14 @@ class PolynomialGenerator:
             x = torch.empty(self.num_points).uniform_(self.begin, self.end)
             x, _ = torch.sort(x)
 
-            a = torch.empty(1).uniform_(-5, 5).item()
-            b = torch.empty(1).uniform_(-5, 5).item()
-            c = torch.empty(1).uniform_(-5, 5).item()
+            a = torch.empty(1).uniform_(-2, 2).item()
+            b = torch.empty(1).uniform_(-2, 2).item()
+            c = torch.empty(1).uniform_(-2, 2).item()
 
             y = self.quadratic(x, a, b, c)
-            xy = torch.stack([x, y], dim=1) 
-            xy = xy.flatten()
 
-            #x_batches.append(x)
-            #y_batches.append(y)
-            #xy_batches.append(xy)
-            #params.append((a, b, c))
-
-            if self.xy_dset is not None:
-                self.xy_dset[i] = xy.numpy()
-                self.param_dset[i] = np.array([a, b, c], dtype=np.float32)
+            xy = torch.stack([x[:self.input], y[:self.input]], dim=0) 
+            pred = torch.stack([x[:self.output], y[:self.output]], dim=0) 
 
             if i % 10000 == 0:
                 print(f"progress : {i}/{self.len_batch}")
@@ -67,14 +63,10 @@ class PolynomialGenerator:
         if self.file is not None:
             self.file.close()
 
-        #self.x_batch = torch.stack(x_batches)
-        #self.y_batch = torch.stack(y_batches)
-        #self.xy_batch = torch.stack(xy_batches) 
-        #self.param = torch.tensor(params)     
 
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.h5', num_points=400, begin=-10, end=10, len_batch=1000000)
+    train_data = PolynomialGenerator(path='dataset/train_data.h5', num_points=400, begin=-10, end=10, len_batch=100000)
     test_data = PolynomialGenerator(path='dataset/test_data.h5', num_points=400, begin=-10, end=10, len_batch=10000)
 
 
