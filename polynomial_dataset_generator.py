@@ -47,8 +47,7 @@ class PolynomialGenerator:
                 sample = {
                     "__key__": f"{i:08d}",
                     "prio.npy": prio.numpy(),
-                    "pred.npy": pred.numpy(),
-                    "params.npy": torch.tensor([a, b, c], dtype=torch.float32).numpy(),
+                    "pred.npy": pred.numpy()
                 }
 
                 sink.write(sample)
