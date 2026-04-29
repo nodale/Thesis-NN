@@ -9,28 +9,20 @@ from torch import nn
 import numpy as np
 
 class PolynomialGenerator:
-    def __init__(self, path, num_points, begin, end, len_batch, shard_size=25600, pred_len_percentage=0.2):
-        self.path = path
+    def __init__(self, out_path, num_points, begin, end, len_batch,
+                 shard_size=10000, pred_len_percentage=0.2):
+
+        self.out_path = out_path
         self.num_points = num_points
         self.begin = begin
         self.end = end
         self.len_batch = len_batch
-        
-        self.output = int(num_points * 0.2)
+        self.shard_size = shard_size
+
+        self.output = int(num_points * pred_len_percentage)
         self.input = num_points - self.output
 
-        if self.path is not None:
-            self.file = h5py.File(self.path, "w")
-            self.xy_dset = self.file.create_dataset(
-                "xy",
-                shape=(self.len_batch, self.num_points, 2),
-                dtype="float32"
-            )
-            self.param_dset = self.file.create_dataset(
-                "params",
-                shape=(self.len_batch, 3),
-               dtype="float32"
-            )
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
         self.generate()
 
@@ -38,37 +30,51 @@ class PolynomialGenerator:
         return a * x**2 + b * x + c
 
     def generate(self):
-        #x_batches = []
-        #y_batches = []
-        #xy_batches = []
-        #params = []
+        with wds.ShardWriter(self.out_path, maxcount=self.shard_size) as sink:
+            for i in range(self.len_batch):
+                x = torch.empty(self.num_points).uniform_(self.begin, self.end)
+                x, _ = torch.sort(x)
 
-        for i in range(self.len_batch):
-            #x = torch.linspace(begin, end, num_points)
-            x = torch.empty(self.num_points).uniform_(self.begin, self.end)
-            x, _ = torch.sort(x)
+                a = torch.empty(1).uniform_(-2, 2).item()
+                b = torch.empty(1).uniform_(-2, 2).item()
+                c = torch.empty(1).uniform_(-2, 2).item()
 
-            a = torch.empty(1).uniform_(-2, 2).item()
-            b = torch.empty(1).uniform_(-2, 2).item()
-            c = torch.empty(1).uniform_(-2, 2).item()
+                y = self.quadratic(x, a, b, c)
 
-            y = self.quadratic(x, a, b, c)
+                prio = torch.stack([x[:self.input], y[:self.input]], dim=0)
+                pred = torch.stack([x[self.output:], y[self.output:]], dim=0)
 
-            xy = torch.stack([x[:self.input], y[:self.input]], dim=0) 
-            pred = torch.stack([x[:self.output], y[:self.output]], dim=0) 
+                sample = {
+                    "__key__": f"{i:08d}",
+                    "prio.npy": prio.numpy(),
+                    "pred.npy": pred.numpy(),
+                    "params.npy": torch.tensor([a, b, c], dtype=torch.float32).numpy(),
+                }
 
-            if i % 10000 == 0:
-                print(f"progress : {i}/{self.len_batch}")
+                sink.write(sample)
 
-        if self.file is not None:
-            self.file.close()
-
+                if i % 10000 == 0:
+                    print(f"progress: {i}/{self.len_batch}")
 
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.h5', num_points=400, begin=-10, end=10, len_batch=100000)
-    test_data = PolynomialGenerator(path='dataset/test_data.h5', num_points=400, begin=-10, end=10, len_batch=10000)
+    PolynomialGenerator(
+        out_path="dataset/train-%06d.tar",
+        num_points=400,
+        begin=-10,
+        end=10,
+        len_batch=100000,
+        shard_size=5000
+    )
 
+    PolynomialGenerator(
+        out_path="dataset/test-%06d.tar",
+        num_points=400,
+        begin=-10,
+        end=10,
+        len_batch=10000,
+        shard_size=5000
+    )
 
 if __name__ == "__main__":
     main()
