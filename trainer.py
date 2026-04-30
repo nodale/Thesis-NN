@@ -1,7 +1,7 @@
 import os
 import torch
 import random
-import h5py
+import time
 
 from torch import nn
 from torch.utils.data import Dataset
@@ -17,7 +17,7 @@ print(f"Using {device} device")
 class NeuralNetwork(nn.Module):
     learning_rate : float = 1e-4
 
-    def __init__(self, input_len, output_len, neural_count=80):
+    def __init__(self, input_len, output_len, neural_count=120):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -48,15 +48,17 @@ class NeuralNetwork(nn.Module):
 
         xy_forward = self.linear_xy(x_forward + y_forward)
         
-        _x = xy_forward[:self.output_len]
-        _y = xy_forward[self.output_len:]
+        _x = xy_forward[:, :self.output_len]
+        _y = xy_forward[:, self.output_len:]
 
         return _x, _y
 
 def loss_fn(pred_x, pred_y, truth_x, truth_y):
-    loss_x = torch.sum((pred_x - truth_x) ** 2)
-    loss_y = torch.sum((pred_y - truth_y) ** 2)
-    return loss_x + loss_y
+    loss = (
+        torch.nn.functional.mse_loss(pred_x, truth_x, reduction='sum') +
+        torch.nn.functional.mse_loss(pred_y, truth_y, reduction='sum')
+    )
+    return loss
 
 def train_loop(loader, model, optimizer):
     model.train()
@@ -65,27 +67,29 @@ def train_loop(loader, model, optimizer):
     count = 0          
 
     for x, y in loader:
+        t0 = time.perf_counter()
+
         x = x.to(device, non_blocking=True)
         y = y.to(device, non_blocking=True)
 
-        x0 = x[:model.input_len]
-        y0 = y[:model.input_len]
-
-        x1 = x[model.input_len:]
-        y1 = y[model.input_len:]
+        x0, x1 = x[:, :input_len], x[:, input_len:]
+        y0, y1 = y[:, :input_len], y[:, input_len:]
 
         pred_x, pred_y = model(x0, y0)
         loss = loss_fn(pred_x, pred_y, x1, y1)
 
         loss.backward()
         optimizer.step()
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
 
-        running_loss += loss.item(); count += 1
-        
-        if count % 10000 == 0:  # +1
-            print(f"avg_loss: {running_loss / 10000:.6f}")
-            running_loss = 0.0
+        #running_loss += loss.detach()
+        #count += 1
+        #if count % 1000 == 0:
+        #    print(f"avg_loss: {running_loss / 10000:.6f}")
+        #    running_loss = 0.0
+
+        t1 = time.perf_counter()
+        print("time : ", t1 - t0)
 
 def test_loop(loader, model):
     model.eval()
@@ -98,11 +102,8 @@ def test_loop(loader, model):
             x = x.to(device, non_blocking=True)
             y = y.to(device, non_blocking=True)
 
-            x0 = x[:model.input_len]
-            y0 = y[:model.input_len]
-
-            x1 = x[model.input_len:]
-            y1 = y[model.input_len:]
+            x0, x1 = x[:, :input_len], x[:, input_len:]
+            y0, y1 = y[:, :input_len], y[:, input_len:]
 
             pred_x, pred_y = model(x0, y0)
             loss = loss_fn(pred_x, pred_y, x1, y1)
@@ -114,28 +115,35 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    model = NeuralNetwork(input_len=20, output_len=2).to(device)
+    input_len = 50
+    output_len = 4
+    total_len = input_len + output_len
+
+    model = NeuralNetwork(input_len=input_len, output_len=output_len).to(device)
+    model = torch.compile(model)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    train_dataset = QuickDataset(path='dataset/train_data.zarr/', output_len=22)
+    train_dataset = QuickDataset(path='dataset/train_data.zarr/', output_len=total_len)
     train_loader = DataLoader(
         train_dataset,
-        batch_size=None,
-        shuffle=False,
-        num_workers=4,
+        batch_size=2048,
+        shuffle=True,
+        num_workers=os.cpu_count(),
         pin_memory=True,
-        persistent_workers=True
+        persistent_workers=True,
+        prefetch_factor=4 
     )
 
-    test_dataset = QuickDataset(path='dataset/test_data.zarr/', output_len=22)
+    test_dataset = QuickDataset(path='dataset/test_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
-        batch_size=None,
+        batch_size=2048,
         shuffle=False,
-        num_workers=4,
+        num_workers=os.cpu_count(),
         pin_memory=True,
-        persistent_workers=True
+        persistent_workers=True,
+        prefetch_factor=4 
     )
 
     epochs = 15

@@ -34,15 +34,15 @@ class QuickDataset(Dataset):
         y_seq = self.y[idx]
 
         max_start = x_seq.shape[0] - self.output_len
-        start = random.randint(0, max_start)
+        start = np.random.randint(0, max_start + 1)
         end = start + self.output_len
 
         x = x_seq[start:end]
         y = y_seq[start:end]
 
         return (
-            torch.from_numpy(np.asarray(x)).float(),
-            torch.from_numpy(np.asarray(y)).float()
+                torch.from_numpy(x).to(torch.float32),
+                torch.from_numpy(y).to(torch.float32),
         )
 
 #main for testing purposes only
@@ -52,8 +52,8 @@ def main():
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=8,
-        shuffle=False,
+        batch_size=2048,
+        shuffle=True,
         num_workers=4,
         pin_memory=True,
         persistent_workers=True
@@ -66,7 +66,7 @@ def main():
     t0 = time.perf_counter()
 
     loader_iter = iter(train_loader)
-    num_batches = 500
+    num_batches = 50
 
     for i in range(num_batches):
         try:
