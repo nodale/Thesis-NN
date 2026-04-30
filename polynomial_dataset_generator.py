@@ -8,7 +8,7 @@ from torch import nn
 import numpy as np
 
 class PolynomialGenerator:
-    def __init__(self, path, num_points, begin, end, len_batch, chunk=2048):
+    def __init__(self, path, num_points, begin, end, len_batch, chunk=4):
         self.path = path
         self.num_points = num_points
         self.begin = begin

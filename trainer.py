@@ -67,13 +67,11 @@ def train_loop(loader, model, optimizer):
     count = 0          
 
     for x, y in loader:
-        t0 = time.perf_counter()
-
         x = x.to(device, non_blocking=True)
         y = y.to(device, non_blocking=True)
 
-        x0, x1 = x[:, :input_len], x[:, input_len:]
-        y0, y1 = y[:, :input_len], y[:, input_len:]
+        x0, x1 = x[:, :model.input_len], x[:, model.input_len:]
+        y0, y1 = y[:, :model.input_len], y[:, model.input_len:]
 
         pred_x, pred_y = model(x0, y0)
         loss = loss_fn(pred_x, pred_y, x1, y1)
@@ -88,8 +86,6 @@ def train_loop(loader, model, optimizer):
         #    print(f"avg_loss: {running_loss / 10000:.6f}")
         #    running_loss = 0.0
 
-        t1 = time.perf_counter()
-        print("time : ", t1 - t0)
 
 def test_loop(loader, model):
     model.eval()
@@ -102,8 +98,8 @@ def test_loop(loader, model):
             x = x.to(device, non_blocking=True)
             y = y.to(device, non_blocking=True)
 
-            x0, x1 = x[:, :input_len], x[:, input_len:]
-            y0, y1 = y[:, :input_len], y[:, input_len:]
+            x0, x1 = x[:, :model.input_len], x[:, model.input_len:]
+            y0, y1 = y[:, :model.input_len], y[:, model.input_len:]
 
             pred_x, pred_y = model(x0, y0)
             loss = loss_fn(pred_x, pred_y, x1, y1)
@@ -127,7 +123,7 @@ def main():
     train_dataset = QuickDataset(path='dataset/train_data.zarr/', output_len=total_len)
     train_loader = DataLoader(
         train_dataset,
-        batch_size=2048,
+        batch_size=2,
         shuffle=True,
         num_workers=os.cpu_count(),
         pin_memory=True,
@@ -138,7 +134,7 @@ def main():
     test_dataset = QuickDataset(path='dataset/test_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
-        batch_size=2048,
+        batch_size=2,
         shuffle=False,
         num_workers=os.cpu_count(),
         pin_memory=True,
