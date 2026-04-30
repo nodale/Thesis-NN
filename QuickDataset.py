@@ -14,12 +14,13 @@ class QuickDataset(Dataset):
         self.path = path
 
         self.root = zarr.open_group(self.path, mode="r")
-        self.prio = self.root["data"]["prio"]
+        self.data = self.root["data"]
 
-        self.chunk_size = self.prio.chunks[0] 
-        self.num_chunks = self.prio.shape[0] // self.chunk_size
+        self.x = self.data["x"]
+        self.y = self.data["y"]
 
-#shape : [num_sequence][len_sequence][sequence_dim]
+        self.chunk_size = self.x.chunks[0]
+        self.num_chunks = self.x.shape[0] // self.chunk_size
 
     def __len__(self):
         return self.num_chunks
@@ -28,8 +29,13 @@ class QuickDataset(Dataset):
         start = idx * self.chunk_size
         end = start + self.chunk_size
 
-        chunk = self.prio[start:end] 
-        return torch.from_numpy(chunk).float()
+        x = self.x[start:end]
+        y = self.y[start:end]
+
+        return (
+            torch.from_numpy(x).float(),
+            torch.from_numpy(y).float()
+        )
 
 #main for testing purposes only
 def main():

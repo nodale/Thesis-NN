@@ -21,10 +21,18 @@ class PolynomialGenerator:
             self.root = zarr.group(store=self.store, overwrite=True)
             self.data = self.root.create_group('data')
 
-            self.prio = self.data.create_array(
-                name="prio",
-                shape=(self.len_batch, self.num_points, 2),
-                chunks=(self.chunk, self.num_points, 2),
+            self.x_arr = self.data.create_array(
+                name="x",
+                shape=(self.len_batch, self.num_points),
+                chunks=(self.chunk, self.num_points),
+                dtype="f4",
+                overwrite=True
+            )
+
+            self.y_arr = self.data.create_array(
+                name="y",
+                shape=(self.len_batch, self.num_points),
+                chunks=(self.chunk, self.num_points),
                 dtype="f4",
                 overwrite=True
             )
@@ -51,14 +59,15 @@ class PolynomialGenerator:
 
             y = a[:, None] * x**2 + b[:, None] * x + c[:, None]
 
-            self.prio[i:j] = torch.stack([x[:, :self.num_points], y[:, :self.num_points]], dim=-1).numpy().astype("float32")
+            self.x_arr[i:j] = x[:, :self.num_points].numpy().astype("float32")
+            self.y_arr[i:j] = y[:, :self.num_points].numpy().astype("float32")
 
             print(i, " out of ", B)
 
         self.store.close()
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=1000000)
+    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=200000)
     test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=10000)
 
 
