@@ -6,7 +6,7 @@ import time
 from torch import nn
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from QuickDataset import QuickDataset
+from QuickDataset import QuickDataset2
 
 import numpy as np
 
@@ -17,7 +17,7 @@ print(f"Using {device} device")
 class NeuralNetwork(nn.Module):
     learning_rate : float = 1e-4
 
-    def __init__(self, input_len, output_len, neural_count=120):
+    def __init__(self, input_len, output_len, neural_count=2048):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -26,10 +26,14 @@ class NeuralNetwork(nn.Module):
             nn.Linear(input_len, neural_count),
             nn.ReLU(),
             nn.Linear(neural_count, neural_count),
+            nn.ReLU(),
+            nn.Linear(neural_count, neural_count),
         )
 
         self.linear_y = nn.Sequential(
             nn.Linear(input_len, neural_count),
+            nn.ReLU(),
+            nn.Linear(neural_count, neural_count),
             nn.ReLU(),
             nn.Linear(neural_count, neural_count),
         )
@@ -67,6 +71,8 @@ def train_loop(loader, model, optimizer):
     count = 0          
 
     for x, y in loader:
+        t0 = time.perf_counter()
+
         x = x.to(device, non_blocking=True)
         y = y.to(device, non_blocking=True)
 
@@ -80,12 +86,14 @@ def train_loop(loader, model, optimizer):
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
 
-        #running_loss += loss.detach()
-        #count += 1
-        #if count % 1000 == 0:
-        #    print(f"avg_loss: {running_loss / 10000:.6f}")
-        #    running_loss = 0.0
+        running_loss += loss.detach()
+        count += 1
+        if count % 1000 == 0:
+            print(f"avg_loss: {running_loss / 10000:.6f}")
+            running_loss = 0.0
 
+            t1 = time.perf_counter()
+            print(t1 - t0)
 
 def test_loop(loader, model):
     model.eval()
@@ -111,8 +119,8 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    input_len = 50
-    output_len = 4
+    input_len = 80
+    output_len = 2
     total_len = input_len + output_len
 
     model = NeuralNetwork(input_len=input_len, output_len=output_len).to(device)
@@ -120,22 +128,20 @@ def main():
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    train_dataset = QuickDataset(path='dataset/train_data.zarr/', output_len=total_len)
+    train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
     train_loader = DataLoader(
         train_dataset,
-        batch_size=2,
-        shuffle=True,
+        batch_size=512,
         num_workers=os.cpu_count(),
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=4 
     )
 
-    test_dataset = QuickDataset(path='dataset/test_data.zarr/', output_len=total_len)
+    test_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
-        batch_size=2,
-        shuffle=False,
+        batch_size=512,
         num_workers=os.cpu_count(),
         pin_memory=True,
         persistent_workers=True,

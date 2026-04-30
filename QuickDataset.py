@@ -6,6 +6,7 @@ import time
 from torch import nn
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+from torch.utils.data import IterableDataset
 
 import numpy as np
 
@@ -13,7 +14,7 @@ class QuickDataset(Dataset):
     def __init__(self, path, output_len):
         self.path = path
 
-        self.root = zarr.open_group(self.path, mode="r")
+        self.root = zarr.open_group(self.path, mode="r", cache_attrs=True)
         self.data = self.root["data"]
 
         self.x = self.data["x"]
@@ -30,20 +31,48 @@ class QuickDataset(Dataset):
         return self.length - self.output_len
 
     def __getitem__(self, idx):
-        x_seq = self.x[idx] 
-        y_seq = self.y[idx]
-
-        max_start = x_seq.shape[0] - self.output_len
-        start = np.random.randint(0, max_start + 1)
+        start = np.random.randint(0, self.max_start + 1)
         end = start + self.output_len
 
-        x = x_seq[start:end]
-        y = y_seq[start:end]
+        x = self.x[idx, start:end]
+        y = self.y[idx, start:end]
 
         return (
-                torch.from_numpy(x).to(torch.float32),
-                torch.from_numpy(y).to(torch.float32),
+                torch.from_numpy(x),
+                torch.from_numpy(y),
         )
+
+class QuickDataset2(IterableDataset):
+    def __init__(self, path, output_len):
+        super().__init__()
+
+        self.root = zarr.open_group(path, mode="r")
+        self.x = self.root["data"]["x"]
+        self.y = self.root["data"]["y"]
+
+        self.output_len = output_len
+        self.batch_num, self.seq_len = self.x.shape
+
+        self.chunk_size = self.x.chunks[0]
+
+    def __iter__(self):
+        for chunk_start in range(0, self.batch_num, self.chunk_size):
+            chunk_end = min(chunk_start + self.chunk_size, self.batch_num)
+
+            x_chunk = self.x[chunk_start:chunk_end]
+            y_chunk = self.y[chunk_start:chunk_end]
+
+            for i in range(chunk_end - chunk_start):
+                x_seq = x_chunk[i]
+                y_seq = y_chunk[i]
+
+                start = np.random.randint(0, self.seq_len - self.output_len + 1)
+                end = start + self.output_len
+
+                yield (
+                    torch.from_numpy(x_seq[start:end]).float(),
+                    torch.from_numpy(y_seq[start:end]).float(),
+                )
 
 #main for testing purposes only
 def main():

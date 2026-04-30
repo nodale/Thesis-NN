@@ -8,7 +8,7 @@ from torch import nn
 import numpy as np
 
 class PolynomialGenerator:
-    def __init__(self, path, num_points, begin, end, len_batch, chunk=4):
+    def __init__(self, path, num_points, begin, end, len_batch, chunk=512):
         self.path = path
         self.num_points = num_points
         self.begin = begin
@@ -44,20 +44,22 @@ class PolynomialGenerator:
         return a * x**2 + b * x + c
 
     def generate(self):
-        B, N, chunk = self.len_batch, self.num_points, 1024
+        B, N, chunk = self.len_batch, self.num_points, self.chunk
 
         for i in range(0, B, chunk):
             j = min(i + chunk, B)
             bs = j - i
 
-            params = torch.empty(bs, 3).uniform_(-5, 5)
+            params = torch.empty(bs, 3).uniform_(-2, 2)
             a = params[:, 0]
             b = params[:, 1]
             c = params[:, 2]
 
             x = torch.sort(torch.empty(bs, N).uniform_(self.begin, self.end), dim=1).values
-
             y = a[:, None] * x**2 + b[:, None] * x + c[:, None]
+
+            x = (x - x.mean(dim=1, keepdim=True)) / (x.std(dim=1, keepdim=True) + 1e-8)
+            y = (y - y.mean(dim=1, keepdim=True)) / (y.std(dim=1, keepdim=True) + 1e-8)
 
             self.x_arr[i:j] = x[:, :self.num_points].numpy().astype("float32")
             self.y_arr[i:j] = y[:, :self.num_points].numpy().astype("float32")
@@ -67,7 +69,7 @@ class PolynomialGenerator:
         self.store.close()
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=200000)
+    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=1000000)
     test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=10000)
 
 
