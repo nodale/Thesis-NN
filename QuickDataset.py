@@ -1,5 +1,5 @@
 import torch
-import h5py
+import random
 import zarr
 import time
 
@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 
 class QuickDataset(Dataset):
-    def __init__(self, path):
+    def __init__(self, path, output_len):
         self.path = path
 
         self.root = zarr.open_group(self.path, mode="r")
@@ -20,27 +20,35 @@ class QuickDataset(Dataset):
         self.y = self.data["y"]
 
         self.chunk_size = self.x.chunks[0]
-        self.num_chunks = self.x.shape[0] // self.chunk_size
+        self.length = self.x.shape[0]
+        self.output_len = output_len
+
+        self.max_start = self.length - self.output_len
 
     def __len__(self):
-        return self.num_chunks
+        #return self.length // self.chunk_size
+        return self.length - self.output_len
 
     def __getitem__(self, idx):
-        start = idx * self.chunk_size
-        end = start + self.chunk_size
+        x_seq = self.x[idx] 
+        y_seq = self.y[idx]
 
-        x = self.x[start:end]
-        y = self.y[start:end]
+        max_start = x_seq.shape[0] - self.output_len
+        start = random.randint(0, max_start)
+        end = start + self.output_len
+
+        x = x_seq[start:end]
+        y = y_seq[start:end]
 
         return (
-            torch.from_numpy(x).float(),
-            torch.from_numpy(y).float()
+            torch.from_numpy(np.asarray(x)).float(),
+            torch.from_numpy(np.asarray(y)).float()
         )
 
 #main for testing purposes only
 def main():
 
-    train_dataset = QuickDataset(path='dataset/train_data.zarr/')
+    train_dataset = QuickDataset(path='dataset/train_data.zarr/', output_len=40)
 
     train_loader = DataLoader(
         train_dataset,
