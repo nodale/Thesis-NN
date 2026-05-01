@@ -69,8 +69,8 @@ class PolynomialGenerator:
         self.store.close()
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=100000)
-    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=10000)
+    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=200000)
+    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=100000)
 
 
 if __name__ == "__main__":

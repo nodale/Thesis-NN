@@ -85,9 +85,14 @@ class QuickDataset2(IterableDataset):
                 y_out = y_batch[np.arange(B)[:, None], idx]
 
                 yield (
-                    torch.from_numpy(x_out).float(),
-                    torch.from_numpy(y_out).float(),
+                    torch.from_numpy(x_out),
+                    torch.from_numpy(y_out),
                 )
+
+
+
+
+
 #main for testing purposes only
 def main():
     train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=40)
@@ -107,8 +112,8 @@ def main():
     t0 = time.perf_counter()
 
     for m, n in train_loader:
-        m = m.to('cuda', non_blocking=True)
-        n = n.to('cuda', non_blocking=True)
+        m = m.cuda(non_blocking=True)
+        n = n.cuda(non_blocking=True)
 
     t1 = time.perf_counter()
 

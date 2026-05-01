@@ -17,7 +17,7 @@ print(f"Using {device} device")
 class NeuralNetwork(nn.Module):
     learning_rate : float = 1e-4
 
-    def __init__(self, input_len, output_len, neural_count=480):
+    def __init__(self, input_len, output_len, neural_count=1000):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -133,17 +133,17 @@ def main():
         prefetch_factor=4 
     )
 
-    test_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
+    test_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
         batch_size=None,
-        num_workers=os.cpu_count(),
+        num_workers=1,
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=4 
     )
 
-    epochs = 1
+    epochs = 100
     for t in range(epochs):
         t0 = time.perf_counter()
 
