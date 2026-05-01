@@ -17,7 +17,7 @@ print(f"Using {device} device")
 class NeuralNetwork(nn.Module):
     learning_rate : float = 1e-4
 
-    def __init__(self, input_len, output_len, neural_count=2048):
+    def __init__(self, input_len, output_len, neural_count=480):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -71,8 +71,6 @@ def train_loop(loader, model, optimizer):
     count = 0          
 
     for x, y in loader:
-        t0 = time.perf_counter()
-
         x = x.to(device, non_blocking=True)
         y = y.to(device, non_blocking=True)
 
@@ -88,12 +86,9 @@ def train_loop(loader, model, optimizer):
 
         running_loss += loss.detach()
         count += 1
-        if count % 1000 == 0:
+        if count % 10000 == 0:
             print(f"avg_loss: {running_loss / 10000:.6f}")
             running_loss = 0.0
-
-            t1 = time.perf_counter()
-            print(t1 - t0)
 
 def test_loop(loader, model):
     model.eval()
@@ -119,7 +114,7 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    input_len = 80
+    input_len = 40
     output_len = 2
     total_len = input_len + output_len
 
@@ -131,7 +126,7 @@ def main():
     train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
     train_loader = DataLoader(
         train_dataset,
-        batch_size=512,
+        batch_size=50,
         num_workers=os.cpu_count(),
         pin_memory=True,
         persistent_workers=True,
@@ -141,20 +136,25 @@ def main():
     test_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
-        batch_size=512,
+        batch_size=50,
         num_workers=os.cpu_count(),
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=4 
     )
 
-    epochs = 15
+    epochs = 1
     for t in range(epochs):
+        t0 = time.perf_counter()
+
         print(f"Epoch {t+1}\n-------------------------------")
         train_loop(train_loader, model, optimizer)
         test_loop(test_loader, model)
-    print("Done!")
 
+        t1 = time.perf_counter()
+        print("time per epoch : ", t1 - t0)
+
+    torch.save(model._orig_mod.state_dict(), "model.pth")
 
 if __name__ == "__main__":
     main()

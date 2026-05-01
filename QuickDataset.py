@@ -77,12 +77,11 @@ class QuickDataset2(IterableDataset):
 #main for testing purposes only
 def main():
 
-    train_dataset = QuickDataset(path='dataset/train_data.zarr/', output_len=40)
+    train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=40)
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=2048,
-        shuffle=True,
+        batch_size=50,
         num_workers=4,
         pin_memory=True,
         persistent_workers=True
