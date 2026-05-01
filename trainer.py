@@ -15,9 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device} device")
 
 class NeuralNetwork(nn.Module):
-    learning_rate : float = 1e-4
-
-    def __init__(self, input_len, output_len, neural_count=1000):
+    def __init__(self, input_len, output_len, neural_count=2000):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -114,14 +112,14 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    input_len = 40
-    output_len = 2
+    input_len = 12
+    output_len = 4
     total_len = input_len + output_len
 
     model = NeuralNetwork(input_len=input_len, output_len=output_len).to(device)
     model = torch.compile(model)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-6)
 
     train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
     train_loader = DataLoader(
@@ -133,7 +131,7 @@ def main():
         prefetch_factor=4 
     )
 
-    test_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
+    test_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
         batch_size=None,
@@ -143,7 +141,7 @@ def main():
         prefetch_factor=4 
     )
 
-    epochs = 100
+    epochs = 20
     for t in range(epochs):
         t0 = time.perf_counter()
 

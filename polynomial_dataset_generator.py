@@ -50,12 +50,13 @@ class PolynomialGenerator:
             j = min(i + chunk, B)
             bs = j - i
 
-            params = torch.empty(bs, 3).uniform_(-2, 2)
+            params = torch.empty(bs, 3).uniform_(-10, 10)
             a = params[:, 0]
             b = params[:, 1]
             c = params[:, 2]
 
-            x = torch.sort(torch.empty(bs, N).uniform_(self.begin, self.end), dim=1).values
+            #x = torch.sort(torch.empty(bs, N).uniform_(self.begin, self.end), dim=1).values
+            x = torch.linspace(self.begin, self.end, self.num_points).unsqueeze(0).repeat(bs, 1)
             y = a[:, None] * x**2 + b[:, None] * x + c[:, None]
 
             x = (x - x.mean(dim=1, keepdim=True)) / (x.std(dim=1, keepdim=True) + 1e-8)
@@ -69,8 +70,8 @@ class PolynomialGenerator:
         self.store.close()
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=200000)
-    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=100000)
+    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-4, end=4, len_batch=10000000)
+    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-4, end=4, len_batch=100000)
 
 
 if __name__ == "__main__":

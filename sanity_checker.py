@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    input_len = 40
-    output_len = 2
+    input_len = 12
+    output_len = 4
     total_len = input_len + output_len
 
     model = NeuralNetwork(input_len=input_len, output_len=output_len)
@@ -46,6 +46,11 @@ def main():
     y0, y1 = y[:1, :model.input_len], y[:1, model.input_len:]
 
     pred_x, pred_y = model(x0, y0)
+
+
+
+
+
 
 
     # move to CPU + numpy
@@ -79,7 +84,7 @@ def main():
     plt.axis("equal")   # important for geometry correctness
     plt.grid(True)
 
-    plt.savefig("debug_plot.png", dpi=150)
+    plt.savefig("debug_plot.png", dpi=500)
     plt.show()
 
 
