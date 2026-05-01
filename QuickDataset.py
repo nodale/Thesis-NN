@@ -43,7 +43,7 @@ class QuickDataset(Dataset):
         )
 
 class QuickDataset2(IterableDataset):
-    def __init__(self, path, output_len):
+    def __init__(self, path, output_len, batch_size=5000):
         super().__init__()
 
         self.root = zarr.open_group(path, mode="r")
@@ -51,38 +51,51 @@ class QuickDataset2(IterableDataset):
         self.y = self.root["data"]["y"]
 
         self.output_len = output_len
-        self.batch_num, self.seq_len = self.x.shape
+        self.batch_size = batch_size
 
+        self.N, self.seq_len = self.x.shape
         self.chunk_size = self.x.chunks[0]
 
     def __iter__(self):
-        for chunk_start in range(0, self.batch_num, self.chunk_size):
-            chunk_end = min(chunk_start + self.chunk_size, self.batch_num)
+        for chunk_start in range(0, self.N, self.chunk_size):
+            chunk_end = min(chunk_start + self.chunk_size, self.N)
 
             x_chunk = self.x[chunk_start:chunk_end]
             y_chunk = self.y[chunk_start:chunk_end]
 
-            for i in range(chunk_end - chunk_start):
-                x_seq = x_chunk[i]
-                y_seq = y_chunk[i]
+            chunk_len = chunk_end - chunk_start
 
-                start = np.random.randint(0, self.seq_len - self.output_len + 1)
-                end = start + self.output_len
+            for b_start in range(0, chunk_len, self.batch_size):
+                b_end = min(b_start + self.batch_size, chunk_len)
 
-                yield (
-                    torch.from_numpy(x_seq[start:end]).float(),
-                    torch.from_numpy(y_seq[start:end]).float(),
+                x_batch = x_chunk[b_start:b_end]
+                y_batch = y_chunk[b_start:b_end]
+
+                B = x_batch.shape[0]
+
+                starts = np.random.randint(
+                    0,
+                    self.seq_len - self.output_len + 1,
+                    size=B
                 )
 
+                idx = starts[:, None] + np.arange(self.output_len)[None, :]
+
+                x_out = x_batch[np.arange(B)[:, None], idx]
+                y_out = y_batch[np.arange(B)[:, None], idx]
+
+                yield (
+                    torch.from_numpy(x_out).float(),
+                    torch.from_numpy(y_out).float(),
+                )
 #main for testing purposes only
 def main():
-
     train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=40)
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=50,
-        num_workers=4,
+        batch_size=None,
+        num_workers=1,
         pin_memory=True,
         persistent_workers=True
     )
@@ -93,19 +106,12 @@ def main():
 
     t0 = time.perf_counter()
 
-    loader_iter = iter(train_loader)
-    num_batches = 50
-
-    for i in range(num_batches):
-        try:
-            batch = next(loader_iter)
-        except StopIteration:
-            loader_iter = iter(train_loader)
-            batch = next(loader_iter)
+    for m, n in train_loader:
+        m = m.to('cuda', non_blocking=True)
+        n = n.to('cuda', non_blocking=True)
 
     t1 = time.perf_counter()
 
-    print(f"Avg time per batch: {(t1 - t0)/num_batches:.6f} s")
     print(f"Total time: {t1 - t0:.3f} s")
 
 if __name__ == "__main__":

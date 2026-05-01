@@ -126,8 +126,8 @@ def main():
     train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
     train_loader = DataLoader(
         train_dataset,
-        batch_size=50,
-        num_workers=os.cpu_count(),
+        batch_size=None,
+        num_workers=1,
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=4 
@@ -136,7 +136,7 @@ def main():
     test_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
     test_loader = DataLoader(
         test_dataset,
-        batch_size=50,
+        batch_size=None,
         num_workers=os.cpu_count(),
         pin_memory=True,
         persistent_workers=True,

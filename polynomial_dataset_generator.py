@@ -8,7 +8,7 @@ from torch import nn
 import numpy as np
 
 class PolynomialGenerator:
-    def __init__(self, path, num_points, begin, end, len_batch, chunk=50):
+    def __init__(self, path, num_points, begin, end, len_batch, chunk=5000):
         self.path = path
         self.num_points = num_points
         self.begin = begin
@@ -69,8 +69,8 @@ class PolynomialGenerator:
         self.store.close()
 
 def main():
-    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=2000000)
-    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=100000)
+    train_data = PolynomialGenerator(path='dataset/train_data.zarr/', num_points=400, begin=-10, end=10, len_batch=100000)
+    test_data = PolynomialGenerator(path='dataset/test_data.zarr/', num_points=400, begin=-10, end=10, len_batch=10000)
 
 
 if __name__ == "__main__":
