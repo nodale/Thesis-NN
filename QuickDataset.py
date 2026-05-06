@@ -10,92 +10,48 @@ from torch.utils.data import IterableDataset
 
 import numpy as np
 
-class QuickDataset(Dataset):
-    def __init__(self, path, output_len):
-        self.path = path
-
-        self.root = zarr.open_group(self.path, mode="r", cache_attrs=True)
-        self.data = self.root["data"]
-
-        self.x = self.data["x"]
-        self.y = self.data["y"]
-
-        self.chunk_size = self.x.chunks[0]
-        self.length = self.x.shape[0]
-        self.output_len = output_len
-
-        self.max_start = self.length - self.output_len
-
-    def __len__(self):
-        #return self.length // self.chunk_size
-        return self.length - self.output_len
-
-    def __getitem__(self, idx):
-        start = np.random.randint(0, self.max_start + 1)
-        end = start + self.output_len
-
-        x = self.x[idx, start:end]
-        y = self.y[idx, start:end]
-
-        return (
-                torch.from_numpy(x),
-                torch.from_numpy(y),
-        )
+import torch
+import zarr
+import numpy as np
+from torch.utils.data import IterableDataset
 
 class QuickDataset2(IterableDataset):
-    def __init__(self, path, output_len, batch_size=5000):
-        super().__init__()
+    def __init__(self, path, window_size=32, seed=0):
+        self.path = path
+        self.window_size = window_size
 
-        self.root = zarr.open_group(path, mode="r")
-        self.x = self.root["data"]["x"]
-        self.y = self.root["data"]["y"]
+        self.store = zarr.storage.LocalStore(self.path)
+        self.root = zarr.open(store=self.store, mode='r')
+        self.data = self.root['episodes']  # (num_batch, seq_len, n_dim)
 
-        self.output_len = output_len
-        self.batch_size = batch_size
+        self.num_batch, self.seq_len, self.n_dim = self.data.shape
+        print(self.num_batch)
 
-        self.N, self.seq_len = self.x.shape
-        self.chunk_size = self.x.chunks[0]
+        self.rng = np.random.default_rng(seed)
+        self.indices = self._generate_random_idx()
+
+    def _generate_random_idx(self):
+        ep_idx = self.rng.integers(0, self.num_batch, size=self.num_batch)
+        t_idx = self.rng.integers(0, self.seq_len - self.window_size + 1, size=self.num_batch)
+
+        return np.stack([ep_idx, t_idx], axis=1)
 
     def __iter__(self):
-        for chunk_start in range(0, self.N, self.chunk_size):
-            chunk_end = min(chunk_start + self.chunk_size, self.N)
+        for ep_idx, t_idx in self.indices:
 
-            x_chunk = self.x[chunk_start:chunk_end]
-            y_chunk = self.y[chunk_start:chunk_end]
+            window = self.data[
+                ep_idx,
+                t_idx:t_idx + self.window_size,
+                :
+            ]  # (M, n_dim)
 
-            chunk_len = chunk_end - chunk_start
-
-            for b_start in range(0, chunk_len, self.batch_size):
-                b_end = min(b_start + self.batch_size, chunk_len)
-
-                x_batch = x_chunk[b_start:b_end]
-                y_batch = y_chunk[b_start:b_end]
-
-                B = x_batch.shape[0]
-
-                starts = np.random.randint(
-                    0,
-                    self.seq_len - self.output_len + 1,
-                    size=B
-                )
-
-                idx = starts[:, None] + np.arange(self.output_len)[None, :]
-
-                x_out = x_batch[np.arange(B)[:, None], idx]
-                y_out = y_batch[np.arange(B)[:, None], idx]
-
-                yield (
-                    torch.from_numpy(x_out),
-                    torch.from_numpy(y_out),
-                )
-
-
+            yield torch.tensor(window, dtype=torch.float32)
 
 
 
 #main for testing purposes only
 def main():
-    train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=40)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/')
 
     train_loader = DataLoader(
         train_dataset,
@@ -111,9 +67,8 @@ def main():
 
     t0 = time.perf_counter()
 
-    for m, n in train_loader:
+    for m in train_loader:
         m = m.cuda(non_blocking=True)
-        n = n.cuda(non_blocking=True)
 
     t1 = time.perf_counter()
 
