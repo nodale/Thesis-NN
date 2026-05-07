@@ -15,52 +15,41 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device} device")
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, input_len, output_len, neural_count=2000):
+    def __init__(self, n_dim, input_len, output_len, neural_count=400):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
+        self.n_dim = n_dim
 
-        self.linear_x = nn.Sequential(
-            nn.Linear(input_len, neural_count),
-            nn.ReLU(),
-            nn.Linear(neural_count, neural_count),
-            nn.ReLU(),
-            nn.Linear(neural_count, neural_count),
+        self.channel = nn.ModuleDict()
+
+        for c in range(self.n_dim):
+            self.channel[str(c)] = nn.Sequential(
+                nn.Linear(input_len, neural_count),
+                nn.ReLU(),
+                nn.Linear(neural_count, neural_count),
+            )
+
+        self.almagation = nn.Sequential(
+                nn.Linear(neural_count, neural_count),
+                nn.ReLU(),
+                nn.Linear(neural_count, output_len * int(3)),
         )
 
-        self.linear_y = nn.Sequential(
-            nn.Linear(input_len, neural_count),
-            nn.ReLU(),
-            nn.Linear(neural_count, neural_count),
-            nn.ReLU(),
-            nn.Linear(neural_count, neural_count),
-        )
+    def forward(self, vec):
+        outs = []
 
-        self.linear_xy = nn.Sequential(
-            nn.Linear(neural_count, neural_count),
-            nn.ReLU(),
-            nn.Linear(neural_count, neural_count),
-            nn.ReLU(),
-            nn.Linear(neural_count, output_len*2),
-        )
+        for dim in self.channel:
+            outs.append(self.channel[dim](vec[:, int(dim)]))
 
-    def forward(self, x, y):
-        x_forward = self.linear_x(x)
-        y_forward = self.linear_y(y)
+        out = torch.stack(outs).mean(dim=0)
+        pred_flat = self.almagation(out)
 
-        xy_forward = self.linear_xy(x_forward + y_forward)
-        
-        _x = xy_forward[:, :self.output_len]
-        _y = xy_forward[:, self.output_len:]
+        return pred_flat.reshape(self.output_len, 3)
 
-        return _x, _y
+def loss_fn(pred, truth):
+    return torch.nn.functional.mse_loss(pred, truth)
 
-def loss_fn(pred_x, pred_y, truth_x, truth_y):
-    loss = (
-        torch.nn.functional.mse_loss(pred_x, truth_x, reduction='sum') +
-        torch.nn.functional.mse_loss(pred_y, truth_y, reduction='sum')
-    )
-    return loss
 
 def train_loop(loader, model, optimizer):
     model.train()
@@ -68,15 +57,14 @@ def train_loop(loader, model, optimizer):
     running_loss = 0.0  
     count = 0          
 
-    for x, y in loader:
-        x = x.to(device, non_blocking=True)
-        y = y.to(device, non_blocking=True)
+    for vec in loader:
+        vec = vec.to(device, non_blocking=True)
 
-        x0, x1 = x[:, :model.input_len], x[:, model.input_len:]
-        y0, y1 = y[:, :model.input_len], y[:, model.input_len:]
-
-        pred_x, pred_y = model(x0, y0)
-        loss = loss_fn(pred_x, pred_y, x1, y1)
+        in_vec = vec[:model.input_len, :].cuda()
+        truth_vec = vec[model.input_len:, :3].cuda()
+    
+        pred_vec = model(in_vec)
+        loss = loss_fn(pred_vec, truth_vec)
 
         loss.backward()
         optimizer.step()
@@ -95,15 +83,14 @@ def test_loop(loader, model):
     num_batches = 0
 
     with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device, non_blocking=True)
-            y = y.to(device, non_blocking=True)
+        for vec in loader:
+            vec = vec.to(device, non_blocking=True)
 
-            x0, x1 = x[:, :model.input_len], x[:, model.input_len:]
-            y0, y1 = y[:, :model.input_len], y[:, model.input_len:]
-
-            pred_x, pred_y = model(x0, y0)
-            loss = loss_fn(pred_x, pred_y, x1, y1)
+            in_vec = vec[:model.input_len, :].cuda()
+            truth_vec = vec[model.input_len:, :3].cuda()
+        
+            pred_vec = model(in_vec)
+            loss = loss_fn(pred_vec, truth_vec)
 
             test_loss += loss.item()
             num_batches += 1
@@ -112,16 +99,16 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    input_len = 12
-    output_len = 4
+    input_len = 10
+    output_len = 2
     total_len = input_len + output_len
 
-    model = NeuralNetwork(input_len=input_len, output_len=output_len).to(device)
+    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=25).to(device)
     model = torch.compile(model)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-6)
 
-    train_dataset = QuickDataset2(path='dataset/train_data.zarr/', output_len=total_len)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=None,
@@ -131,7 +118,7 @@ def main():
         prefetch_factor=4 
     )
 
-    test_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
+    test_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', window_size=total_len)
     test_loader = DataLoader(
         test_dataset,
         batch_size=None,

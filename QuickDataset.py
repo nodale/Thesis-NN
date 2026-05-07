@@ -16,7 +16,7 @@ import numpy as np
 from torch.utils.data import IterableDataset
 
 class QuickDataset2(IterableDataset):
-    def __init__(self, path, window_size=32, seed=0):
+    def __init__(self, path, window_size=12, seed=0):
         self.path = path
         self.window_size = window_size
 
@@ -25,7 +25,6 @@ class QuickDataset2(IterableDataset):
         self.data = self.root['episodes']  # (num_batch, seq_len, n_dim)
 
         self.num_batch, self.seq_len, self.n_dim = self.data.shape
-        print(self.num_batch)
 
         self.rng = np.random.default_rng(seed)
         self.indices = self._generate_random_idx()
@@ -46,7 +45,6 @@ class QuickDataset2(IterableDataset):
             ]  # (M, n_dim)
 
             yield torch.tensor(window, dtype=torch.float32)
-
 
 
 #main for testing purposes only
