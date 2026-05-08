@@ -8,27 +8,29 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from QuickDataset import QuickDataset2
 from trainer import NeuralNetwork
+from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("QtAgg")
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    input_len = 12
-    output_len = 4
+    input_len = 10
+    output_len = 2
     total_len = input_len + output_len
 
-    model = NeuralNetwork(input_len=input_len, output_len=output_len)
-    state_dict = torch.load("model.pth", map_location=device)
+    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=25, out_dim=3).to(device)
+    state_dict = torch.load("model_normalised.pth", map_location=device)
     model.load_state_dict(state_dict)
     model = model.to(device)
     model = torch.compile(model)
     model.eval()
 
 
-    train_dataset = QuickDataset2(path='dataset/test_data.zarr/', output_len=total_len)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10, window_size=total_len, seed=10)
     train_loader = DataLoader(
         train_dataset,
         batch_size=None,
@@ -37,56 +39,53 @@ def main():
         persistent_workers=True,
     )
 
-    x, y = next(iter(train_loader))
+    vec = next(iter(train_loader))
 
-    x = x.to("cuda", non_blocking=True)
-    y = y.to("cuda", non_blocking=True)
-
-    x0, x1 = x[:1, :model.input_len], x[:1, model.input_len:]
-    y0, y1 = y[:1, :model.input_len], y[:1, model.input_len:]
-
-    pred_x, pred_y = model(x0, y0)
+    vec = vec.to(device, non_blocking=True)
+    in_vec = vec[:model.input_len, :].cuda()
+    truth_vec = vec[model.input_len:, :3].cuda()
+    pred_vec = model(in_vec)
 
 
+    print(pred_vec)
+    print(truth_vec)
 
 
+    prior_np = vec[:model.input_len, :3].cpu().numpy()
+    truth_np = truth_vec.detach().cpu().numpy()
+    pred_np = pred_vec.detach().cpu().numpy()
 
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
 
+    ax.plot(
+        prior_np[:, 0],
+        prior_np[:, 1],
+        prior_np[:, 2],
+        label='Prior',
+        linewidth=2
+    )
+    
+    ax.plot(
+        truth_np[:, 0],
+        truth_np[:, 1],
+        truth_np[:, 2],
+        label='Truth',
+        linewidth=2
+    )
 
-    # move to CPU + numpy
-    x0_np = x0.squeeze().detach().cpu().numpy()
-    y0_np = y0.squeeze().detach().cpu().numpy()
+    ax.plot(
+        pred_np[:, 0],
+        pred_np[:, 1],
+        pred_np[:, 2],
+        label='Prediction',
+        linewidth=2
+    )
 
-    x1_np = x1.squeeze().detach().cpu().numpy()
-    y1_np = y1.squeeze().detach().cpu().numpy()
-
-    pred_x_np = pred_x.squeeze().detach().cpu().numpy()
-    pred_y_np = pred_y.squeeze().detach().cpu().numpy()
-
-    plt.figure(figsize=(8, 8))
-
-    # INPUT trajectory
-    plt.plot(x0_np, y0_np, label="input (x0, y0)", linestyle="--", marker="o")
-
-    # GROUND TRUTH trajectory
-    plt.plot(x1_np, y1_np, label="ground truth (x1, y1)", linewidth=2)
-
-    # PREDICTION trajectory
-    plt.plot(pred_x_np, pred_y_np, label="prediction", marker="x")
-
-    # mark start points
-    plt.scatter(x0_np[0], y0_np[0], color="blue", label="start input")
-    plt.scatter(x1_np[0], y1_np[0], color="green", label="start truth")
-    plt.scatter(pred_x_np[0], pred_y_np[0], color="red", label="start pred")
-
-    plt.legend()
-    plt.title("Trajectory Comparison")
-    plt.axis("equal")   # important for geometry correctness
-    plt.grid(True)
-
-    plt.savefig("debug_plot.png", dpi=500)
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig('vec_trajectory.png', dpi=300)
     plt.show()
-
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ import numpy as np
 from torch.utils.data import IterableDataset
 
 class QuickDataset2(IterableDataset):
-    def __init__(self, path, training_size, window_size=12, seed=0):
+    def __init__(self, path, training_size, window_size=12, seed=0, normalise=False):
         self.path = path
         self.window_size = window_size
 
@@ -25,14 +25,20 @@ class QuickDataset2(IterableDataset):
         self.data = self.root['episodes']  # (num_batch, seq_len, n_dim)
 
         self.num_batch, self.seq_len, self.n_dim = self.data.shape
-
-        self.rng = np.random.default_rng(seed)
-        self.indices = self._generate_random_idx()
-
-        if training_size == None:
+        if training_size is None:
             self.training_size = self.num_batch
         else:
             self.training_size = training_size
+
+        self.normalise = normalise
+        if self.normalise is True:
+            all_data = self.data[:].astype(np.float32)
+            self.mean = float(all_data.mean())
+            self.std = float(all_data.std())
+            self.std = max(self.std, 1e-8)
+
+        self.rng = np.random.default_rng(seed)
+        self.indices = self._generate_random_idx()
 
     def _generate_random_idx(self):
         ep_idx = self.rng.integers(0, self.num_batch, size=self.training_size)
@@ -48,6 +54,9 @@ class QuickDataset2(IterableDataset):
                 t_idx:t_idx + self.window_size,
                 :
             ]  # (M, n_dim)
+
+            if self.normalise:
+                window = (window - self.mean) / self.std
 
             yield torch.tensor(window, dtype=torch.float32)
 

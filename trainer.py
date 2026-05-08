@@ -15,41 +15,89 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device} device")
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, n_dim, input_len, output_len, neural_count=800):
+    def __init__(self, n_dim, out_dim, input_len, output_len, neural_count=256):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
         self.n_dim = n_dim
+        self.out_dim = out_dim
 
-        self.channel = nn.ModuleDict()
-
-        for c in range(self.n_dim):
-            self.channel[str(c)] = nn.Sequential(
-                nn.Linear(input_len, neural_count),
-                nn.ReLU(),
+        self.shared_mlp = nn.Sequential(
+                nn.Linear(self.n_dim, neural_count),
+                nn.CELU(),
+                nn.Linear(neural_count, neural_count),
+                nn.CELU(),
+                nn.Linear(neural_count, neural_count),
+                nn.CELU(),
+                nn.Linear(neural_count, neural_count),
+                nn.CELU(),
                 nn.Linear(neural_count, neural_count),
             )
 
-        self.almagation = nn.Sequential(
+        self.almagation = nn.Sequential( #this is also a shared MLP
+                nn.Linear(self.input_len, neural_count),
+                nn.CELU(),
                 nn.Linear(neural_count, neural_count),
-                nn.ReLU(),
-                nn.Linear(neural_count, output_len * int(3)),
-        )
+                nn.CELU(),
+                nn.Linear(neural_count, neural_count),
+                nn.CELU(),
+                nn.Linear(neural_count, neural_count),
+                nn.CELU(),
+                nn.Linear(neural_count, self.out_dim * output_len),
+            )
 
     def forward(self, vec):
-        outs = []
+        # vec # [B,T,D]
+        out = self.shared_mlp(vec) # [B,T,D_m] 
+        out = out.mean(dim=1) # wrong -> [B,T*D_m] 
+        pred_flat = self.almagation(out) # [B, self.output_len]
+        return pred_flat.reshape(self.output_len, self.out_dim)
 
-        for dim in self.channel:
-            outs.append(self.channel[dim](vec[:, int(dim)]))
-
-        out = torch.stack(outs).mean(dim=0)
-        pred_flat = self.almagation(out)
-
-        return pred_flat.reshape(self.output_len, 3)
+#class NeuralNetwork(nn.Module):
+#    def __init__(self, n_dim, input_len, output_len, neural_count=256):
+#        super().__init__()
+#        self.input_len = input_len
+#        self.output_len = output_len
+#        self.n_dim = n_dim
+#
+#        self.channel = nn.ModuleDict()
+#
+#        for c in range(self.n_dim):
+#            self.channel[str(c)] = nn.Sequential(
+#                nn.Linear(input_len, neural_count),
+#                nn.CELU(),
+#                nn.Linear(neural_count, neural_count),
+#                nn.CELU(),
+#                nn.Linear(neural_count, neural_count),
+#                nn.CELU(),
+#                nn.Linear(neural_count, neural_count),
+#            )
+#
+#        self.almagation = nn.Sequential(
+#                nn.Linear(neural_count, neural_count),
+#                nn.CELU(),
+#                nn.Linear(neural_count, neural_count),
+#                nn.CELU(),
+#                nn.Linear(neural_count, output_len * int(3)),
+#        )
+#
+#    def forward(self, vec):
+#        outs = []
+#
+#        for dim in self.channel:
+#            outs.append(self.channel[dim](vec[:, int(dim)]))
+#
+#        out = torch.stack(outs).mean(dim=0)
+#        pred_flat = self.almagation(out)
+#
+#        return pred_flat.reshape(self.output_len, 3)
 
 def loss_fn(pred, truth):
-    return torch.nn.functional.mse_loss(pred, truth)
+    return (1e+2 * torch.nn.functional.mse_loss(pred, truth))
 
+#def loss_fn(pred, truth):
+#    error = pred - truth
+#    return 1e+5 * torch.mean(torch.abs(error) ** 4)
 
 def train_loop(loader, model, optimizer):
     model.train()
@@ -72,7 +120,7 @@ def train_loop(loader, model, optimizer):
 
         running_loss += loss.detach()
         count += 1
-        if count % 10000 == 0:
+        if count % 1000 == 0:
             print(f"avg_loss: {running_loss / 10000:.6f}")
             running_loss = 0.0
 
@@ -103,12 +151,17 @@ def main():
     output_len = 2
     total_len = input_len + output_len
 
-    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=25).to(device)
+    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=25, out_dim=3).to(device)
     model = torch.compile(model)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-6)
+    optimizer = torch.optim.Adam(
+            model.parameters(), 
+            lr=1e-5,
+            betas=(0.9, 0.99),
+            weight_decay=1e-6
+            )
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 100000, window_size=total_len)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 80000, window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=None,
@@ -128,7 +181,7 @@ def main():
         prefetch_factor=4 
     )
 
-    epochs = 20
+    epochs = 2
     for t in range(epochs):
         t0 = time.perf_counter()
 
@@ -139,7 +192,7 @@ def main():
         t1 = time.perf_counter()
         print("time per epoch : ", t1 - t0)
 
-    torch.save(model._orig_mod.state_dict(), "model.pth")
+    torch.save(model._orig_mod.state_dict(), "model_normalised.pth")
 
 if __name__ == "__main__":
     main()
