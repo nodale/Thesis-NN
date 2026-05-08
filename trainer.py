@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device} device")
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, n_dim, input_len, output_len, neural_count=400):
+    def __init__(self, n_dim, input_len, output_len, neural_count=800):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -108,7 +108,7 @@ def main():
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-6)
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', window_size=total_len)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 100000, window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=None,
@@ -118,7 +118,7 @@ def main():
         prefetch_factor=4 
     )
 
-    test_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', window_size=total_len)
+    test_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10000, window_size=total_len)
     test_loader = DataLoader(
         test_dataset,
         batch_size=None,

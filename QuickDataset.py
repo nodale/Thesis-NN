@@ -16,7 +16,7 @@ import numpy as np
 from torch.utils.data import IterableDataset
 
 class QuickDataset2(IterableDataset):
-    def __init__(self, path, window_size=12, seed=0):
+    def __init__(self, path, training_size, window_size=12, seed=0):
         self.path = path
         self.window_size = window_size
 
@@ -29,9 +29,14 @@ class QuickDataset2(IterableDataset):
         self.rng = np.random.default_rng(seed)
         self.indices = self._generate_random_idx()
 
+        if training_size == None:
+            self.training_size = self.num_batch
+        else:
+            self.training_size = training_size
+
     def _generate_random_idx(self):
-        ep_idx = self.rng.integers(0, self.num_batch, size=self.num_batch)
-        t_idx = self.rng.integers(0, self.seq_len - self.window_size + 1, size=self.num_batch)
+        ep_idx = self.rng.integers(0, self.num_batch, size=self.training_size)
+        t_idx = self.rng.integers(0, self.seq_len - self.window_size + 1, size=self.training_size)
 
         return np.stack([ep_idx, t_idx], axis=1)
 
