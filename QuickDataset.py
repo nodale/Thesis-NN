@@ -50,10 +50,10 @@ class QuickDataset2(IterableDataset):
         for ep_idx, t_idx in self.indices:
 
             window = self.data[
-                ep_idx,
-                t_idx:t_idx + self.window_size,
-                :
-            ]  # (M, n_dim)
+                    ep_idx,
+                    t_idx:t_idx + self.window_size,
+                    :
+                ]  # (M, n_dim)
 
             if self.normalise:
                 window = (window - self.mean) / self.std
@@ -63,11 +63,11 @@ class QuickDataset2(IterableDataset):
 
 #main for testing purposes only
 def main():
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/')
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size=1000)
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=None,
+        batch_size=20,
         num_workers=1,
         pin_memory=True,
         persistent_workers=True
