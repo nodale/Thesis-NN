@@ -33,13 +33,11 @@ class NeuralNetwork(nn.Module):
         self.input_proj = nn.Linear(n_dim, neural_count)
         self.mamba = Mamba(
             d_model=neural_count,
-            d_state=32,
+            d_state=64,
             d_conv=12,
             expand=2,
         )
         self.head = nn.Sequential(
-            nn.Linear(neural_count, neural_count),
-            nn.CELU(),
             nn.Linear(neural_count, neural_count),
             nn.CELU(),
             nn.Linear(neural_count, neural_count),
@@ -92,7 +90,7 @@ def train_loop(loader, model, optimizer):
             t1 = time.perf_counter()
             dt = t1 - t0
             t0 = t1
-            print(f"avg_loss: {running_loss / 1000:.6f}         avg_time: {dt / 1000:.6f}")
+            print(f"avg_loss: {running_loss / 1000:.12f}         avg_time: {dt / 1000:.6f}")
             running_loss = 0.0
 
 def test_loop(loader, model):
@@ -121,7 +119,7 @@ def main():
     input_len = 16
     output_len = 2
     total_len = input_len + output_len
-    batch_size = 256
+    batch_size = 128
 
     model = NeuralNetwork(
             input_len=input_len, 
@@ -134,12 +132,12 @@ def main():
 
     optimizer = torch.optim.Adam(
             model.parameters(), 
-            lr=1e-4,
-            betas=(0.9, 0.999),
-            weight_decay=1e-8
+            lr=2e-4,
+            betas=(0.95, 0.999),
             )
+            #weight_decay=1e-8
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 500000, window_size=total_len)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 2000000, window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,

@@ -30,7 +30,7 @@ def main():
     model.eval()
 
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10, window_size=total_len, seed=2)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10, window_size=total_len, seed=4)
     train_loader = DataLoader(
         train_dataset,
         batch_size=1,
