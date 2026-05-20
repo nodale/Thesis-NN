@@ -18,8 +18,8 @@ matplotlib.use("QtAgg")
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    input_len = 16
-    output_len = 2
+    input_len = 28
+    output_len = 1
     total_len = input_len + output_len
 
     model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=26, out_dim=3).to(device)
@@ -30,7 +30,7 @@ def main():
     model.eval()
 
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10, window_size=total_len, seed=4)
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10, window_size=total_len, seed=8)
     train_loader = DataLoader(
         train_dataset,
         batch_size=1,

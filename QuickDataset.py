@@ -40,26 +40,59 @@ class QuickDataset2(IterableDataset):
         self.rng = np.random.default_rng(seed)
         self.indices = self._generate_random_idx()
 
+    def __len__(self):
+        return self.training_size
+
     def _generate_random_idx(self):
         ep_idx = self.rng.integers(0, self.num_batch, size=self.training_size)
         t_idx = self.rng.integers(0, self.seq_len - self.window_size + 1, size=self.training_size)
 
         return np.stack([ep_idx, t_idx], axis=1)
 
+#thos only works for 1 worker
+#    def __iter__(self):
+#        for ep_idx, t_idx in self.indices:
+#
+#            window = self.data[
+#                    ep_idx,
+#                    t_idx:t_idx + self.window_size,
+#                    :
+#                ]  # (M, n_dim)
+#
+#            if self.normalise:
+#                window = (window - self.mean) / self.std
+#
+#            yield torch.tensor(window, dtype=torch.float32)
     def __iter__(self):
-        for ep_idx, t_idx in self.indices:
 
-            window = self.data[
-                    ep_idx,
-                    t_idx:t_idx + self.window_size,
-                    :
-                ]  # (M, n_dim)
+        store = zarr.storage.LocalStore(self.path)
+        root = zarr.open(store=store, mode='r')
+        data = root['episodes']
+
+        worker_info = torch.utils.data.get_worker_info()
+        worker_id = worker_info.id
+        num_workers = worker_info.num_workers
+
+        rng = np.random.default_rng(0 + worker_id)
+
+        for i in range(worker_id, self.training_size, num_workers):
+
+            ep_idx = rng.integers(0, self.num_batch)
+            t_idx = rng.integers(
+                0,
+                self.seq_len - self.window_size + 1
+            )
+
+            window = data[
+                ep_idx,
+                t_idx:t_idx + self.window_size,
+                :
+            ].astype(np.float32)
 
             if self.normalise:
                 window = (window - self.mean) / self.std
 
-            yield torch.tensor(window, dtype=torch.float32)
-
+            yield torch.from_numpy(window)
 
 #main for testing purposes only
 def main():

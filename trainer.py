@@ -16,7 +16,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device} device")
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, n_dim, out_dim, input_len, output_len, neural_count=256):
+    def __init__(self, n_dim, out_dim, input_len, output_len, neural_count=64):
         super().__init__()
         self.input_len = input_len
         self.output_len = output_len
@@ -30,18 +30,34 @@ class NeuralNetwork(nn.Module):
         self.n_dim = n_dim
         self.out_dim = out_dim
 
-        self.input_proj = nn.Linear(n_dim, neural_count)
+        #self.input_proj = nn.Linear(n_dim, neural_count)
+        self.input_proj = nn.Sequential(
+            nn.Linear(n_dim, neural_count),
+            nn.LayerNorm(neural_count)
+        )
+
         self.mamba = Mamba(
             d_model=neural_count,
-            d_state=64,
-            d_conv=12,
+            d_state=32,
+            d_conv=8,
             expand=2,
         )
+
+        #self.head = nn.Sequential(
+        #    nn.Linear(neural_count, neural_count),
+        #    nn.CELU(),
+        #    nn.Linear(neural_count, neural_count),
+        #    nn.CELU(),
+        #    nn.Linear(neural_count, out_dim * output_len),
+        #)
         self.head = nn.Sequential(
             nn.Linear(neural_count, neural_count),
-            nn.CELU(),
+            nn.GELU(),
+            nn.Dropout(0.1),
+
             nn.Linear(neural_count, neural_count),
-            nn.CELU(),
+            nn.GELU(),
+
             nn.Linear(neural_count, out_dim * output_len),
         )
 
@@ -63,17 +79,23 @@ def loss_fn(pred, truth):
 #    error = pred - truth
 #    return 1e+5 * torch.mean(torch.abs(error) ** 4)
 
-def train_loop(loader, model, optimizer):
+def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-5,std_max=1e-4):
     model.train()
 
     running_loss = 0.0  
     count = 0          
 
     t0 = time.perf_counter()
+
+    tot_len = len(loader)
+
     for vec in loader:
         vec = vec.to(device, non_blocking=True)
 
         in_vec = vec[:, :model.input_len, :]
+        noise_std = std_min + (std_max - std_min) * torch.rand(1, device=in_vec.device).item()
+        in_vec[:12] = in_vec[:12] + noise_std * torch.randn_like(in_vec)[:12]
+
         #truth_vec = vec[:, model.input_len:, :3] - vec[:, model.input_len - 1, :3] # makeing it relative to the last prio given
         truth_vec = vec[:, model.input_len:, :3] - vec[:, model.input_len - 1:model.input_len, :3]
     
@@ -85,12 +107,57 @@ def train_loop(loader, model, optimizer):
         optimizer.zero_grad(set_to_none=True)
 
         running_loss += loss.detach()
+        count += 1.0
+
+
+        t1 = time.perf_counter()
+        dt = t1 - t0
+        t0 = t1
+        if count % batch_size == 0:
+            print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
+            running_loss = 0.0
+
+
+def train_loop_stepwise(loader, model, optimizer, batch_size=100):
+    model.train()
+
+    running_loss = 0.0  
+    count = 0          
+
+    t0 = time.perf_counter()
+    for vec in loader:
+        vec = vec.to(device, non_blocking=True)
+
+        in_vec = vec[:, :model.input_len, :]
+
+        # future absolute positions
+        future = vec[:, model.input_len:, :3]
+
+        # prepend last input frame to compute first delta correctly
+        prev = vec[:, model.input_len - 1:model.input_len, :3]
+
+        # concatenate so we can do timestep differences cleanly
+        full = torch.cat([prev, future], dim=1)
+
+        # timestep-wise relative targets
+        truth_vec = full[:, 1:, :] - full[:, :-1, :]
+
+        pred_vec = model(in_vec)
+
+        loss = loss_fn(pred_vec, truth_vec)
+
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.detach()
         count += 1
-        if count % 1000 == 0:
+
+        if count % batch_size == 0:
             t1 = time.perf_counter()
             dt = t1 - t0
             t0 = t1
-            print(f"avg_loss: {running_loss / 1000:.12f}         avg_time: {dt / 1000:.6f}")
+            print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_batch: {dt:.6f}")
             running_loss = 0.0
 
 def test_loop(loader, model):
@@ -116,8 +183,8 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    input_len = 16
-    output_len = 2
+    input_len = 28
+    output_len = 1
     total_len = input_len + output_len
     batch_size = 128
 
@@ -130,39 +197,42 @@ def main():
 
     model = torch.compile(model)
 
-    optimizer = torch.optim.Adam(
+    optimizer = torch.optim.AdamW(
             model.parameters(), 
-            lr=2e-4,
-            betas=(0.95, 0.999),
+            lr=5e-5,
+            weight_decay=1e-7,
+            eps=1e-18
             )
-            #weight_decay=1e-8
+            #betas=(0.98, 0.999),
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 2000000, window_size=total_len)
+    training_size = 200000
+
+    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size=training_size, window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        num_workers=8,
+        num_workers=18,
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=8
     )
 
-    test_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size = 10000, window_size=total_len)
+    test_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size=1000, window_size=total_len)
     test_loader = DataLoader(
         test_dataset,
         batch_size=batch_size,
-        num_workers=2,
+        num_workers=1,
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=8 
     )
 
-    epochs = 2
+    epochs = 1
     for t in range(epochs):
         t0 = time.perf_counter()
 
         print(f"Epoch {t+1}\n-------------------------------")
-        train_loop(train_loader, model, optimizer)
+        train_loop(train_loader, model, optimizer, batch_size=batch_size)
         test_loop(test_loader, model)
 
         t1 = time.perf_counter()
