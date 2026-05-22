@@ -60,6 +60,8 @@ def main():
         _in = _in.unsqueeze(0)
         out = model(_in)
 
+        print(_in[:3])
+
 
 
 if __name__ == "__main__":

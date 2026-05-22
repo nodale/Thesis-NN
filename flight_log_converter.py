@@ -3,7 +3,7 @@ import torch
 from pyulog import ULog
 
 
-ulog = ULog("rl_dataset/rl_1.ulog")
+ulog = ULog("rl_dataset/rl_3.ulg")
 topics = {(d.name, d.multi_id): d for d in ulog.data_list}
 
 device = "cuda"
@@ -60,6 +60,7 @@ t_sp, setpoints = load_topic(
 )
 
 
+print(topics[("estimator_states", 0)].data["states[0]"])
 
 hz =200
 dt = 1 / hz
@@ -68,19 +69,21 @@ tf = min(t[-1] for t in [t_imu, t_state, t_action, t_sp])
 t = torch.arange(t0, tf, dt, device=device)
 
 
+
 imu        = interp(t_imu,    imu,       t, "linear")
 states     = interp(t_state,  states,    t, "linear")
-actions    = interp(t_action, actions,   t, "const")
+actions    = interp(t_action, actions * 9.81,   t, "const")
 setpoints  = interp(t_sp,     setpoints, t, "const")
 
 
 dataset = torch.cat([
-    t[:, None],          # (T, 1)
-    imu.T,               # (T, 6)
     states.T,            # (T, 12)
+    imu.T,               # (T, 6)
     actions.T,           # (T, 4)
     setpoints.T,         # (T, 3)
+    t[:, None],          # (T, 1)
 ], dim=1)
+
 
 print(dataset.shape)  # (T, 26)
 torch.save(dataset, "rl_dataset/converted.pt")
