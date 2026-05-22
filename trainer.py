@@ -183,7 +183,7 @@ def test_loop(loader, model):
     print(f"Test Error: Avg loss: {test_loss:.6f}")
 
 def main():
-    input_len = 28
+    input_len = 20
     output_len = 1
     total_len = input_len + output_len
     batch_size = 128
@@ -238,7 +238,7 @@ def main():
         t1 = time.perf_counter()
         print("time per epoch : ", t1 - t0)
 
-    torch.save(model._orig_mod.state_dict(), "model_tstmp.pth")
+    torch.save(model._orig_mod.state_dict(), "model.pth")
 
 if __name__ == "__main__":
     main()
