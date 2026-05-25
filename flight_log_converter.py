@@ -3,20 +3,21 @@ import torch
 from pyulog import ULog
 
 
-ulog = ULog("rl_dataset/rl_3.ulg")
+ulog = ULog("rl_dataset/rl_5.ulg")
 topics = {(d.name, d.multi_id): d for d in ulog.data_list}
 
 device = "cuda"
 dtype = torch.float32
 
-
+def clean(x):
+    return torch.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
 
 def tensor(x):
     return torch.as_tensor(x.copy(), device=device, dtype=dtype)
 
 def load_topic(topic, timestamp_key, keys):
-    t = tensor(topic.data[timestamp_key] / 1e6)
-    x = torch.stack([tensor(topic.data[k]) for k in keys])
+    t = clean(tensor(topic.data[timestamp_key] / 1e6))
+    x = torch.stack([clean(tensor(topic.data[k])) for k in keys], dim=0)
     return t, x
 
 def interp(t_src, x_src, t_dst, mode="linear"):
@@ -37,16 +38,23 @@ def interp(t_src, x_src, t_dst, mode="linear"):
 
 
 
-t_imu, imu = load_topic(
-    topics[("vehicle_imu", 0)],
+t_acc, acc = load_topic(
+    topics[("vehicle_acceleration", 0)],
     "timestamp_sample",
-    [f"delta_velocity[{i}]" for i in range(3)] +
-    [f"delta_angle[{i}]" for i in range(3)]
+    [f"xyz[{i}]" for i in range(3)]
+)
+t_gyro, gyro = load_topic(
+    topics[("vehicle_angular_velocity", 0)],
+    "timestamp_sample",
+    [f"xyz[{i}]" for i in range(3)]
 )
 t_state, states = load_topic(
-    topics[("estimator_states", 0)],
-    "timestamp",
-    [f"states[{i}]" for i in range(12)]
+    topics[("vehicle_odometry", 0)],
+    "timestamp_sample",
+    [f"position[{i}]" for i in range(3)] +
+    [f"velocity[{i}]" for i in range(3)] +
+    [f"q[{i}]" for i in range(4)] +
+    [f"angular_velocity[{i}]" for i in range(3)] 
 )
 t_action, actions = load_topic(
     topics[("johnny_status", 0)],
@@ -60,32 +68,34 @@ t_sp, setpoints = load_topic(
 )
 
 
-print(topics[("estimator_states", 0)].data["states[0]"])
 
-hz =200
-dt = 1 / hz
-t0 = max(t[0] for t in [t_imu, t_state, t_action, t_sp])
-tf = min(t[-1] for t in [t_imu, t_state, t_action, t_sp])
+
+hz =200.0
+dt = 1.0 / hz
+t0 = max(t[0] for t in [t_acc, t_gyro, t_state])
+tf = min(t[-1] for t in [t_acc, t_gyro, t_state])
 t = torch.arange(t0, tf, dt, device=device)
 
 
 
-imu        = interp(t_imu,    imu,       t, "linear")
+acc        = interp(t_acc,    acc,       t, "linear")
+gyro       = interp(t_gyro,    gyro,       t, "linear")
 states     = interp(t_state,  states,    t, "linear")
 actions    = interp(t_action, actions * 9.81,   t, "const")
 setpoints  = interp(t_sp,     setpoints, t, "const")
 
 
 dataset = torch.cat([
-    states.T,            # (T, 12)
-    imu.T,               # (T, 6)
+    states.T,            # (T, 13)
+    acc.T,               # (T, 3)
+    gyro.T,               # (T, 3)
     actions.T,           # (T, 4)
     setpoints.T,         # (T, 3)
     t[:, None],          # (T, 1)
 ], dim=1)
 
 
-print(dataset.shape)  # (T, 26)
+print(dataset.shape)  # (T, 27)
 torch.save(dataset, "rl_dataset/converted.pt")
 
 print("done")

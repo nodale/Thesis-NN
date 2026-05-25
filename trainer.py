@@ -191,7 +191,7 @@ def main():
     model = NeuralNetwork(
             input_len=input_len, 
             output_len=output_len, 
-            n_dim=26, 
+            n_dim=27, 
             out_dim=3,
             ).to(device)
 

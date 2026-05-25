@@ -16,6 +16,18 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("QtAgg")
 
+def plot(ts1, ts2):
+    a = ts1.detach().cpu().numpy()
+    b = ts2.detach().cpu().numpy()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.plot(a[:, 0], a[:, 1], a[:, 2], label='ts1')
+    ax.plot(b[:, 0], b[:, 1], b[:, 2], label='ts2')
+
+    ax.legend()
+    plt.show()
 
 class FlightLog(IterableDataset):
     def __init__(self, data, window_size=12):
@@ -37,7 +49,7 @@ def main():
     total_len = input_len + output_len
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=26, out_dim=3).to(device)
+    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=27, out_dim=3).to(device)
     state_dict = torch.load("model.pth", map_location=device)
     model.load_state_dict(state_dict)
     model = model.to(device)
@@ -55,12 +67,30 @@ def main():
         persistent_workers=True,
     )
 
+    predicted   = []
+    truth       = []
+
+    init_pos = torch.empty((input_len, 3), dtype=torch.float32, device="cuda")
+
     for d in loader:
         _in = d[:input_len, :].cuda()
+        print(_in[-1, :])
+        _in[:, :3] = init_pos
         _in = _in.unsqueeze(0)
         out = model(_in)
 
-        print(_in[:3])
+        new_pos = init_pos[-1] + out[0, :3]
+        init_pos[:-1] = init_pos[1:].clone()
+        init_pos[-1] = new_pos
+
+        predicted.append(new_pos)
+        truth.append(d[input_len:total_len, :3])
+
+    predicted = torch.cat(predicted, dim=0)
+    truth = torch.cat(truth, dim=0)
+
+    plot(predicted, truth)
+
 
 
 
