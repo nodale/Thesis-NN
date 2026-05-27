@@ -74,14 +74,14 @@ def main():
 
     for d in loader:
         _in = d[:input_len, :].cuda()
-        print(_in[-1, :])
-        _in[:, :3] = init_pos
+        #_in[:, :3] = init_pos
         _in = _in.unsqueeze(0)
         out = model(_in)
 
-        new_pos = init_pos[-1] + out[0, :3]
-        init_pos[:-1] = init_pos[1:].clone()
-        init_pos[-1] = new_pos
+        #new_pos = init_pos[-1] + out[0, :3]
+        #init_pos[:-1] = init_pos[1:].clone()
+        #init_pos[-1] = new_pos
+        new_pos = _in[-1, -1, :3] + out[0, :3]
 
         predicted.append(new_pos)
         truth.append(d[input_len:total_len, :3])
