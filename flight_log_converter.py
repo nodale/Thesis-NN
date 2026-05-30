@@ -91,11 +91,11 @@ dataset = torch.cat([
     gyro.T,               # (T, 3)
     actions.T,           # (T, 4)
     setpoints.T,         # (T, 3)
-    t[:, None],          # (T, 1)
+    t[:, None]*0.0,          # (T, 1)
 ], dim=1)
 
 
 print(dataset.shape)  # (T, 27)
-torch.save(dataset, "rl_dataset/converted.pt")
+torch.save(dataset[4000:], "rl_dataset/converted.pt")
 
 print("done")

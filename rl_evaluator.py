@@ -27,6 +27,7 @@ def plot(ts1, ts2):
     ax.plot(b[:, 0], b[:, 1], b[:, 2], label='ts2')
 
     ax.legend()
+    #plt.savefig("test.png")
     plt.show()
 
 class FlightLog(IterableDataset):
@@ -44,7 +45,7 @@ class FlightLog(IterableDataset):
             yield data
 
 def main():
-    input_len = 28
+    input_len = 20
     output_len = 1
     total_len = input_len + output_len
 
@@ -70,21 +71,24 @@ def main():
     predicted   = []
     truth       = []
 
-    init_pos = torch.empty((input_len, 3), dtype=torch.float32, device="cuda")
+    #init_pos = torch.zeros((input_len, 3), dtype=torch.float32, device="cuda")
+    init_pos = log[:input_len, :3].clone().to(device)
 
     for d in loader:
         _in = d[:input_len, :].cuda()
-        #_in[:, :3] = init_pos
+        _in[:, :3] = init_pos
         _in = _in.unsqueeze(0)
         out = model(_in)
 
-        #new_pos = init_pos[-1] + out[0, :3]
-        #init_pos[:-1] = init_pos[1:].clone()
-        #init_pos[-1] = new_pos
-        new_pos = _in[-1, -1, :3] + out[0, :3]
+        new_pos = init_pos[-1] + out[0, :3]
+        init_pos[:-1] = init_pos[1:].clone()
+        init_pos[-1] = new_pos
+        #new_pos = _in[-1, -1, :3] + out[0, :3]
 
         predicted.append(new_pos)
         truth.append(d[input_len:total_len, :3])
+
+        print(_in[-1, -1, :3] - new_pos)
 
     predicted = torch.cat(predicted, dim=0)
     truth = torch.cat(truth, dim=0)

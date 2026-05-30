@@ -30,7 +30,6 @@ class NeuralNetwork(nn.Module):
         self.n_dim = n_dim
         self.out_dim = out_dim
 
-        #self.input_proj = nn.Linear(n_dim, neural_count)
         self.input_proj = nn.Sequential(
             nn.Linear(n_dim, neural_count),
             nn.LayerNorm(neural_count)
@@ -43,13 +42,6 @@ class NeuralNetwork(nn.Module):
             expand=2,
         )
 
-        #self.head = nn.Sequential(
-        #    nn.Linear(neural_count, neural_count),
-        #    nn.CELU(),
-        #    nn.Linear(neural_count, neural_count),
-        #    nn.CELU(),
-        #    nn.Linear(neural_count, out_dim * output_len),
-        #)
         self.head = nn.Sequential(
             nn.Linear(neural_count, neural_count),
             nn.GELU(),
@@ -79,7 +71,7 @@ def loss_fn(pred, truth):
 #    error = pred - truth
 #    return 1e+5 * torch.mean(torch.abs(error) ** 4)
 
-def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-5,std_max=1e-4):
+def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-8,std_max=2e-4):
     model.train()
 
     running_loss = 0.0  
@@ -93,8 +85,8 @@ def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-5,std_max=1e
         vec = vec.to(device, non_blocking=True)
 
         in_vec = vec[:, :model.input_len, :]
-        noise_std = std_min + (std_max - std_min) * torch.rand(1, device=in_vec.device).item()
-        in_vec[:12] = in_vec[:12] + noise_std * torch.randn_like(in_vec)[:12]
+        #noise_std = std_min + (std_max - std_min) * torch.rand(1, device=in_vec.device).item()
+        #in_vec[:, :, :12] += noise_std * torch.randn_like(in_vec)[:, :, :12]
 
         #truth_vec = vec[:, model.input_len:, :3] - vec[:, model.input_len - 1, :3] # makeing it relative to the last prio given
         truth_vec = vec[:, model.input_len:, :3] - vec[:, model.input_len - 1:model.input_len, :3]
@@ -199,25 +191,25 @@ def main():
 
     optimizer = torch.optim.AdamW(
             model.parameters(), 
-            lr=5e-5,
-            weight_decay=1e-7,
-            eps=1e-18
+            lr=1e-4,
+            weight_decay=1e-8,
+            eps=1e-38
             )
             #betas=(0.98, 0.999),
 
-    training_size = 200000
+    training_size = 15000000
 
-    train_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size=training_size, window_size=total_len)
+    train_dataset = QuickDataset2(path='/home/joey/Thesis/data/patient_one_data.zarr/', training_size=training_size, window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        num_workers=18,
+        num_workers=4,
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=8
     )
 
-    test_dataset = QuickDataset2(path='dataset/patient_one_data.zarr/', training_size=1000, window_size=total_len)
+    test_dataset = QuickDataset2(path='/home/joey/Thesis/data/patient_one_data.zarr/', training_size=1000, window_size=total_len)
     test_loader = DataLoader(
         test_dataset,
         batch_size=batch_size,
@@ -227,7 +219,7 @@ def main():
         prefetch_factor=8 
     )
 
-    epochs = 1
+    epochs = 5
     for t in range(epochs):
         t0 = time.perf_counter()
 
