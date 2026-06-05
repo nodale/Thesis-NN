@@ -45,13 +45,13 @@ class FlightLog(IterableDataset):
             yield data
 
 def main():
-    input_len = 20
+    input_len = 24
     output_len = 1
     total_len = input_len + output_len
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=27, out_dim=3).to(device)
-    state_dict = torch.load("model.pth", map_location=device)
+    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=26, out_dim=6).to(device)
+    state_dict = torch.load("model_12steps.pth", map_location=device)
     model.load_state_dict(state_dict)
     model = model.to(device)
     model = torch.compile(model)
@@ -74,24 +74,29 @@ def main():
     #init_pos = torch.zeros((input_len, 3), dtype=torch.float32, device="cuda")
     init_pos = log[:input_len, :3].clone().to(device)
 
-    for d in loader:
-        _in = d[:input_len, :].cuda()
-        _in[:, :3] = init_pos
-        _in = _in.unsqueeze(0)
-        out = model(_in)
+    with torch.inference_mode():
+        for d in loader:
+            _in = d[:input_len, :].cuda()
+            _in[:, :3] = init_pos
+            _in = _in.unsqueeze(0)
+            out = model(_in)
+            out = out.squeeze(0)
 
-        new_pos = init_pos[-1] + out[0, :3]
-        init_pos[:-1] = init_pos[1:].clone()
-        init_pos[-1] = new_pos
-        #new_pos = _in[-1, -1, :3] + out[0, :3]
+            new_pos = (init_pos[-1] + out[-1, :3]).detach()
+            init_pos = torch.roll(init_pos, shifts=-1, dims=0)
+            init_pos[-1] = new_pos
+            #new_pos = _in[-1, -1, :3] + out[0, :3]
 
-        predicted.append(new_pos)
-        truth.append(d[input_len:total_len, :3])
+            predicted.append(new_pos.unsqueeze(0).cpu())
+            truth.append(d[input_len:total_len, :3].cpu())
 
-        print(_in[-1, -1, :3] - new_pos)
+            print("pos diff : ", _in[-1, -1, :3] - new_pos, "   log_var : ", out[-1, 3:])
 
     predicted = torch.cat(predicted, dim=0)
     truth = torch.cat(truth, dim=0)
+
+    print(predicted.shape)
+    print(truth.shape)
 
     plot(predicted, truth)
 

@@ -81,9 +81,12 @@ t = torch.arange(t0, tf, dt, device=device)
 acc        = interp(t_acc,    acc,       t, "linear")
 gyro       = interp(t_gyro,    gyro,       t, "linear")
 states     = interp(t_state,  states,    t, "linear")
-actions    = interp(t_action, actions * 9.81,   t, "const")
+actions    = interp(t_action, actions,   t, "const")
 setpoints  = interp(t_sp,     setpoints, t, "const")
 
+#states.T[:, :3] /= 3.0
+#states.T[:, 3:6] /= 0.8
+#states.T[:, 10:13] /= 0.5
 
 dataset = torch.cat([
     states.T,            # (T, 13)
@@ -91,9 +94,11 @@ dataset = torch.cat([
     gyro.T,               # (T, 3)
     actions.T,           # (T, 4)
     setpoints.T,         # (T, 3)
-    t[:, None]*0.0,          # (T, 1)
 ], dim=1)
 
+print(acc.T)
+
+#t[:, None]*0.0,          # (T, 1)
 
 print(dataset.shape)  # (T, 27)
 torch.save(dataset[4000:], "rl_dataset/converted.pt")
