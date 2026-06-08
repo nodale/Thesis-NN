@@ -7,9 +7,9 @@ from torch import nn
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from QuickDataset import QuickDataset2
-from trainer import NeuralNetwork
 from mpl_toolkits.mplot3d import Axes3D
 from torch.utils.data import IterableDataset
+from include.mama import JeuralJetwork
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,13 +45,39 @@ class FlightLog(IterableDataset):
             yield data
 
 def main():
-    input_len = 24
-    output_len = 1
+    input_len = 12
+    output_len = 6
     total_len = input_len + output_len
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=26, out_dim=6).to(device)
-    state_dict = torch.load("model_12steps.pth", map_location=device)
+    #model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=26, out_dim=12).to(device)
+
+    cfg = {
+            "d_model": 64,
+            "n_encoder_layers": 0,
+            "n_decoder_layers": 0,
+            "time_adapter": "conv",
+            "block_type": "simple",
+            "use_norm": False,
+            "layer_scale": 1e-4,
+            "drop_path": 0.05,
+            "mamba_type": "mamba2",
+        }
+
+    model = JeuralJetwork(
+            n_dim=26,
+            out_dim=6,
+            input_len=input_len,
+            output_len=output_len,
+            **cfg
+            ).to(device)
+
+    state_dict = torch.load("model_cfg_test.pth", map_location=device)
+    #new_state_dict = {
+    #    k.replace("_orig_mod.", ""): v
+    #    for k, v in state_dict.items()
+    #}
+    #model.load_state_dict(new_state_dict)
     model.load_state_dict(state_dict)
     model = model.to(device)
     model = torch.compile(model)
@@ -72,34 +98,68 @@ def main():
     truth       = []
 
     #init_pos = torch.zeros((input_len, 3), dtype=torch.float32, device="cuda")
-    init_pos = log[:input_len, :3].clone().to(device)
+    init_state = log[:input_len, :3].clone().to(device)
+
+    predicted = []
+    truth = []
+
+    history = log[:input_len].clone().to(device)
 
     with torch.inference_mode():
+
         for d in loader:
-            _in = d[:input_len, :].cuda()
-            _in[:, :3] = init_pos
-            _in = _in.unsqueeze(0)
-            out = model(_in)
-            out = out.squeeze(0)
 
-            new_pos = (init_pos[-1] + out[-1, :3]).detach()
-            init_pos = torch.roll(init_pos, shifts=-1, dims=0)
-            init_pos[-1] = new_pos
-            #new_pos = _in[-1, -1, :3] + out[0, :3]
+            inp = history.unsqueeze(0)
 
-            predicted.append(new_pos.unsqueeze(0).cpu())
-            truth.append(d[input_len:total_len, :3].cpu())
+            out = model(inp)
+            print("first pred delta")
+            print(out[0,0,:3])
 
-            print("pos diff : ", _in[-1, -1, :3] - new_pos, "   log_var : ", out[-1, 3:])
+            print("history std")
+            print(history.std())
+
+            delta = out[0, 0, :3]
+
+            curr_state = history[-1, :3]
+
+            new_state = curr_state.clone()
+
+            new_state[:3] += delta[:3]
+
+            predicted.append(
+                new_state[:3].cpu().unsqueeze(0)
+            )
+
+            gt_frame = d[input_len].clone().to(device)
+
+            truth.append(
+                gt_frame[:3].cpu().unsqueeze(0)
+            )
+
+            next_frame = gt_frame.clone()
+
+            next_frame[:3] = new_state
+
+            history = torch.cat(
+                    [
+                        history[1:],
+                        next_frame.unsqueeze(0)
+                    ],
+                    dim=0
+                )
+
+
 
     predicted = torch.cat(predicted, dim=0)
     truth = torch.cat(truth, dim=0)
+
+    #print("truth mean", truth.mean())
+    #print("truth std ", truth.std())
 
     print(predicted.shape)
     print(truth.shape)
 
     plot(predicted, truth)
-
 
 
 

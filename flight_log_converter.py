@@ -96,11 +96,10 @@ dataset = torch.cat([
     setpoints.T,         # (T, 3)
 ], dim=1)
 
-print(acc.T)
 
 #t[:, None]*0.0,          # (T, 1)
 
 print(dataset.shape)  # (T, 27)
-torch.save(dataset[4000:], "rl_dataset/converted.pt")
+torch.save(dataset[7000:10000], "rl_dataset/converted.pt")
 
 print("done")

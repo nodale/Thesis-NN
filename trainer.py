@@ -8,6 +8,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from QuickDataset import QuickDataset2
 from mamba_ssm import Mamba
+from include.mama import JeuralJetwork
 
 import numpy as np
 
@@ -15,66 +16,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 print(f"Using {device} device")
 
-class NeuralNetwork(nn.Module):
-    def __init__(self, n_dim, out_dim, input_len, output_len, neural_count=64):
-        super().__init__()
-        self.input_len = input_len
-        self.output_len = output_len
-        self.n_dim = n_dim
-        self.out_dim = out_dim
-
-        super().__init__()
-
-        self.input_len = input_len
-        self.output_len = output_len
-        self.n_dim = n_dim
-        self.out_dim = out_dim
-
-        self.input_proj = nn.Sequential(
-            nn.Linear(n_dim, neural_count),
-            nn.LayerNorm(neural_count)
-        )
-
-        self.mamba = nn.Sequential(
-            Mamba(
-                d_model=neural_count,
-                d_state=28,
-                d_conv=4,
-                expand=2,
-            ),
-            nn.LayerNorm(neural_count),
-            Mamba(
-                d_model=neural_count,
-                d_state=28,
-                d_conv=4,
-                expand=2,
-            ),
-        )
-
-        self.head = nn.Sequential(
-            nn.Linear(neural_count, neural_count),
-            nn.GELU(),
-            nn.Dropout(0.10),
-
-            nn.Linear(neural_count, neural_count),
-            nn.GELU(),
-
-            nn.Linear(neural_count, out_dim * output_len),
-        )
-
-    def forward(self, vec):
-        x = self.input_proj(vec) # [B, T, D] -> [B, T, H]
-        x = self.mamba(x) # [B, T, H]
-        x = x[:, -1] # [B, H]
-        #x = x.mean(dim=1)
-        x = self.head(x) # [B, out_dim * output_len]
-        
-        #print(x.shape) #maybe train the data on sequences instead of windows?
-        #x = x.mean(dim=1)
-        
-        x = x.view(vec.size(0), self.output_len, self.out_dim) # [B, output_len, out_dim]
-
-        return x
 
 
 def loss_fn(pred, truth):
@@ -83,8 +24,9 @@ def loss_fn(pred, truth):
 def loss_fn_gml(pred_vec, truth_vec):
     pred_mean = pred_vec[..., :3]
 
+    #var = pred_vec[..., 3:]
     raw_var = pred_vec[..., 3:]
-    var = torch.nn.functional.softplus(raw_var) + 1e-6
+    var = torch.nn.functional.softplus(raw_var) + 1e-12
 
     e = truth_vec - pred_mean
 
@@ -93,12 +35,12 @@ def loss_fn_gml(pred_vec, truth_vec):
 
     loss = 0.5 * (logdet + mahal)
 
-    print("diff : ", e[-1, :3].square().detach().cpu(), "   var : ", raw_var[-1, :3].detach().cpu())
+    #print("diff : ", e[-1, :3].square().detach().cpu(), "   var : ", var[-1, :3].detach().cpu())
 
     # average over horizon and batch
-    return loss.mean()
+    return loss.mean(), var[-1, :].detach().cpu()
 
-def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-8,std_max=2e-4):
+def train_loop(loader, model, optimizer, batch_size=100):
     model.train()
 
     running_loss = 0.0  
@@ -109,6 +51,11 @@ def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-8,std_max=2e
     tot_len = len(loader)
 
     for vec in loader:
+        delta = (
+            vec[:, model.input_len:, :3]
+            - vec[:, model.input_len-1:model.input_len, :3]
+        )
+
         vec = vec.to(device, non_blocking=True)
 
         in_vec = vec[:, :model.input_len, :]
@@ -128,6 +75,77 @@ def train_loop(loader, model, optimizer, batch_size=100, std_min=1e-8,std_max=2e
         t1 = time.perf_counter()
         dt = t1 - t0
         t0 = t1
+
+        if count % batch_size == 0:
+            print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
+            running_loss = 0.0
+
+
+def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01):
+    model.train()
+
+    running_loss = 0.0  
+    count = 0          
+
+    t0 = time.perf_counter()
+
+    tot_len = len(loader)
+
+    for vec in loader:
+        delta = (
+            vec[:, model.input_len:, :3]
+            - vec[:, model.input_len-1:model.input_len, :3]
+        )
+
+        vec = vec.to(device, non_blocking=True)
+        history = vec[:, :model.input_len, :].clone()
+
+        loss = 0
+
+        for step in range(model.output_len):
+
+            pred = model(history)
+
+            pred_delta = pred[:,0,:3]
+
+            curr_state = history[:,-1,:3]
+
+            pred_state = curr_state + pred_delta
+
+            gt_state = vec[:, model.input_len + step, :3]
+
+            #print("pred state : ", pred_state.std())
+            #print("truth state : ", gt_state.std())
+
+            loss += loss_fn(pred_state, gt_state)
+
+            next_frame = vec[:, model.input_len + step, :].clone()
+
+            if torch.rand(1, generator=generator) < schedule_prob:
+                next_frame[:, :3] = pred_state
+            else:
+                next_frame[:, :3] = gt_state
+
+            history = torch.cat(
+                [history[:,1:,:],
+                 next_frame.unsqueeze(1)],
+                dim=1
+            )
+
+        loss /= model.output_len
+
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+
+        running_loss += loss.detach()
+        count += 1.0
+
+
+        t1 = time.perf_counter()
+        dt = t1 - t0
+        t0 = t1
+
         if count % batch_size == 0:
             print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
             running_loss = 0.0
@@ -150,7 +168,7 @@ def train_loop_gml(loader, model, optimizer, batch_size=100):
         truth_vec = vec[:, model.input_len:, :3] - vec[:, model.input_len - 1:model.input_len, :3]
         pred_vec = model(in_vec)
 
-        loss = loss_fn_gml(pred_vec, truth_vec)
+        loss, var = loss_fn_gml(pred_vec, truth_vec)
 
         loss.backward()
         optimizer.step()
@@ -164,7 +182,7 @@ def train_loop_gml(loader, model, optimizer, batch_size=100):
         dt = t1 - t0
         t0 = t1
         if count % batch_size == 0:
-            print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
+            print(f"avg_loss: {running_loss / batch_size:.12f}          random_var: {var}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
             running_loss = 0.0
 
 
@@ -196,71 +214,71 @@ def main():
     total_len = input_len + output_len
     batch_size = 128
 
-    model = NeuralNetwork(
-            input_len=input_len, 
-            output_len=output_len, 
-            n_dim=26, 
+    gen = torch.Generator(device="cpu").manual_seed(0)
+
+    cfg = {
+            "d_model": 64,
+            "n_encoder_layers": 0,
+            "n_decoder_layers": 0,
+            "time_adapter": "conv",
+            "block_type": "simple",
+            "use_norm": True,
+            "layer_scale": 0,
+            "drop_path": 0.05,
+            "mamba_type": "mamba2",
+        }
+
+    model = JeuralJetwork(
+            n_dim=26,
             out_dim=6,
+            input_len=input_len,
+            output_len=output_len,
+            **cfg
             ).to(device)
-    state_dict = torch.load("model_12steps.pth", map_location=device)
-    model.load_state_dict(state_dict)
-    model = model.to("cuda")
+
+    #state_dict = torch.load("model_cfg_test.pth", map_location=device)
+    #model.load_state_dict(state_dict)
+    #model = model.to("cuda")
     model = torch.compile(model)
 
     optimizer = torch.optim.AdamW(
             model.parameters(), 
             lr=5e-6,
-            eps=1e-38,
-            weight_decay=2e-3,
+            eps=1e-10,
+            weight_decay=1e-3,
             )
             #betas=(0.98, 0.999),
 
-    training_size = 15000000
+    training_size = 3750000
 
     train_dataset = QuickDataset2(path='/home/joey/Thesis/data/patient_one_data.zarr/', training_size=training_size, window_size=total_len)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        num_workers=4,
+        num_workers=8,
         pin_memory=True,
         persistent_workers=True,
         prefetch_factor=16
     )
 
-    train_gml_dataset = QuickDataset2(path='/home/joey/Thesis/data/patient_one_data.zarr/', training_size=training_size, window_size=total_len)
-    train_gml_loader = DataLoader(
-        train_gml_dataset,
-        batch_size=batch_size,
-        num_workers=4,
-        pin_memory=True,
-        persistent_workers=True,
-        prefetch_factor=16
-    )
-
-    test_dataset = QuickDataset2(path='/home/joey/Thesis/data/patient_one_data.zarr/', training_size=1000, window_size=total_len)
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        num_workers=1,
-        pin_memory=True,
-        persistent_workers=True,
-        prefetch_factor=8 
-    )
-
-    epochs = 1
+    epochs = 5
+    epochs_iter = 0
     for t in range(epochs):
         t0 = time.perf_counter()
 
         print(f"Epoch {t+1}\n-------------------------------")
+        _schedule_prob = epochs_iter * 0.125
+        #train_rollout_loop(train_loader, model, optimizer, generator=gen, batch_size=batch_size, schedule_prob=_schedule_prob)
+
         train_loop(train_loader, model, optimizer, batch_size=batch_size)
-        #print("STARTING GML TRAINING")
-        #train_loop_gml(train_gml_loader, model, optimizer, batch_size=batch_size)
-        #test_loop(test_loader, model)
+
+        train_loop_gml(train_loader, model, optimizer, batch_size=batch_size)
 
         t1 = time.perf_counter()
         print("time per epoch : ", t1 - t0)
+        epochs_iter += 1
 
-    torch.save(model._orig_mod.state_dict(), "model_12steps.pth")
+        torch.save(model._orig_mod.state_dict(), "model_cfg_test.pth")
 
 if __name__ == "__main__":
     main()

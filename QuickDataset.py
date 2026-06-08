@@ -92,6 +92,7 @@ class QuickDataset2(IterableDataset):
             if self.normalise:
                 window = (window - self.mean) / self.std
 
+            #yield torch.from_numpy(window)
             yield torch.from_numpy(window)
 
 #main for testing purposes only
