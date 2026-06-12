@@ -1,5 +1,7 @@
 from __future__ import annotations
  
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,12 +12,49 @@ from mamba_ssm import Mamba3
 from mamba_ssm.ops.triton.layer_norm import RMSNorm
  
  
-# =============================================================================
-# Helpers
-# =============================================================================
+# BLOCKS
  
-def _norm(d_model: int, use_norm: bool) -> nn.Module:
-    return RMSNorm(d_model) if use_norm else nn.Identity()
+def make_norm(d_model, norm_type="rms"):
+    if norm_type == "rms":
+        return RMSNorm(d_model)
+
+    if norm_type == "layer":
+        return nn.LayerNorm(d_model)
+
+    if norm_type == "none":
+        return nn.Identity()
+
+    raise ValueError(
+        f"norm_type must be rms/layer/none, got {norm_type}"
+    )
+
+class Projection(nn.Module):
+    """
+    Linear projection + normalization
+    """
+
+    def __init__(
+        self,
+        in_dim,
+        out_dim,
+        norm="rms",
+        activation=False,
+    ):
+        super().__init__()
+
+        layers = [
+            nn.Linear(in_dim, out_dim),
+            make_norm(out_dim, norm),
+        ]
+
+        if activation:
+            layers.append(nn.GELU())
+
+        self.net = nn.Sequential(*layers)
+
+
+    def forward(self, x):
+        return self.net(x)
  
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
@@ -83,9 +122,9 @@ class SimpleMambaBlock(nn.Module):
     Use for shallow stacks, fast prototyping, or when you want fewest moving parts.
     """
  
-    def __init__(self, d_model: int, use_norm: bool = True, mamba_impl=Mamba, **mamba_kwargs):
+    def __init__(self, d_model: int, norm: str = "rms", mamba_impl=Mamba, **mamba_kwargs):
         super().__init__()
-        self.norm  = _norm(d_model, use_norm)
+        self.norm  = make_norm(d_model, norm)
         self.mixer = mamba_impl(d_model=d_model, **mamba_kwargs)
  
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -103,7 +142,7 @@ class AdvancedMambaBlock(nn.Module):
     def __init__(
         self,
         d_model: int,
-        use_norm: bool = True,
+        norm: str = "rms",
         mlp_mult: float = 4.0,
         layer_scale: float = 1e-4,
         drop_path: float = 0.0,
@@ -112,7 +151,7 @@ class AdvancedMambaBlock(nn.Module):
     ):
         super().__init__()
         # Mamba sublayer
-        self.norm1  = _norm(d_model, use_norm)
+        self.norm1  = make_norm(d_model, norm)
         self.mixer  = mamba_impl(d_model=d_model, **mamba_kwargs)
         self.drop1  = DropPath(drop_path)
         self.gamma1 = (
@@ -121,7 +160,7 @@ class AdvancedMambaBlock(nn.Module):
         )
  
         # MLP sublayer
-        self.norm2  = _norm(d_model, use_norm)
+        self.norm2  = make_norm(d_model, norm)
         self.mlp    = GatedMLP(d_model, mult=mlp_mult)
         self.drop2  = DropPath(drop_path)
         self.gamma2 = (
@@ -212,14 +251,90 @@ class AttnTimeAdapter(nn.Module):
         out, _ = self.attn(q, x, x)
         return out
  
+class MLPTimeAdapter(nn.Module):
+
+    def __init__(
+        self,
+        d_model,
+        input_len,
+        output_len,
+        hidden=None,
+    ):
+        super().__init__()
+
+        hidden = hidden or d_model*2
+
+        self.net = nn.Sequential(
+            nn.Linear(input_len, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, output_len)
+        )
+
+
+    def forward(self,x):
+
+        # B,T,D -> B,D,T
+        h = x.transpose(1,2)
+
+        h = self.net(h)
+
+        return h.transpose(1,2)
+
+class LastTokenAdapter(nn.Module):
+
+    def __init__(
+        self,
+        d_model,
+        input_len,
+        output_len,
+    ):
+        super().__init__()
+
+        self.output_len = output_len
+
+        self.proj = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.GELU(),
+            nn.Dropout(0.10),
+
+            nn.Linear(d_model, output_len*d_model),
+            nn.GELU(),
+            )
+
+        #self.proj = nn.Linear(
+        #    d_model,
+        #    output_len*d_model
+        #)
+
+
+    def forward(self,x):
+
+        h = x[:, -1]
+
+        h = self.proj(h)
+
+        return h.view(x.size(0), self.output_len, -1)
  
 _ADAPTERS = {
-    "linear": LinearTimeAdapter,
-    "pool":   PoolTimeAdapter,
-    "conv":   ConvTimeAdapter,
-    "attn":   AttnTimeAdapter,
+
+    "linear":
+        LinearTimeAdapter,
+
+    "conv":
+        ConvTimeAdapter,
+
+    "pool":
+        PoolTimeAdapter,
+
+    "attn":
+        AttnTimeAdapter,
+
+    "mlp":
+        MLPTimeAdapter,
+
+    "last_token":
+        LastTokenAdapter,
 }
- 
  
 # =============================================================================
 # Full seq2seq model
@@ -262,7 +377,8 @@ class JeuralJetwork(nn.Module):
         time_adapter: str = "linear",
         adapter_kwargs: dict | None = None,
         block_type: str = "advanced",
-        use_norm: bool = True,
+        in_norm: str = "rms",
+        out_norm: str = "rms",
         layer_scale: float = 1e-4,
         drop_path: float = 0.0,
         mlp_mult: float = 4.0,
@@ -292,7 +408,7 @@ class JeuralJetwork(nn.Module):
             )
         mamba_impl = _MAMBA_IMPLS[mamba_type]
 
-        block_kwargs = dict(use_norm=use_norm, mamba_impl=mamba_impl, **mk)
+        block_kwargs = dict(mamba_impl=mamba_impl, **mk)
         if block_type == "advanced":
             block_kwargs.update(
                 mlp_mult=mlp_mult,
@@ -300,45 +416,59 @@ class JeuralJetwork(nn.Module):
                 drop_path=drop_path,
             )
 
-        # Project input vectors into model dim
-        self.in_proj = nn.Linear(n_dim, d_model)
- 
-        # Encoder Mamba stack (operates at T_in)
+        # input
+        self.in_proj = Projection(
+                n_dim,
+                d_model,
+                norm=in_norm,
+            )
+
+
+        # encoder
         self.encoder = nn.ModuleList(
-            Block(d_model, **block_kwargs) for _ in range(n_encoder_layers)
-        )
- 
-        # Length adapter: T_in -> T_out
-        if input_len == output_len:
-            self.time_proj: nn.Module = nn.Identity()
-        else:
-            if time_adapter not in _ADAPTERS:
-                raise ValueError(
-                    f"time_adapter must be one of {list(_ADAPTERS)}, got {time_adapter!r}"
-                )
-            self.time_proj = _ADAPTERS[time_adapter](
-                d_model, input_len, output_len, **ak
+                Block(d_model=d_model, **block_kwargs)
+                for _ in range(n_encoder_layers)
+            )
+
+
+        # time mapping
+        self.time_projector = _ADAPTERS[time_adapter](
+                d_model,
+                input_len,
+                output_len,
+                **ak,
+            )
+
+
+        # decoder
+        self.decoder = nn.ModuleList(
+                Block(d_model=d_model, **block_kwargs)
+                for _ in range(n_decoder_layers)
+            )
+
+
+        # output
+        self.out_proj = Projection(
+                d_model,
+                out_dim,
+                norm=out_norm,
             )
  
-        # Decoder Mamba stack (refines at T_out)
-        self.decoder = nn.ModuleList(
-            Block(d_model, **block_kwargs) for _ in range(n_decoder_layers)
-        )
- 
-        # Final readout
-        self.final_norm = _norm(d_model, use_norm)
-        self.out_proj   = nn.Linear(d_model, out_dim)
- 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: [B, T_in, n_dim]
         h = self.in_proj(x)
+
         for blk in self.encoder:
             h = blk(h)
-        h = self.time_proj(h)
+
+
+        h = self.time_projector(h)
+
+
         for blk in self.decoder:
             h = blk(h)
-        h = self.final_norm(h)
-        return self.out_proj(h)  # [B, T_out, out_dim]
+
+
+        return self.out_proj(h)
  
  
 # =============================================================================

@@ -10,11 +10,6 @@ from torch.utils.data import IterableDataset
 
 import numpy as np
 
-import torch
-import zarr
-import numpy as np
-from torch.utils.data import IterableDataset
-
 class QuickDataset2(IterableDataset):
     def __init__(self, path, training_size, window_size=12, seed=0, normalise=False):
         self.path = path
@@ -49,38 +44,30 @@ class QuickDataset2(IterableDataset):
 
         return np.stack([ep_idx, t_idx], axis=1)
 
-#thos only works for 1 worker
-#    def __iter__(self):
-#        for ep_idx, t_idx in self.indices:
-#
-#            window = self.data[
-#                    ep_idx,
-#                    t_idx:t_idx + self.window_size,
-#                    :
-#                ]  # (M, n_dim)
-#
-#            if self.normalise:
-#                window = (window - self.mean) / self.std
-#
-#            yield torch.tensor(window, dtype=torch.float32)
     def __iter__(self):
 
         store = zarr.storage.LocalStore(self.path)
-        root = zarr.open(store=store, mode='r')
-        data = root['episodes']
+        root = zarr.open(store=store, mode="r")
+        data = root["episodes"]
 
         worker_info = torch.utils.data.get_worker_info()
-        worker_id = worker_info.id
-        num_workers = worker_info.num_workers
 
-        rng = np.random.default_rng(0 + worker_id)
+        if worker_info is None:
+            worker_id = 0
+            num_workers = 1
+        else:
+            worker_id = worker_info.id
+            num_workers = worker_info.num_workers
+
+        rng = np.random.default_rng(worker_id)
 
         for i in range(worker_id, self.training_size, num_workers):
 
             ep_idx = rng.integers(0, self.num_batch)
+            ep_idx = ep_idx * 0
             t_idx = rng.integers(
                 0,
-                self.seq_len - self.window_size + 1
+                self.seq_len - self.window_size + 1,
             )
 
             window = data[
@@ -92,8 +79,48 @@ class QuickDataset2(IterableDataset):
             if self.normalise:
                 window = (window - self.mean) / self.std
 
-            #yield torch.from_numpy(window)
             yield torch.from_numpy(window)
+
+
+class QuickDatasetStraight(IterableDataset):
+    def __init__(self, path, episode_idx=0, window_size=12):
+        self.path = path
+        self.window_size = window_size
+
+        root = zarr.open(
+            zarr.storage.LocalStore(path),
+            mode="r"
+        )
+
+        self.data = root["episodes"]
+
+        self.episode_idx = episode_idx
+        self.seq_len = self.data.shape[1]
+
+
+    def __len__(self):
+        return self.seq_len - self.window_size + 1
+
+
+    def __iter__(self):
+
+        root = zarr.open(
+            zarr.storage.LocalStore(self.path),
+            mode="r"
+        )
+
+        data = root["episodes"]
+
+        for i in range(len(self)):
+
+            window = data[
+                self.episode_idx,
+                i:i+self.window_size,
+                :
+            ].astype(np.float32)
+
+            yield torch.from_numpy(window)
+
 
 #main for testing purposes only
 def main():

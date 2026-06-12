@@ -18,7 +18,7 @@ matplotlib.use("QtAgg")
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    input_len = 28
+    input_len = 12
     output_len = 1
     total_len = input_len + output_len
 
@@ -45,8 +45,6 @@ def main():
     in_vec = vec[:, :model.input_len, :].cuda()
     truth_vec = vec[:, model.input_len:, :3].cuda()
     pred_vec = model(in_vec)
-
-
 
 
     prior_np = vec[:, :model.input_len, :3].cpu().numpy()

@@ -1,0 +1,27 @@
+defaults:
+  - models: replica
+  - override hydra/launcher: joblib
+
+input_len: 12
+output_len: 1
+batch_size: 256
+epochs: 1
+seed: 0
+
+hydra:
+  launcher:
+    n_jobs: 3
+
+dataset:
+  path: /home/joey/Thesis/data/patient_one_data.zarr/
+  training_size: 15000000
+
+training:
+  mode: standard
+
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+
+compile: true

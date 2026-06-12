@@ -1,167 +1,244 @@
 import os
+import glob
+import yaml
 import torch
-import random
-import time
-
-from torch import nn
-from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
-from QuickDataset import QuickDataset2
-from mpl_toolkits.mplot3d import Axes3D
-from torch.utils.data import IterableDataset
-from include.mama import JeuralJetwork
-
+import zarr
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+
+from torch.utils.data import DataLoader, IterableDataset
+from QuickDataset import QuickDatasetStraight
+from include.mama import JeuralJetwork
+from pathlib import Path
+
 matplotlib.use("QtAgg")
 
-def plot(ts1, ts2):
-    a = ts1.detach().cpu().numpy()
-    b = ts2.detach().cpu().numpy()
+def get_latest_multirun():
+    runs = list(Path("multirun").glob("*/*"))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    if not runs:
+        raise RuntimeError("No Hydra runs found")
 
-    ax.plot(a[:, 0], a[:, 1], a[:, 2], label='ts1')
-    ax.plot(b[:, 0], b[:, 1], b[:, 2], label='ts2')
-
-    ax.legend()
-    #plt.savefig("test.png")
-    plt.show()
-
-class FlightLog(IterableDataset):
-    def __init__(self, data, window_size=12):
-        self.window_size = window_size
-        self.data = data.cpu()
-        self.len = self.data.shape[0]
-
-    def __len__(self):
-        return self.len
-
-    def __iter__(self):
-        for idx in range(self.len - self.window_size + 1):
-            data = self.data[idx:idx+self.window_size, :]
-            yield data
-
-def main():
-    input_len = 12
-    output_len = 6
-    total_len = input_len + output_len
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #model = NeuralNetwork(input_len=input_len, output_len=output_len, n_dim=26, out_dim=12).to(device)
-
-    cfg = {
-            "d_model": 64,
-            "n_encoder_layers": 0,
-            "n_decoder_layers": 0,
-            "time_adapter": "conv",
-            "block_type": "simple",
-            "use_norm": False,
-            "layer_scale": 1e-4,
-            "drop_path": 0.05,
-            "mamba_type": "mamba2",
-        }
-
-    model = JeuralJetwork(
-            n_dim=26,
-            out_dim=6,
-            input_len=input_len,
-            output_len=output_len,
-            **cfg
-            ).to(device)
-
-    state_dict = torch.load("model_cfg_test.pth", map_location=device)
-    #new_state_dict = {
-    #    k.replace("_orig_mod.", ""): v
-    #    for k, v in state_dict.items()
-    #}
-    #model.load_state_dict(new_state_dict)
-    model.load_state_dict(state_dict)
-    model = model.to(device)
-    model = torch.compile(model)
-    model.eval()
-
-    log = torch.load("rl_dataset/converted.pt")
-
-    dataset = FlightLog(data=log, window_size=total_len)
-    loader = DataLoader(
-        dataset,
-        batch_size=None,
-        num_workers=1,
-        pin_memory=True,
-        persistent_workers=True,
+    latest = max(
+        runs,
+        key=lambda p: p.stat().st_mtime
     )
 
-    predicted   = []
-    truth       = []
+    return latest
 
-    #init_pos = torch.zeros((input_len, 3), dtype=torch.float32, device="cuda")
-    init_state = log[:input_len, :3].clone().to(device)
 
-    predicted = []
-    truth = []
+def latest_sweep():
+    sweeps = list(Path("multirun").glob("*/*"))
+    if not sweeps:
+        raise RuntimeError("No Hydra sweeps found")
 
-    history = log[:input_len].clone().to(device)
+    return max(
+        sweeps,
+        key=lambda p: p.stat().st_mtime
+    )
+
+def load_run(run_dir, device):
+
+    # load hydra saved config
+    with open(run_dir / ".hydra/config.yaml") as f:
+        cfg = yaml.safe_load(f)
+
+    # find checkpoint
+    ckpt = list(run_dir.glob("**/*.pth"))[0]
+
+    print("Loading:", ckpt)
+
+    model = JeuralJetwork(
+        n_dim=cfg["models"]["n_dim"],
+        out_dim=cfg["models"]["out_dim"],
+        input_len=cfg["input_len"],
+        output_len=cfg["output_len"],
+        **cfg["models"]["architecture"]
+    )
+
+    state = torch.load(
+        ckpt,
+        map_location=device
+    )
+
+    model.load_state_dict(state)
+
+    model.to(device)
+    model.eval()
+
+    return model, cfg
+
+
+def plot(pred, truth, name):
+    a = pred.detach().cpu().numpy()
+    b = truth.detach().cpu().numpy()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    ax.plot(a[:,0], a[:,1], a[:,2], label="pred")
+    ax.plot(b[:,0], b[:,1], b[:,2], label="truth")
+
+    ax.set_title(name)
+    ax.legend()
+    plt.show()
+
+
+
+
+
+
+def load_model(checkpoint, cfg, device):
+
+    model = JeuralJetwork(
+        n_dim=cfg["models"]["n_dim"],
+        out_dim=cfg["models"]["out_dim"],
+        input_len=cfg["input_len"],
+        output_len=cfg["output_len"],
+        **cfg["models"]["architecture"],
+    )
+
+
+    state = torch.load(
+        checkpoint,
+        map_location=device
+    )
+
+    # handle torch.compile checkpoints
+    state = {
+        k.replace("_orig_mod.", ""):v
+        for k,v in state.items()
+    }
+
+    model.load_state_dict(state)
+
+    model = model.to(device)
+
+    if cfg.get("compile", False):
+        model = torch.compile(model)
+
+    model.eval()
+
+    return model
+
+
+
+def evaluate(model, loader, input_len, output_len, device):
+
+    total_len = input_len + output_len
+
+    init_pos = next(iter(loader))[:input_len,:3]
+    init_pos = init_pos.to(device)
+
+
+    predicted=[]
+    truth=[]
 
     with torch.inference_mode():
-
         for d in loader:
 
-            inp = history.unsqueeze(0)
+            _in = d[:input_len, :].to(device)
+            _in[:input_len, :3] = init_pos
 
-            out = model(inp)
-            print("first pred delta")
-            print(out[0,0,:3])
+            out = model(_in.unsqueeze(0))
+            out = out.squeeze(0)
 
-            print("history std")
-            print(history.std())
+            new_pos = init_pos[-1] + out[0, :3]
 
-            delta = out[0, 0, :3]
-
-            curr_state = history[-1, :3]
-
-            new_state = curr_state.clone()
-
-            new_state[:3] += delta[:3]
+            init_pos = torch.roll(
+                init_pos,
+                shifts=-1,
+                dims=0
+            )
+            init_pos[-1] = new_pos
 
             predicted.append(
-                new_state[:3].cpu().unsqueeze(0)
+                new_pos.cpu().unsqueeze(0)
             )
-
-            gt_frame = d[input_len].clone().to(device)
 
             truth.append(
-                gt_frame[:3].cpu().unsqueeze(0)
+                d[-1, :3].cpu().unsqueeze(0)
             )
 
-            next_frame = gt_frame.clone()
-
-            next_frame[:3] = new_state
-
-            history = torch.cat(
-                    [
-                        history[1:],
-                        next_frame.unsqueeze(0)
-                    ],
-                    dim=0
-                )
-
-
-
     predicted = torch.cat(predicted, dim=0)
-    truth = torch.cat(truth, dim=0)
-
-    #print("truth mean", truth.mean())
-    #print("truth std ", truth.std())
+    truth = torch.cat(truth)
 
     print(predicted.shape)
     print(truth.shape)
 
-    plot(predicted, truth)
+    return predicted, truth
 
 
+def main():
 
-if __name__ == "__main__":
+    device = torch.device("cuda")
+
+    sweep = latest_sweep()
+
+    print(
+        "Evaluating sweep:",
+        sweep
+    )
+
+
+    for run in sorted(sweep.iterdir()):
+
+        if not run.is_dir():
+            continue
+
+        if not (run / ".hydra").exists():
+            continue
+
+
+        print("\n===================")
+        print("RUN:", run.name)
+
+
+        model, cfg = load_run(
+            run,
+            device
+        )
+
+
+        input_len = cfg["input_len"]
+        output_len = cfg["output_len"]
+
+        dataset = QuickDatasetStraight(
+            path=cfg["dataset"]["path"],
+            episode_idx=0,
+            window_size=input_len + output_len
+        )
+
+        loader = DataLoader(
+            dataset,
+            batch_size=None,
+            num_workers=0
+        )
+
+
+        predicted, truth = evaluate(
+            model,
+            loader,
+            input_len,
+            output_len,
+            device
+        )
+
+
+        print(
+            "MS Error:",
+            torch.mean(
+                (predicted - truth)**2
+            )
+        )
+
+        plot(
+            name=f"{run.name}",
+            pred=predicted,
+            truth=truth
+        )
+
+
+if __name__=="__main__":
     main()

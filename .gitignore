@@ -221,6 +221,8 @@ __marimo__/
 *.pth
 .h5
 dataset/
+outputs/
+multirun/
 *.png
 *.ulog
 *.ulg
