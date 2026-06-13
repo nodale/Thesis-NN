@@ -2,7 +2,7 @@ defaults:
   - models: replica
   - override hydra/launcher: joblib
 
-input_len: 12
+input_len: 128
 output_len: 1
 batch_size: 256
 epochs: 1
@@ -14,10 +14,11 @@ hydra:
 
 dataset:
   path: /home/joey/Thesis/data/patient_one_data.zarr/
-  training_size: 15000000
+  training_size: 7500000
 
 training:
   mode: standard
+  lr: 5e-4
 
 checkpoint:
   save_path: hydra-test.pth
@@ -25,3 +26,5 @@ checkpoint:
   path: hydra-test.pth
 
 compile: true
+
+

@@ -10,6 +10,7 @@ from QuickDataset import QuickDataset2
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
+import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
@@ -29,7 +30,14 @@ def loss_fn_gml(pred_vec, truth_vec):
 
     return loss.mean(), var[-1, :].detach().cpu()
 
-def train_loop(loader, model, optimizer, batch_size=100):
+def train_loop(loader, model, optimizer, batch_size=100, process_name=" "):
+    #monitoring
+    plt.ion()
+    fig, ax = plt.subplots()
+    losses = []
+
+    #training
+
     model.train()
 
     running_loss = 0.0  
@@ -65,7 +73,24 @@ def train_loop(loader, model, optimizer, batch_size=100):
         t0 = t1
 
         if count % batch_size == 0:
-            print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
+            print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
+
+            losses.append(running_loss.cpu())
+
+            ax.clear()
+            ax.plot(losses)
+            ax.text(
+                0.02,
+                0.95,
+                process_name,
+                transform=ax.transAxes,
+                fontsize=10,
+                verticalalignment="top"
+            )
+            ax.set_yscale("log")
+            fig.canvas.flush_events()
+            plt.pause(0.05)
+
             running_loss = 0.0
 
 
@@ -165,6 +190,7 @@ def main(cfg: DictConfig):
 
     print(OmegaConf.to_yaml(cfg))
     run_dir = HydraConfig.get().runtime.output_dir
+    process_name = "\n".join(HydraConfig.get().overrides.task)
 
     gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
 
@@ -184,11 +210,6 @@ def main(cfg: DictConfig):
     if cfg.compile:
         model = torch.compile(model)
 
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=1e-4,
-        eps=1e-14,
-        weight_decay=1e-5,)
 
     train_dataset = QuickDataset2(
         path=cfg.dataset.path,
@@ -205,13 +226,18 @@ def main(cfg: DictConfig):
         prefetch_factor=12,)
 
     for epoch in range(cfg.epochs):
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr=cfg.training.lr,
+            )
 
         if cfg.training.mode == "standard":
             train_loop(
                 train_loader,
                 model,
                 optimizer,
-                batch_size=cfg.batch_size,)
+                batch_size=cfg.batch_size,
+                process_name=process_name,)
 
         elif cfg.training.mode == "rollout":
             train_rollout_loop(
@@ -237,6 +263,9 @@ def main(cfg: DictConfig):
         else model.state_dict(),
         save_path,
     )
+
+    plt.ioff()
+    plt.show()
 
     return 0
 

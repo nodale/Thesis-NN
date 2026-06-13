@@ -2,8 +2,8 @@ n_dim: 26
 out_dim: 13 
 
 architecture:
-  d_model: 64
-  n_encoder_layers: 2
+  d_model: 128
+  n_encoder_layers: 1
   n_decoder_layers: 0
 
   block_type: simple
