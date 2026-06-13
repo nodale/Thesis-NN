@@ -27,6 +27,17 @@ def get_latest_multirun():
 
     return latest
 
+def get_overrides(run_dir):
+    path = run_dir / ".hydra/overrides.yaml"
+
+    if not path.exists():
+        return ""
+
+    with open(path) as f:
+        overrides = yaml.safe_load(f)
+
+    return ", ".join(overrides)
+
 
 def latest_sweep():
     sweeps = list(Path("multirun").glob("*/*"))
@@ -190,9 +201,13 @@ def main():
         if not (run / ".hydra").exists():
             continue
 
-
         print("\n===================")
         print("RUN:", run.name)
+
+        overrides = get_overrides(run)
+
+        print("Overrides:")
+        print(overrides)
 
 
         model, cfg = load_run(
