@@ -151,7 +151,7 @@ class AdvancedMambaBlock(nn.Module):
     ):
         super().__init__()
         # Mamba sublayer
-        self.norm1  = make_norm(d_model, norm)
+        self.norm1  = make_norm(d_mddel, norm)
         self.mixer  = mamba_impl(d_model=d_model, **mamba_kwargs)
         self.drop1  = DropPath(drop_path)
         self.gamma1 = (
@@ -179,16 +179,59 @@ class AdvancedMambaBlock(nn.Module):
         x = x + self.drop2(self._scale(h, self.gamma2))
         return x
  
+class CLSAttentionBlock(nn.Module):
+    def __init__(self, d_model, n_heads, dropout=0.1, positional_encoding=False, max_len=5000):
+        super().__init__()
+        self.cls = nn.Parameter(torch.randn(1, 1, d_model))
+        self.attn = nn.MultiheadAttention(
+            embed_dim=d_model,
+            num_heads=n_heads,
+            dropout=dropout,
+            batch_first=True
+        )
+        self.norm1 = nn.LayerNorm(d_model)
+        self.ff = nn.Sequential(
+            nn.Linear(d_model, 2*d_model),
+            nn.GELU(),
+            nn.Linear(2*d_model, d_model),
+            nn.Dropout(dropout)
+        )
+        self.norm2 = nn.LayerNorm(d_model)
+
+        if positional_encoding == True:
+            self.pos_enc_bool = True
+            self.pos_enc = PositionalEncoding(d_model=d_model, max_len=max_len)
+        else:
+            self.pos_enc_bool = False
+
+    def forward(self, x):
+        if self.pos_enc_bool == True:
+            x = self.pos_enc(x)
+
+        B = x.shape[0]
+        cls = self.cls.expand(B, -1, -1)
+        # prepend CLS
+        x = torch.cat([x, cls], dim=1)
+        # attention
+        attn_out, _ = self.attn(x, x, x)
+        x = self.norm1(x + attn_out)
+        # FFN
+        x = self.norm2(x + self.ff(x))
+        # return CLS only
+        #return x[:, 0]
+        # or return the eniter thing cuz LastTokenAdapter already does it
+        return x
  
 _BLOCKS = {
     "simple":   SimpleMambaBlock,
     "advanced": AdvancedMambaBlock,
+    "cls":      CLSAttentionBlock
 }
 
 _MAMBA_IMPLS = {
-    "mamba": Mamba,
-    "mamba2": Mamba2,
-    "mamba3": Mamba3,
+    "mamba":    Mamba,
+    "mamba2":   Mamba2,
+    "mamba3":   Mamba3,
 }
  
  
@@ -198,30 +241,25 @@ _MAMBA_IMPLS = {
  
 class LinearTimeAdapter(nn.Module):
     """Dense linear over time. Channel-independent. O(T_in * T_out) params."""
- 
     def __init__(self, d_model: int, input_len: int, output_len: int):
         super().__init__()
         self.proj = nn.Linear(input_len, output_len)
- 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.proj(x.transpose(1, 2)).transpose(1, 2)
  
  
 class PoolTimeAdapter(nn.Module):
     """Adaptive avg/max pooling. Parameter-free, lossy, cheap."""
- 
     def __init__(self, d_model: int, input_len: int, output_len: int, mode: str = "avg"):
         super().__init__()
         self.output_len = output_len
         self.fn = F.adaptive_avg_pool1d if mode == "avg" else F.adaptive_max_pool1d
- 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.fn(x.transpose(1, 2), self.output_len).transpose(1, 2)
  
  
 class ConvTimeAdapter(nn.Module):
     """Strided Conv1d + adaptive pool. Local mixing, O(T) cost."""
- 
     def __init__(self, d_model: int, input_len: int, output_len: int, kernel_size: int = 5):
         super().__init__()
         stride = max(1, input_len // max(output_len, 1))
@@ -240,7 +278,6 @@ class ConvTimeAdapter(nn.Module):
 class AttnTimeAdapter(nn.Module):
     """Cross-attention with output_len learned query tokens (Perceiver-style).
     Content-dependent length mapping. O(T_in * T_out * d)."""
- 
     def __init__(self, d_model: int, input_len: int, output_len: int, n_heads: int = 4):
         super().__init__()
         self.queries = nn.Parameter(torch.randn(output_len, d_model) * 0.02)
@@ -252,7 +289,6 @@ class AttnTimeAdapter(nn.Module):
         return out
  
 class MLPTimeAdapter(nn.Module):
-
     def __init__(
         self,
         d_model,
@@ -261,23 +297,17 @@ class MLPTimeAdapter(nn.Module):
         hidden=None,
     ):
         super().__init__()
-
         hidden = hidden or d_model*2
-
         self.net = nn.Sequential(
             nn.Linear(input_len, hidden),
             nn.GELU(),
             nn.Linear(hidden, output_len)
         )
 
-
     def forward(self,x):
-
         # B,T,D -> B,D,T
         h = x.transpose(1,2)
-
         h = self.net(h)
-
         return h.transpose(1,2)
 
 class LastTokenAdapter(nn.Module):
@@ -384,6 +414,7 @@ class JeuralJetwork(nn.Module):
         mlp_mult: float = 4.0,
         mamba_type: str = "mamba",
         mamba_kwargs: dict | None = None,
+        cls_kwargs: dict | None = None,
     ):
         super().__init__()
 
@@ -394,6 +425,7 @@ class JeuralJetwork(nn.Module):
  
         ak = adapter_kwargs or {}
         mk = mamba_kwargs or {}
+        ck = cls_kwargs or {}
  
         if block_type not in _BLOCKS:
             raise ValueError(
@@ -406,15 +438,18 @@ class JeuralJetwork(nn.Module):
                 f"mamba_type must be one of "
                 f"{list(_MAMBA_IMPLS)}"
             )
-        mamba_impl = _MAMBA_IMPLS[mamba_type]
 
-        block_kwargs = dict(mamba_impl=mamba_impl, **mk)
-        if block_type == "advanced":
-            block_kwargs.update(
-                mlp_mult=mlp_mult,
-                layer_scale=layer_scale,
-                drop_path=drop_path,
-            )
+        if block_type == "cls":
+            block_kwargs = dict(**ck)
+        else:
+            mamba_impl = _MAMBA_IMPLS[mamba_type]
+            block_kwargs = dict(mamba_impl=mamba_impl, **mk)
+            if block_type == "advanced":
+                block_kwargs.update(
+                    mlp_mult=mlp_mult,
+                    layer_scale=layer_scale,
+                    drop_path=drop_path,
+                )
 
         # input
         self.in_proj = Projection(
@@ -422,15 +457,11 @@ class JeuralJetwork(nn.Module):
                 d_model,
                 norm=in_norm,
             )
-
-
         # encoder
         self.encoder = nn.ModuleList(
                 Block(d_model=d_model, **block_kwargs)
                 for _ in range(n_encoder_layers)
             )
-
-
         # time mapping
         self.time_projector = _ADAPTERS[time_adapter](
                 d_model,
@@ -438,15 +469,11 @@ class JeuralJetwork(nn.Module):
                 output_len,
                 **ak,
             )
-
-
         # decoder
         self.decoder = nn.ModuleList(
                 Block(d_model=d_model, **block_kwargs)
                 for _ in range(n_decoder_layers)
             )
-
-
         # output
         self.out_proj = Projection(
                 d_model,
@@ -456,18 +483,11 @@ class JeuralJetwork(nn.Module):
  
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         h = self.in_proj(x)
-
         for blk in self.encoder:
             h = blk(h)
-
-
         h = self.time_projector(h)
-
-
         for blk in self.decoder:
             h = blk(h)
-
-
         return self.out_proj(h)
  
  

@@ -10,7 +10,7 @@ seed: 0
 
 hydra:
   launcher:
-    n_jobs: 3
+    n_jobs: 4
 
 dataset:
   path: /home/joey/Thesis/data/patient_one_data.zarr/
@@ -18,7 +18,8 @@ dataset:
 
 training:
   mode: standard
-  lr: 5e-4
+  lr: 1e-4
+  weight_decay: 1e-2
 
 checkpoint:
   save_path: hydra-test.pth

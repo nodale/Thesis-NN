@@ -221,7 +221,7 @@ def main():
 
         dataset = QuickDatasetStraight(
             path=cfg["dataset"]["path"],
-            episode_idx=0,
+            episode_idx=1,
             window_size=input_len + output_len
         )
 

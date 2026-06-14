@@ -37,27 +37,17 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" "):
     losses = []
 
     #training
-
     model.train()
-
     running_loss = 0.0  
     count = 0          
-
     t0 = time.perf_counter()
-
     tot_len = len(loader)
 
     for vec in loader:
-        delta = (
-            vec[:, model.input_len:, :model.out_dim]
-            - vec[:, model.input_len-1:model.input_len, :model.out_dim]
-        )
-
+        delta = (vec[:, model.input_len:model.input_len+1, :model.out_dim] - vec[:, model.input_len-1:model.input_len, :model.out_dim])
         vec = vec.to(device, non_blocking=True)
-
         in_vec = vec[:, :model.input_len, :]
-        truth_vec = vec[:, model.input_len:, :model.out_dim] - vec[:, model.input_len - 1:model.input_len, :model.out_dim]
-    
+        truth_vec = vec[:, model.input_len:model.input_len+1, :model.out_dim] - vec[:, model.input_len - 1:model.input_len, :model.out_dim]
         pred_vec = model(in_vec)
         loss = loss_fn(pred_vec[:, :, :model.out_dim], truth_vec)
 
@@ -93,8 +83,13 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" "):
 
             running_loss = 0.0
 
+def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, process_name=" "):
+    #monitoring
+    plt.ion()
+    fig, ax = plt.subplots()
+    losses = []
 
-def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01):
+    #training
     model.train()
     running_loss = 0.0  
     count = 0          
@@ -109,7 +104,8 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         vec = vec.to(device, non_blocking=True)
         history = vec[:, :model.input_len, :].clone()
         loss = 0
-        for step in range(model.output_len):
+        rollout_steps = torch.randint(low=3,high=24, size=(), generator=generator, device="cuda")
+        for step in range(rollout_steps):
             pred = model(history)
             pred_delta = pred[:,0,:3]
             curr_state = history[:,-1,:3]
@@ -136,7 +132,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
                  next_frame.unsqueeze(1)],
                 dim=1
             )
-        loss /= model.output_len
+        loss /= rollout_steps
         loss.backward()
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
@@ -146,7 +142,23 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         dt = t1 - t0
         t0 = t1
         if count % batch_size == 0:
-            print(f"avg_loss: {running_loss / batch_size:.12f}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
+            print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
+            losses.append(running_loss.cpu())
+
+            ax.clear()
+            ax.plot(losses)
+            ax.text(
+                0.02,
+                0.95,
+                process_name,
+                transform=ax.transAxes,
+                fontsize=10,
+                verticalalignment="top"
+            )
+            ax.set_yscale("log")
+            fig.canvas.flush_events()
+            plt.pause(0.05)
+
             running_loss = 0.0
 
 
@@ -214,21 +226,23 @@ def main(cfg: DictConfig):
     train_dataset = QuickDataset2(
         path=cfg.dataset.path,
         training_size=cfg.dataset.training_size,
-        window_size=total_len,)
+        window_size=total_len+24,)
 
     train_loader = DataLoader(
         train_dataset,
         batch_size=cfg.batch_size,
-        num_workers=6,
+        num_workers=4,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=12,)
+        prefetch_factor=8,)
 
     for epoch in range(cfg.epochs):
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=cfg.training.lr,
+            weight_decay=cfg.training.weight_decay,
+            eps=1e-12,
             )
 
         if cfg.training.mode == "standard":
@@ -237,7 +251,8 @@ def main(cfg: DictConfig):
                 model,
                 optimizer,
                 batch_size=cfg.batch_size,
-                process_name=process_name,)
+                process_name=process_name,
+                )
 
         elif cfg.training.mode == "rollout":
             train_rollout_loop(
@@ -246,14 +261,17 @@ def main(cfg: DictConfig):
                 optimizer,
                 generator=gen,
                 batch_size=cfg.batch_size,
-                schedule_prob=epoch * 0.25,)
+                schedule_prob=epoch * 0.25,
+                process_name=process_name,
+                )
 
         elif cfg.training.mode == "gml":
             train_loop_gml(
                 train_loader,
                 model,
                 optimizer,
-                batch_size=cfg.batch_size,)
+                batch_size=cfg.batch_size,
+                )
 
     save_path = os.path.join(run_dir, cfg.checkpoint.save_path,)
 
@@ -263,6 +281,8 @@ def main(cfg: DictConfig):
         else model.state_dict(),
         save_path,
     )
+
+    print("DONE!!!")
 
     plt.ioff()
     plt.show()
