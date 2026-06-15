@@ -63,8 +63,8 @@ class QuickDataset2(IterableDataset):
 
         for i in range(worker_id, self.training_size, num_workers):
 
-            #ep_idx = rng.integers(0, self.num_batch)
-            ep_idx = rng.integers(0, 20)
+            ep_idx = rng.integers(0, self.num_batch)
+            #ep_idx = rng.integers(0, 20)
             t_idx = rng.integers(
                 0,
                 self.seq_len - self.window_size + 1,

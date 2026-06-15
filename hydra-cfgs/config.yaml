@@ -2,7 +2,7 @@ defaults:
   - models: replica
   - override hydra/launcher: joblib
 
-input_len: 128
+input_len: 16
 output_len: 1
 batch_size: 256
 epochs: 1
@@ -17,8 +17,8 @@ dataset:
   training_size: 7500000
 
 training:
-  mode: standard
-  lr: 1e-4
+  mode: rollout
+  lr: 1e-5
   weight_decay: 1e-2
 
 checkpoint:
