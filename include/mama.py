@@ -128,7 +128,7 @@ class SimpleMambaBlock(nn.Module):
         self.mixer = mamba_impl(d_model=d_model, **mamba_kwargs)
  
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x + self.mixer(self.norm(x))
+        return self.mixer(self.norm(x))
  
  
 class AdvancedMambaBlock(nn.Module):

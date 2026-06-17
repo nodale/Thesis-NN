@@ -30,7 +30,7 @@ def loss_fn_gml(pred_vec, truth_vec):
 
     return loss.mean(), var[-1, :].detach().cpu()
 
-def train_loop(loader, model, optimizer, batch_size=100, process_name=" "):
+def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6):
     #monitoring
     plt.ion()
     fig, ax = plt.subplots()
@@ -44,12 +44,12 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" "):
     tot_len = len(loader)
 
     for vec in loader:
-        delta = (vec[:, model.input_len:model.input_len+1, :model.out_dim] - vec[:, model.input_len-1:model.input_len, :model.out_dim])
+        delta = (vec[:, model.input_len:model.input_len+1, :pred_dim] - vec[:, model.input_len-1:model.input_len, :pred_dim])
         vec = vec.to(device, non_blocking=True)
         in_vec = vec[:, :model.input_len, :]
-        truth_vec = vec[:, model.input_len:model.input_len+1, :model.out_dim] - vec[:, model.input_len - 1:model.input_len, :model.out_dim]
+        truth_vec = vec[:, model.input_len:model.input_len+1, :pred_dim] - vec[:, model.input_len - 1:model.input_len, :pred_dim]
         pred_vec = model(in_vec)
-        loss = loss_fn(pred_vec[:, :, :model.out_dim], truth_vec)
+        loss = loss_fn(pred_vec[:, :, :pred_dim], truth_vec)
 
         loss.backward()
         optimizer.step()
@@ -83,7 +83,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" "):
 
             running_loss = 0.0
 
-def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, process_name=" "):
+def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, process_name=" ", pred_dim=6):
     #monitoring
     plt.ion()
     fig, ax = plt.subplots()
@@ -97,8 +97,8 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
     tot_len = len(loader)
     for vec in loader:
         delta = (
-            vec[:, model.input_len:, :3]
-            - vec[:, model.input_len-1:model.input_len, :3]
+            vec[:, model.input_len:, :pred_dim]
+            - vec[:, model.input_len-1:model.input_len, :pred_dim]
         )
 
         vec = vec.to(device, non_blocking=True)
@@ -107,10 +107,10 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         rollout_steps = torch.randint(low=3,high=24, size=(), generator=generator, device="cuda")
         for step in range(rollout_steps):
             pred = model(history)
-            pred_delta = pred[:,0,:3]
-            curr_state = history[:,-1,:3]
+            pred_delta = pred[:,0,:pred_dim]
+            curr_state = history[:,-1,:pred_dim]
             pred_state = curr_state + pred_delta
-            gt_state = vec[:, model.input_len + step, :3]
+            gt_state = vec[:, model.input_len + step, :pred_dim]
             loss += loss_fn(pred_state, gt_state)
             next_frame = vec[:, model.input_len + step, :].clone()
             use_pred = (
@@ -121,7 +121,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
                 ) < schedule_prob
             )
 
-            next_frame[:, :3] = torch.where(
+            next_frame[:, :pred_dim] = torch.where(
                 use_pred.unsqueeze(1),   # (B,1)
                 pred_state,              # (B,3)
                 gt_state                 # (B,3)
@@ -231,11 +231,11 @@ def main(cfg: DictConfig):
     train_loader = DataLoader(
         train_dataset,
         batch_size=cfg.batch_size,
-        num_workers=4,
+        num_workers=20,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=8,)
+        prefetch_factor=40,)
 
     for epoch in range(cfg.epochs):
         optimizer = torch.optim.AdamW(

@@ -135,11 +135,11 @@ def load_model(checkpoint, cfg, device):
 
 
 
-def evaluate(model, loader, input_len, output_len, device):
+def evaluate(model, loader, input_len, output_len, device, pred_dim=6):
 
     total_len = input_len + output_len
 
-    init_pos = next(iter(loader))[:input_len,:3]
+    init_pos = next(iter(loader))[:input_len, :pred_dim]
     init_pos = init_pos.to(device)
 
 
@@ -150,12 +150,12 @@ def evaluate(model, loader, input_len, output_len, device):
         for d in loader:
 
             _in = d[:input_len, :].to(device)
-            _in[:input_len, :3] = init_pos
+            _in[:input_len, :pred_dim] = init_pos
 
             out = model(_in.unsqueeze(0))
             out = out.squeeze(0)
 
-            new_pos = init_pos[-1] + out[0, :3]
+            new_pos = init_pos[-1] + out[0, :pred_dim]
 
             init_pos = torch.roll(
                 init_pos,
@@ -169,7 +169,7 @@ def evaluate(model, loader, input_len, output_len, device):
             )
 
             truth.append(
-                d[-1, :3].cpu().unsqueeze(0)
+                d[-1, :pred_dim].cpu().unsqueeze(0)
             )
 
     predicted = torch.cat(predicted, dim=0)
@@ -215,13 +215,12 @@ def main():
             device
         )
 
-
         input_len = cfg["input_len"]
         output_len = cfg["output_len"]
 
         dataset = QuickDatasetStraight(
-            path=cfg["dataset"]["path"],
-            episode_idx=1,
+            path=cfg["evaluation"]["path"],
+            episode_idx=0,
             window_size=input_len + output_len
         )
 

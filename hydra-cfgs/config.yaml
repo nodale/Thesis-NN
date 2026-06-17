@@ -13,12 +13,15 @@ hydra:
     n_jobs: 4
 
 dataset:
-  path: /home/joey/Thesis/data/patient_one_data.zarr/
+  path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
   training_size: 7500000
+
+evaluation:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
 
 training:
   mode: rollout
-  lr: 1e-5
+  lr: 1e-4
   weight_decay: 1e-2
 
 checkpoint:
