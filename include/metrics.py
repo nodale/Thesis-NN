@@ -122,3 +122,34 @@ def print_all_metrics(predicted, truth):
     drift = metric_drift_rate(predicted, truth)
     print("Drift:", drift["drift_percent"], "%", "(", drift["drift_m_per_km"], "m/km )")
 
+class MetricsAccumulator:
+    def __init__(self):
+        self.results = []
+    def update(self, predicted, truth):
+        result = {
+            "trajectory_length": metric_trajectory_length(truth),
+            "ate_rmse": metric_ate(predicted, truth, align=True),
+            "mean_error": metric_mean_error(predicted, truth),
+            "max_error": metric_max_error(predicted, truth),
+            "endpoint_error": metric_endpoint_error(predicted, truth),
+        }
+
+        kitti = metric_kitti_odometry(predicted, truth)
+        result["kitti_translation_drift"] = kitti["translation_error_percent"]
+
+        drift = metric_drift_rate(predicted, truth)
+        result["drift_percent"] = drift["drift_percent"]
+        result["drift_m_per_km"] = drift["drift_m_per_km"]
+        self.results.append(result)
+
+    def average(self):
+        if len(self.results) == 0:
+            return {}
+        keys = self.results[0].keys()
+        return {key: np.mean([r[key] for r in self.results])for key in keys}
+
+    def print(self):
+        avg = self.average()
+        print("\n===== Average Odometry Metrics =====")
+        for key, value in avg.items():
+            print(f"{key}: {value:.6f}")
