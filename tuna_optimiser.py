@@ -13,16 +13,19 @@ from batched_evaluator import evaluate_model   # your evaluation file
 device = torch.device("cuda")
 import copy
 
+TRAIN_LOADER = None
+ZARR_ROOT = None
+
 def build_architecture(trial, cfg):
     arch = copy.deepcopy(cfg.models.architecture)
 
     # -----------------------
     # CORE MODEL CAPACITY
     # -----------------------
-    arch["d_model"] = trial.suggest_categorical("d_model", [128, 256, 512])
+    arch["d_model"] = trial.suggest_categorical("d_model", [16, 32, 128])
     arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 3)
 
-    arch["layer_scale"] = trial.suggest_float("layer_scale", 0.0, 0.2)
+    arch["layer_scale"] = trial.suggest_float("layer_scale", 0.0, 1e-4)
     arch["drop_path"] = trial.suggest_float("drop_path", 0.0, 0.2)
 
     # -----------------------
@@ -44,9 +47,9 @@ def build_architecture(trial, cfg):
         mk["expand"] = trial.suggest_categorical("mamba_expand", [2, 4])
 
         # IMPORTANT missing knobs from YAML
-        mk["d_conv"] = trial.suggest_categorical("mamba_d_conv", [2, 3, 4])
+        mk["d_conv"] = trial.suggest_categorical("mamba_d_conv", [2, 4])
 
-        mk["norm"] = trial.suggest_categorical("mamba_norm", ["rms", "layer"])
+        mk["norm"] = trial.suggest_categorical("mamba_norm", ["none", "rms", "layer"])
 
         # optional if your model supports it safely
         # mk["dt_rank"] = trial.suggest_categorical("mamba_dt_rank", [16, 32])
@@ -116,20 +119,29 @@ rollout_steps   : {cfg.training.rollout_steps}
     print("=" * 70 + "\n")
 
 def make_train_loader(cfg):
-    total_len = cfg.input_len + cfg.output_len
+
+    max_input = 128
+    max_rollout = 48
+
+    total_len = (
+        max_input
+        + cfg.output_len
+        + max_rollout
+    )
 
     dataset = QuickDataset2(
         path=cfg.dataset.path,
         training_size=cfg.dataset.training_size,
-        window_size=total_len + cfg.training.rollout_steps,
+        window_size=total_len,
     )
 
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg.batch_size,
-        num_workers=8,
+        num_workers=12,
         pin_memory=True,
-        persistent_workers=False,
+        persistent_workers=True,
+        prefetch_factor=5,
     )
 
     return loader
@@ -160,7 +172,7 @@ def quick_validation_loss(model, loader):
     return total/count
 
 
-def objective(trial, base_cfg):
+def objective(trial, base_cfg, loader, root):
     cfg = OmegaConf.create(
         OmegaConf.to_container(
             base_cfg,
@@ -187,6 +199,7 @@ def objective(trial, base_cfg):
         output_len=cfg.output_len,
         **arch
     ).to(device)
+    #model = torch.compile(model)
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -202,7 +215,7 @@ def objective(trial, base_cfg):
         mode="r"
     )["episodes"]
 
-    for epoch in range(5):
+    for epoch in range(3):
 
         print(
             f"Trial {trial.number} | epoch {epoch+1}/5"
@@ -259,7 +272,7 @@ def objective(trial, base_cfg):
     acc = evaluate_model(
         model,
         root,
-        eps_indices=[0,1,2,3,4],
+        eps_indices=[0,1,2],
         input_len=cfg.input_len,
         output_len=cfg.output_len,
         device=device
@@ -285,7 +298,6 @@ def objective(trial, base_cfg):
 
     del model
     del optimizer
-    del loader
     torch.cuda.empty_cache()
 
     return score
@@ -309,6 +321,18 @@ def print_callback(study, trial):
     config_name="config"
 )
 def main(cfg):
+    global TRAIN_LOADER
+    global ZARR_ROOT
+
+    print("Loading dataset once...")
+
+    TRAIN_LOADER = make_train_loader(cfg)
+    ZARR_ROOT = zarr.open(
+        zarr.storage.LocalStore(
+            cfg.evaluation.path
+        ),
+        mode="r"
+    )["episodes"]
 
     study = optuna.create_study(
         direction="minimize",
@@ -316,11 +340,16 @@ def main(cfg):
     )
 
     study.optimize(
-        lambda trial: objective(trial, cfg),
-        n_trials=7,
+        lambda trial: objective(
+            trial,
+            cfg,
+            TRAIN_LOADER,
+            ZARR_ROOT,
+        ),
+        n_trials=50,
         callbacks=[print_callback],
-        n_jobs=7,
-    )
+        n_jobs=5,
+        )
 
     print("\n====================")
     print("OPTIMIZATION DONE")
