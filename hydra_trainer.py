@@ -36,7 +36,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
         plt.ion()
         fig, ax = plt.subplots()
     
-    losses = []
+        losses = []
 
     #training
     model.train()
@@ -67,9 +67,10 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
         if count % batch_size == 0:
             print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
 
-            losses.append(running_loss.cpu())
 
             if plot is True:
+                losses.append(running_loss.cpu())
+
                 ax.clear()
                 ax.plot(losses)
                 ax.text(
@@ -92,7 +93,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         plt.ion()
         fig, ax = plt.subplots()
     
-    losses = []
+        losses = []
 
     #training
     model.train()
@@ -148,9 +149,9 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         t0 = t1
         if count % batch_size == 0:
             print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
-            losses.append(running_loss.cpu())
 
             if plot is True:
+                losses.append(running_loss.cpu())
                 ax.clear()
                 ax.plot(losses)
                 ax.text(

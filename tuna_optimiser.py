@@ -1,6 +1,7 @@
 import optuna
 import hydra
 import torch
+import zarr
 from omegaconf import OmegaConf
 
 from include.mama import JeuralJetwork
@@ -10,6 +11,108 @@ from hydra_trainer import train_loop, train_rollout_loop
 from batched_evaluator import evaluate_model   # your evaluation file
 
 device = torch.device("cuda")
+import copy
+
+def build_architecture(trial, cfg):
+    arch = copy.deepcopy(cfg.models.architecture)
+
+    # -----------------------
+    # CORE MODEL CAPACITY
+    # -----------------------
+    arch["d_model"] = trial.suggest_categorical("d_model", [128, 256, 512])
+    arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 3)
+
+    arch["layer_scale"] = trial.suggest_float("layer_scale", 0.0, 0.2)
+    arch["drop_path"] = trial.suggest_float("drop_path", 0.0, 0.2)
+
+    # -----------------------
+    # BLOCK TYPE
+    # -----------------------
+    arch["block_type"] = trial.suggest_categorical(
+        "block_type",
+        ["simple", "advanced", "cls"]
+    )
+
+    # -----------------------
+    # MAMBA BLOCK
+    # -----------------------
+    if arch["block_type"] in ["simple", "advanced"]:
+
+        mk = arch["mamba_kwargs"]
+
+        mk["d_state"] = trial.suggest_categorical("mamba_d_state", [8, 16, 32, 64])
+        mk["expand"] = trial.suggest_categorical("mamba_expand", [2, 4])
+
+        # IMPORTANT missing knobs from YAML
+        mk["d_conv"] = trial.suggest_categorical("mamba_d_conv", [2, 3, 4])
+
+        mk["norm"] = trial.suggest_categorical("mamba_norm", ["rms", "layernorm"])
+
+        # optional if your model supports it safely
+        # mk["dt_rank"] = trial.suggest_categorical("mamba_dt_rank", [16, 32])
+
+        arch["cls_kwargs"] = None  # ensure no leakage
+
+    # -----------------------
+    # CLS BLOCK
+    # -----------------------
+    elif arch["block_type"] == "cls":
+
+        ck = arch["cls_kwargs"]
+
+        ck["n_heads"] = trial.suggest_categorical("cls_heads", [2, 4, 8])
+        ck["dropout"] = trial.suggest_float("cls_dropout", 0.0, 0.3)
+
+        ck["positional_encoding"] = trial.suggest_categorical(
+            "cls_posenc",
+            [True, False]
+        )
+
+        ck["max_len"] = trial.suggest_categorical(
+            "cls_max_len",
+            [512, 1000, 2000, 5000]
+        )
+
+        arch["mamba_kwargs"] = None  # ensure no leakage
+
+    return arch
+
+def print_architecture(trial, cfg, arch):
+    print("\n" + "=" * 70)
+    print(f"TRIAL {trial.number} CONFIG")
+    print("=" * 70)
+
+    print(f"""
+block_type      : {arch.get("block_type")}
+d_model         : {arch.get("d_model")}
+enc_layers      : {arch.get("n_encoder_layers")}
+drop_path       : {arch.get("drop_path")}
+layer_scale     : {arch.get("layer_scale")}
+input_len       : {cfg.input_len}
+lr              : {cfg.training.lr:.2e}
+weight_decay    : {cfg.training.weight_decay:.2e}
+""")
+
+    # ---- MAMBA ----
+    mk = arch.get("mamba_kwargs")
+    if mk is not None:
+        print("---- MAMBA ----")
+        print(f"d_state        : {mk.get('d_state')}")
+        print(f"d_conv         : {mk.get('d_conv')}")
+        print(f"expand         : {mk.get('expand')}")
+        print(f"norm           : {mk.get('norm')}")
+        print(f"dt_rank        : {mk.get('dt_rank')}")
+
+    # ---- CLS ----
+    ck = arch.get("cls_kwargs")
+    if ck is not None:
+        print("---- CLS ----")
+        print(f"n_heads        : {ck.get('n_heads')}")
+        print(f"dropout        : {ck.get('dropout')}")
+        print(f"pos_encoding   : {ck.get('positional_encoding')}")
+        print(f"max_len        : {ck.get('max_len')}")
+
+    print("=" * 70 + "\n")
 
 def make_train_loader(cfg):
     total_len = cfg.input_len + cfg.output_len
@@ -23,9 +126,9 @@ def make_train_loader(cfg):
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg.batch_size,
-        num_workers=20,
+        num_workers=8,
         pin_memory=True,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     return loader
@@ -68,62 +171,8 @@ def objective(trial, base_cfg):
     print(f"STARTING TRIAL {trial.number}")
     print("="*60)
 
-    cfg.models.architecture.d_model = trial.suggest_categorical(
-        "d_model",
-        [128,256,512]
-    )
-
-    cfg.models.architecture.n_encoder_layers = trial.suggest_int(
-        "encoder_layers",
-        1,
-        5
-    )
-
-    cfg.models.architecture.block_type = trial.suggest_categorical(
-        "block_type",
-        ["simple", "advanced", "cls"]
-    )
-
-    cfg.models.architecture.cls_kwargs.n_heads = trial.suggest_categorical(
-        "cls_heads",
-        [2,4,8]
-    )
-    cfg.models.architecture.cls_kwargs.dropout = trial.suggest_float(
-        "cls_dropout",
-        0.0,
-        0.3
-    )
-
-    cfg.training.lr = trial.suggest_float(
-        "lr",
-        5e-4,
-        1e-3,
-        log=True
-    )
-
-    cfg.input_len = trial.suggest_categorical(
-        "input_len",
-        [8,16,32,64,128]
-    )
-
-    cfg.training.weight_decay = trial.suggest_float(
-        "weight_decay",
-        1e-6,
-        1e-1,
-        log=True
-    )
-
-    print("Hyperparameters:")
-    print(
-        f"""
-        d_model        : {cfg.models.architecture.d_model}
-        enc layers     : {cfg.models.architecture.n_encoder_layers}
-        lr             : {cfg.training.lr:.2e}
-        weight decay   : {cfg.training.weight_decay:.2e}
-        input_len      : {cfg.input_len:.2e}
-        block_type     : {cfg.models.architecture.block_type}
-        """
-    )
+    arch = build_architecture(trial, cfg)
+    print_architecture(trial, cfg, arch)
 
     model = JeuralJetwork(
         n_dim=cfg.models.n_dim,
@@ -141,6 +190,11 @@ def objective(trial, base_cfg):
 
     loader = make_train_loader(cfg)
     gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
+
+    root = zarr.open(
+        zarr.storage.LocalStore(cfg.evaluation.path),
+        mode="r"
+    )["episodes"]
 
     for epoch in range(5):
 
@@ -223,6 +277,11 @@ def objective(trial, base_cfg):
         """
     )
 
+    del model
+    del optimizer
+    del loader
+    torch.cuda.empty_cache()
+
     return score
 
 def print_callback(study, trial):
@@ -252,7 +311,7 @@ def main(cfg):
 
     study.optimize(
         lambda trial: objective(trial, cfg),
-        n_trials=100,
+        n_trials=5,
         callbacks=[print_callback],
         n_jobs=2,
     )
