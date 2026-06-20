@@ -91,6 +91,7 @@ layer_scale     : {arch.get("layer_scale")}
 input_len       : {cfg.input_len}
 lr              : {cfg.training.lr:.2e}
 weight_decay    : {cfg.training.weight_decay:.2e}
+rollout_steps   : {cfg.training.rollout_steps}
 """)
 
     # ---- MAMBA ----
@@ -170,6 +171,11 @@ def objective(trial, base_cfg):
     print("\n" + "="*60)
     print(f"STARTING TRIAL {trial.number}")
     print("="*60)
+
+    cfg.training.lr = trial.suggest_float("lr",5e-4,1e-3,log=True)
+    cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64,128])
+    cfg.training.weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-1, log=True)
+    cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
 
     arch = build_architecture(trial, cfg)
     print_architecture(trial, cfg, arch)
@@ -311,7 +317,7 @@ def main(cfg):
 
     study.optimize(
         lambda trial: objective(trial, cfg),
-        n_trials=5,
+        n_trials=1,
         callbacks=[print_callback],
         n_jobs=2,
     )
