@@ -30,10 +30,12 @@ def loss_fn_gml(pred_vec, truth_vec):
 
     return loss.mean(), var[-1, :].detach().cpu()
 
-def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6):
+def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6, plot=False):
     #monitoring
-    plt.ion()
-    fig, ax = plt.subplots()
+    if plot is True:
+        plt.ion()
+        fig, ax = plt.subplots()
+    
     losses = []
 
     #training
@@ -67,26 +69,29 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
 
             losses.append(running_loss.cpu())
 
-            ax.clear()
-            ax.plot(losses)
-            ax.text(
-                0.02,
-                0.95,
-                process_name,
-                transform=ax.transAxes,
-                fontsize=10,
-                verticalalignment="top"
-            )
-            ax.set_yscale("log")
-            fig.canvas.flush_events()
-            plt.pause(0.05)
+            if plot is True:
+                ax.clear()
+                ax.plot(losses)
+                ax.text(
+                    0.02,
+                    0.95,
+                    process_name,
+                    transform=ax.transAxes,
+                    fontsize=10,
+                    verticalalignment="top"
+                )
+                ax.set_yscale("log")
+                fig.canvas.flush_events()
+                plt.pause(0.05)
 
             running_loss = 0.0
 
-def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, process_name=" ", pred_dim=6):
+def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=6, plot=False):
     #monitoring
-    plt.ion()
-    fig, ax = plt.subplots()
+    if plot is True:
+        plt.ion()
+        fig, ax = plt.subplots()
+    
     losses = []
 
     #training
@@ -104,7 +109,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         vec = vec.to(device, non_blocking=True)
         history = vec[:, :model.input_len, :].clone()
         loss = 0
-        rollout_steps = torch.randint(low=3,high=24, size=(), generator=generator, device="cuda")
+        rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda")
         for step in range(rollout_steps):
             pred = model(history)
             pred_delta = pred[:,0,:pred_dim]
@@ -145,19 +150,20 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
             print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
             losses.append(running_loss.cpu())
 
-            ax.clear()
-            ax.plot(losses)
-            ax.text(
-                0.02,
-                0.95,
-                process_name,
-                transform=ax.transAxes,
-                fontsize=10,
-                verticalalignment="top"
-            )
-            ax.set_yscale("log")
-            fig.canvas.flush_events()
-            plt.pause(0.05)
+            if plot is True:
+                ax.clear()
+                ax.plot(losses)
+                ax.text(
+                    0.02,
+                    0.95,
+                    process_name,
+                    transform=ax.transAxes,
+                    fontsize=10,
+                    verticalalignment="top"
+                )
+                ax.set_yscale("log")
+                fig.canvas.flush_events()
+                plt.pause(0.05)
 
             running_loss = 0.0
 
@@ -226,16 +232,32 @@ def main(cfg: DictConfig):
     train_dataset = QuickDataset2(
         path=cfg.dataset.path,
         training_size=cfg.dataset.training_size,
-        window_size=total_len+24,)
-
+        window_size=total_len+cfg.training.rollout_steps,)
+            
     train_loader = DataLoader(
         train_dataset,
+        batch_size=cfg.batch_size,
+        num_workers=40,
+        pin_memory=True,
+        multiprocessing_context='fork',
+        persistent_workers=True,
+        prefetch_factor=80,
+        )
+
+    val_dataset = QuickDataset2(
+        path=cfg.evaluation.path,
+        training_size=cfg.evaluation.validation_size,
+        window_size=total_len+cfg.training.rollout_steps,
+    )
+    val_loader = DataLoader(
+        val_dataset,
         batch_size=cfg.batch_size,
         num_workers=20,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=40,)
+        prefetch_factor=80,
+    )
 
     for epoch in range(cfg.epochs):
         optimizer = torch.optim.AdamW(

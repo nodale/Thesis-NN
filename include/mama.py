@@ -151,7 +151,7 @@ class AdvancedMambaBlock(nn.Module):
     ):
         super().__init__()
         # Mamba sublayer
-        self.norm1  = make_norm(d_mddel, norm)
+        self.norm1  = make_norm(d_model, norm)
         self.mixer  = mamba_impl(d_model=d_model, **mamba_kwargs)
         self.drop1  = DropPath(drop_path)
         self.gamma1 = (

@@ -12,6 +12,7 @@ from QuickDataset import QuickDatasetStraight
 from include.mama import JeuralJetwork
 from pathlib import Path
 from include.metrics import print_all_metrics
+from include.central_denormaliser import denormalise
 
 matplotlib.use("QtAgg")
 
@@ -122,10 +123,10 @@ def evaluate(model, loader, input_len, output_len, device, pred_dim=6):
             )
             init_pos[-1] = new_pos
             predicted.append(
-                new_pos.cpu().unsqueeze(0)
+                denormalise(new_pos.cpu().unsqueeze(0))
             )
             truth.append(
-                d[-1, :pred_dim].cpu().unsqueeze(0)
+                denormalise(d[-1, :pred_dim].cpu().unsqueeze(0))
             )
 
     predicted = torch.cat(predicted, dim=0)

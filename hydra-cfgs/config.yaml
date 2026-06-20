@@ -14,15 +14,17 @@ hydra:
 
 dataset:
   path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
-  training_size: 7500000
+  training_size: 1500000
 
 evaluation:
   path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
+  evaluation_size: 10
 
 training:
   mode: rollout
   lr: 1e-4
   weight_decay: 1e-2
+  rollout_steps: 24
 
 checkpoint:
   save_path: hydra-test.pth

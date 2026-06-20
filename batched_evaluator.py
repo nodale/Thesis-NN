@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from QuickDataset import QuickDatasetStraight
 from include.mama import JeuralJetwork
 from include.metrics import print_all_metrics, MetricsAccumulator
+from include.central_denormaliser import denormalise
 
 import matplotlib.pyplot as plt
 
@@ -200,11 +201,13 @@ def evaluate_model(model, root, eps_indices, input_len, output_len, device):
         device
     )
 
-    plot(preds, truths, name=" ")
+    #plot([denormalise(p) for p in preds], [denormalise(t) for t in truths], name=" ")
 
     acc = MetricsAccumulator()
 
     for p, t in zip(preds, truths):
+        p = denormalise(p)
+        t = denormalise(t)
         acc.update(p, t)
 
     return acc
@@ -253,7 +256,7 @@ def main():
         if r.is_dir() and (r / ".hydra").exists()
     ]
 
-    eps_indices = list(range(100))  # <- choose how many trajectories you want
+    eps_indices = list(range(10))  # <- choose how many trajectories you want
 
     with ProcessPoolExecutor(max_workers=min(len(runs), os.cpu_count())) as ex:
         futures = [
