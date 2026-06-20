@@ -46,7 +46,7 @@ def build_architecture(trial, cfg):
         # IMPORTANT missing knobs from YAML
         mk["d_conv"] = trial.suggest_categorical("mamba_d_conv", [2, 3, 4])
 
-        mk["norm"] = trial.suggest_categorical("mamba_norm", ["rms", "layernorm"])
+        mk["norm"] = trial.suggest_categorical("mamba_norm", ["rms", "layer"])
 
         # optional if your model supports it safely
         # mk["dt_rank"] = trial.suggest_categorical("mamba_dt_rank", [16, 32])
@@ -185,7 +185,7 @@ def objective(trial, base_cfg):
         out_dim=cfg.models.out_dim,
         input_len=cfg.input_len,
         output_len=cfg.output_len,
-        **cfg.models.architecture
+        **arch
     ).to(device)
 
     optimizer = torch.optim.AdamW(
@@ -317,9 +317,9 @@ def main(cfg):
 
     study.optimize(
         lambda trial: objective(trial, cfg),
-        n_trials=1,
+        n_trials=7,
         callbacks=[print_callback],
-        n_jobs=2,
+        n_jobs=7,
     )
 
     print("\n====================")

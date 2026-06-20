@@ -14,7 +14,7 @@ hydra:
 
 dataset:
   path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
-  training_size: 150000
+  training_size: 1500000
 
 evaluation:
   path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
