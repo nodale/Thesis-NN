@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 from torch.utils.data import DataLoader, IterableDataset
-from QuickDataset import QuickDatasetStraight
+from QuickDataset import QuickDatasetStraight, FlightLog
 from include.mama import JeuralJetwork
 from pathlib import Path
 from include.metrics import print_all_metrics
@@ -158,11 +158,15 @@ def main():
         )
         input_len = cfg["input_len"]
         output_len = cfg["output_len"]
-        dataset = QuickDatasetStraight(
-            path='/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/',
-            episode_idx=0,
-            window_size=input_len + output_len
-        )
+        
+        log = torch.load("rl_dataset/converted.pt")
+        dataset = FlightLog(data=log, window_size=input_len+output_len)
+        
+        #dataset = QuickDatasetStraight(
+        #    path='/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/',
+        #    episode_idx=0,
+        #    window_size=input_len + output_len
+        #)
         loader = DataLoader(
             dataset,
             batch_size=None,

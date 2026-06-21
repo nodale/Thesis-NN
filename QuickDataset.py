@@ -121,6 +121,20 @@ class QuickDatasetStraight(IterableDataset):
 
             yield torch.from_numpy(window)
 
+class FlightLog(IterableDataset):
+    def __init__(self, data, window_size=12):
+        self.window_size = window_size
+        self.data = data.cpu()
+        self.len = self.data.shape[0]
+
+    def __len__(self):
+        return self.len
+
+    def __iter__(self):
+        for idx in range(self.len - self.window_size + 1):
+            data = self.data[idx:idx+self.window_size, :]
+            yield data
+
 
 #main for testing purposes only
 def main():

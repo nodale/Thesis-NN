@@ -49,7 +49,7 @@ def build_architecture(trial, cfg):
         # IMPORTANT missing knobs from YAML
         mk["d_conv"] = trial.suggest_categorical("mamba_d_conv", [2, 4])
 
-        mk["norm"] = trial.suggest_categorical("mamba_norm", ["none", "rms", "layer"])
+        mk["norm"] = trial.suggest_categorical("mamba_norm", ["none", "layer"]) #for some reasons rms is broken
 
         # optional if your model supports it safely
         # mk["dt_rank"] = trial.suggest_categorical("mamba_dt_rank", [16, 32])
@@ -138,10 +138,10 @@ def make_train_loader(cfg):
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg.batch_size,
-        num_workers=12,
+        num_workers=20,
         pin_memory=True,
         persistent_workers=True,
-        prefetch_factor=5,
+        prefetch_factor=40,
     )
 
     return loader
@@ -180,9 +180,9 @@ def objective(trial, base_cfg, loader, root):
         )
     )
 
-    print("\n" + "="*60)
-    print(f"STARTING TRIAL {trial.number}")
-    print("="*60)
+    #print("\n" + "="*60)
+    #print(f"STARTING TRIAL {trial.number}")
+    #print("="*60)
 
     cfg.training.lr = trial.suggest_float("lr",5e-4,1e-3,log=True)
     cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64,128])
@@ -190,7 +190,7 @@ def objective(trial, base_cfg, loader, root):
     cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
 
     arch = build_architecture(trial, cfg)
-    print_architecture(trial, cfg, arch)
+    #print_architecture(trial, cfg, arch)
 
     model = JeuralJetwork(
         n_dim=cfg.models.n_dim,
@@ -231,21 +231,21 @@ def objective(trial, base_cfg, loader, root):
             rollout_max_steps=cfg.training.rollout_steps
         )
 
-        if epoch > 0:
-            mini_acc = evaluate_model(
-                model,
-                root,
-                eps_indices=[0],
-                input_len=cfg.input_len,
-                output_len=cfg.output_len,
-                device=device
-            )
-            val = mini_acc.average()["ate_rmse"]
-        else:
-            val = quick_validation_loss(
-                model,
-                loader
-            )
+        #if epoch > 0:
+        mini_acc = evaluate_model(
+            model,
+            root,
+            eps_indices=[0],
+            input_len=cfg.input_len,
+            output_len=cfg.output_len,
+            device=device
+        )
+        val = mini_acc.average()["ate_rmse"]
+        #else:
+        #    val = quick_validation_loss(
+        #        model,
+        #        loader
+        #    )
 
         print(
             f"validation loss: {val:.6f}"
@@ -346,7 +346,7 @@ def main(cfg):
             TRAIN_LOADER,
             ZARR_ROOT,
         ),
-        n_trials=50,
+        n_trials=40,
         callbacks=[print_callback],
         n_jobs=5,
         )

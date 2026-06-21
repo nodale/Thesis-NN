@@ -49,7 +49,7 @@ def metric_drift_rate(pred, truth):
     m_per_km = (final_error / distance * 1000)
     return {"drift_percent": percent, "drift_m_per_km": m_per_km}
 
-def metric_ate(pred, truth, align=True):
+def metric_ate(pred, truth, align=False):
     """
     Absolute Trajectory Error RMSE
     Returns:
@@ -128,7 +128,7 @@ class MetricsAccumulator:
     def update(self, predicted, truth):
         result = {
             "trajectory_length": metric_trajectory_length(truth),
-            "ate_rmse": metric_ate(predicted, truth, align=True),
+            "ate_rmse": metric_ate(predicted, truth, align=False),
             "mean_error": metric_mean_error(predicted, truth),
             "max_error": metric_max_error(predicted, truth),
             "endpoint_error": metric_endpoint_error(predicted, truth),
