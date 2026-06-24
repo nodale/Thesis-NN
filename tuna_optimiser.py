@@ -33,8 +33,9 @@ def build_architecture(trial, cfg):
     # -----------------------
     arch["block_type"] = trial.suggest_categorical(
         "block_type",
-        ["simple", "advanced", "cls"]
+        ["cls"]
     )
+    #["simple", "advanced", "cls"]
 
     # -----------------------
     # MAMBA BLOCK
@@ -138,10 +139,10 @@ def make_train_loader(cfg):
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg.batch_size,
-        num_workers=20,
+        num_workers=12,
         pin_memory=True,
-        persistent_workers=True,
-        prefetch_factor=40,
+        persistent_workers=False,
+        prefetch_factor=24,
     )
 
     return loader
@@ -173,119 +174,92 @@ def quick_validation_loss(model, loader):
 
 
 def objective(trial, base_cfg, loader, root):
-    cfg = OmegaConf.create(
-        OmegaConf.to_container(
-            base_cfg,
-            resolve=True
-        )
-    )
+    model = None
+    optimizer = None
+    acc = None
 
-    #print("\n" + "="*60)
-    #print(f"STARTING TRIAL {trial.number}")
-    #print("="*60)
+    try:
+        cfg = OmegaConf.create(OmegaConf.to_container(base_cfg, resolve=True))
 
-    cfg.training.lr = trial.suggest_float("lr",5e-4,1e-3,log=True)
-    cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64,128])
-    cfg.training.weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-1, log=True)
-    cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
+        cfg.training.lr = trial.suggest_float("lr", 5e-4, 1e-3, log=True)
+        cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64,128])
+        cfg.training.weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-1, log=True)
+        cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
 
-    arch = build_architecture(trial, cfg)
-    #print_architecture(trial, cfg, arch)
+        arch = build_architecture(trial, cfg)
 
-    model = JeuralJetwork(
-        n_dim=cfg.models.n_dim,
-        out_dim=cfg.models.out_dim,
-        input_len=cfg.input_len,
-        output_len=cfg.output_len,
-        **arch
-    ).to(device)
-    #model = torch.compile(model)
+        model = JeuralJetwork(
+            n_dim=cfg.models.n_dim,
+            out_dim=cfg.models.out_dim,
+            input_len=cfg.input_len,
+            output_len=cfg.output_len,
+            **arch
+        ).to(device)
 
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=cfg.training.lr,
-        weight_decay=cfg.training.weight_decay
-    )
-
-    loader = make_train_loader(cfg)
-    gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
-
-    root = zarr.open(
-        zarr.storage.LocalStore(cfg.evaluation.path),
-        mode="r"
-    )["episodes"]
-
-    for epoch in range(3):
-
-        print(
-            f"Trial {trial.number} | epoch {epoch+1}/5"
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=cfg.training.lr,
+            weight_decay=cfg.training.weight_decay
         )
 
-        train_rollout_loop(
-            loader,
-            model,
-            optimizer,
-            batch_size=cfg.batch_size,
-            process_name=f"trial {trial.number}",
-            generator=gen,
-            rollout_max_steps=cfg.training.rollout_steps
-        )
+        gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
 
-        #if epoch > 0:
-        mini_acc = evaluate_model(
+        for epoch in range(3):
+            print(f"Trial {trial.number} | epoch {epoch+1}/3")
+
+            train_rollout_loop(
+                loader,
+                model,
+                optimizer,
+                batch_size=cfg.batch_size,
+                process_name=f"trial {trial.number}",
+                generator=gen,
+                rollout_max_steps=cfg.training.rollout_steps,
+                schedule_prob=epoch*0.35
+            )
+
+            acc = evaluate_model(
+                model,
+                root,
+                eps_indices=[0],
+                input_len=cfg.input_len,
+                output_len=cfg.output_len,
+                device=device
+            )
+
+            val = acc.average()["ate_rmse"]
+
+            del acc
+            acc = None
+
+            print(f"validation loss: {val:.6f}")
+
+            trial.report(val, epoch)
+
+            if trial.should_prune():
+                print(f"TRIAL {trial.number} PRUNED (epoch {epoch})")
+                raise optuna.TrialPruned()
+
+        print(f"Running trajectory evaluation for trial {trial.number}...")
+
+        acc = evaluate_model(
             model,
             root,
-            eps_indices=[0],
+            eps_indices=[0,1,2],
             input_len=cfg.input_len,
             output_len=cfg.output_len,
             device=device
         )
-        val = mini_acc.average()["ate_rmse"]
-        #else:
-        #    val = quick_validation_loss(
-        #        model,
-        #        loader
-        #    )
 
-        print(
-            f"validation loss: {val:.6f}"
+        metrics = acc.average()
+
+        score = (
+            metrics["ate_rmse"]
+            + 0.1 * metrics["endpoint_error"]
+            + 0.01 * metrics["drift_m_per_km"]
         )
 
-        trial.report(
-            val,
-            epoch
-        )
-
-        if trial.should_prune():
-
-            print(
-                f"TRIAL {trial.number} PRUNED "
-                f"(epoch {epoch})"
-            )
-
-            raise optuna.TrialPruned()
-
-    print(
-        f"Running trajectory evaluation for trial {trial.number}..."
-    )
-
-    acc = evaluate_model(
-        model,
-        root,
-        eps_indices=[0,1,2],
-        input_len=cfg.input_len,
-        output_len=cfg.output_len,
-        device=device
-    )
-
-    metrics = acc.average()
-    score = (
-        metrics["ate_rmse"]
-        + 0.1 * metrics["endpoint_error"]
-        + 0.01 * metrics["drift_m_per_km"]
-    )
-
-    print(f"""
+        print(f"""
         TRIAL {trial.number} RESULT
 
         ATE RMSE       : {metrics["ate_rmse"]:.4f}
@@ -293,14 +267,24 @@ def objective(trial, base_cfg, loader, root):
         Drift m/km     : {metrics["drift_m_per_km"]:.4f}
 
         TOTAL SCORE    : {score:.4f}
-        """
-    )
+        """)
 
-    del model
-    del optimizer
-    torch.cuda.empty_cache()
+        return score
 
-    return score
+    finally:
+        print(f"Cleaning trial {trial.number}")
+
+        if acc is not None:
+            del acc
+
+        if optimizer is not None:
+            optimizer.zero_grad(set_to_none=True)
+            del optimizer
+
+        if model is not None:
+            del model
+
+        torch.cuda.empty_cache()
 
 def print_callback(study, trial):
 
@@ -346,9 +330,9 @@ def main(cfg):
             TRAIN_LOADER,
             ZARR_ROOT,
         ),
-        n_trials=40,
+        n_trials=50,
         callbacks=[print_callback],
-        n_jobs=5,
+        n_jobs=2,
         )
 
     print("\n====================")

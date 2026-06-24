@@ -91,7 +91,7 @@ states.T[:, 10:13] /= 0.5
 dataset = torch.cat([
     states.T,            # (T, 13)
     acc.T/25.0,               # (T, 3)
-    actions.T/9.81,           # (T, 4)
+    actions.T,           # (T, 4)
     setpoints.T/3.0,         # (T, 3)
 ], dim=1)
 
