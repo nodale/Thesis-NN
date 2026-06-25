@@ -2,11 +2,11 @@ n_dim: 23
 out_dim: 13 
 
 architecture:
-  d_model: 128
-  n_encoder_layers: 2
+  d_model: 32
+  n_encoder_layers: 3
   n_decoder_layers: 0
 
-  block_type: simple
+  block_type: cls
   time_adapter: last_token
 
   in_norm: none
@@ -24,6 +24,6 @@ architecture:
     norm: rms
 
   cls_kwargs:
-    n_heads: 2
+    n_heads: 4
     positional_encoding: False
     max_len: 5000

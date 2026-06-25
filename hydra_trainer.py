@@ -11,6 +11,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
@@ -36,7 +37,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
         plt.ion()
         fig, ax = plt.subplots()
     
-        losses = []
+    losses = []
 
     #training
     model.train()
@@ -64,12 +65,12 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
         dt = t1 - t0
         t0 = t1
 
+        losses.append(running_loss.cpu())
         if count % batch_size == 0:
             print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
 
 
             if plot is True:
-                losses.append(running_loss.cpu())
 
                 ax.clear()
                 ax.plot(losses)
@@ -86,6 +87,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
                 plt.pause(0.05)
 
             running_loss = 0.0
+    return losses
 
 def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=6, plot=False):
     #monitoring
@@ -93,7 +95,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         plt.ion()
         fig, ax = plt.subplots()
     
-        losses = []
+    losses = []
 
     #training
     model.train()
@@ -110,7 +112,8 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         vec = vec.to(device, non_blocking=True)
         history = vec[:, :model.input_len, :].clone()
         loss = 0
-        rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda")
+        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda")
+        rollout_steps = rollout_max_steps
         for step in range(rollout_steps):
             pred = model(history)
             pred_delta = pred[:,0,:pred_dim]
@@ -147,11 +150,13 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         t1 = time.perf_counter()
         dt = t1 - t0
         t0 = t1
+
+
+        losses.append(running_loss.cpu())
         if count % batch_size == 0:
             print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
 
             if plot is True:
-                losses.append(running_loss.cpu())
                 ax.clear()
                 ax.plot(losses)
                 ax.text(
@@ -167,6 +172,8 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
                 plt.pause(0.05)
 
             running_loss = 0.0
+
+    return losses
 
 
 def train_loop_gml(loader, model, optimizer, batch_size=100):
@@ -214,6 +221,7 @@ def main(cfg: DictConfig):
     gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
 
     total_len = cfg.input_len + cfg.output_len
+    all_losses = []
 
     model = JeuralJetwork(
         n_dim=cfg.models.n_dim,
@@ -238,28 +246,27 @@ def main(cfg: DictConfig):
     train_loader = DataLoader(
         train_dataset,
         batch_size=cfg.batch_size,
-        num_workers=40,
+        num_workers=10,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=80,
+        prefetch_factor=30,
         )
 
     val_dataset = QuickDataset2(
         path=cfg.evaluation.path,
-        training_size=cfg.evaluation.validation_size,
+        training_size=cfg.evaluation.evaluation_size,
         window_size=total_len+cfg.training.rollout_steps,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=cfg.batch_size,
-        num_workers=20,
+        num_workers=10,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=80,
+        prefetch_factor=30,
     )
-
     for epoch in range(cfg.epochs):
         optimizer = torch.optim.AdamW(
             model.parameters(),
@@ -269,7 +276,7 @@ def main(cfg: DictConfig):
             )
 
         if cfg.training.mode == "standard":
-            train_loop(
+            losses = train_loop(
                 train_loader,
                 model,
                 optimizer,
@@ -278,13 +285,13 @@ def main(cfg: DictConfig):
                 )
 
         elif cfg.training.mode == "rollout":
-            train_rollout_loop(
+            losses = train_rollout_loop(
                 train_loader,
                 model,
                 optimizer,
                 generator=gen,
                 batch_size=cfg.batch_size,
-                schedule_prob=epoch * 0.25,
+                schedule_prob=epoch * 0.10,
                 process_name=process_name,
                 )
 
@@ -296,6 +303,9 @@ def main(cfg: DictConfig):
                 batch_size=cfg.batch_size,
                 )
 
+        all_losses.extend(losses)
+
+    np.save(os.path.join(run_dir, "loss_history.npy"), torch.stack(all_losses).cpu().numpy())
     save_path = os.path.join(run_dir, cfg.checkpoint.save_path,)
 
     torch.save(
