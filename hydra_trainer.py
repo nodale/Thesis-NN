@@ -2,6 +2,7 @@ import hydra
 import torch
 import time
 import os
+import math
 
 from omegaconf import DictConfig, OmegaConf
 from hydra.core.hydra_config import HydraConfig
@@ -12,6 +13,10 @@ from torch.utils.data import DataLoader
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
+torch.set_float32_matmul_precision("high")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
@@ -61,7 +66,8 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
         running_loss += loss.detach()
         count += 1.0
 
-        t1 = time.perf_counter()
+        torch.cuda.synchronize()
+        t1=time.perf_counter()
         dt = t1 - t0
         t0 = t1
 
@@ -122,6 +128,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
             gt_state = vec[:, model.input_len + step, :pred_dim]
             loss += loss_fn(pred_state, gt_state)
             next_frame = vec[:, model.input_len + step, :].clone()
+
             use_pred = (
                 torch.rand(
                     history.shape[0],
@@ -131,23 +138,28 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
             )
 
             next_frame[:, :pred_dim] = torch.where(
-                use_pred.unsqueeze(1),   # (B,1)
-                pred_state,              # (B,3)
-                gt_state                 # (B,3)
+                use_pred.unsqueeze(1),
+                pred_state,
+                gt_state
             )
 
             history = torch.cat(
-                [history[:,1:,:],
-                 next_frame.unsqueeze(1)],
+                [
+                    history[:,1:,:],
+                    next_frame.unsqueeze(1)
+                ],
                 dim=1
             )
+
         loss /= rollout_steps
         loss.backward()
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
+
         running_loss += loss.detach()
         count += 1.0
-        t1 = time.perf_counter()
+        torch.cuda.synchronize()
+        t1=time.perf_counter()
         dt = t1 - t0
         t0 = t1
 
@@ -199,7 +211,8 @@ def train_loop_gml(loader, model, optimizer, batch_size=100):
         count += 1.0
 
 
-        t1 = time.perf_counter()
+        torch.cuda.synchronize()
+        t1=time.perf_counter()
         dt = t1 - t0
         t0 = t1
         if count % batch_size == 0:
@@ -246,11 +259,11 @@ def main(cfg: DictConfig):
     train_loader = DataLoader(
         train_dataset,
         batch_size=cfg.batch_size,
-        num_workers=10,
+        num_workers=32,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=30,
+        prefetch_factor=8,
         )
 
     val_dataset = QuickDataset2(
@@ -261,19 +274,22 @@ def main(cfg: DictConfig):
     val_loader = DataLoader(
         val_dataset,
         batch_size=cfg.batch_size,
-        num_workers=10,
+        num_workers=32,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
-        prefetch_factor=30,
+        prefetch_factor=8,
     )
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=cfg.training.lr,
+        weight_decay=cfg.training.weight_decay,
+        eps=1e-12,
+        )
+    sched_prob = 1.0/(1.0 + cfg.epochs)
+
     for epoch in range(cfg.epochs):
-        optimizer = torch.optim.AdamW(
-            model.parameters(),
-            lr=cfg.training.lr,
-            weight_decay=cfg.training.weight_decay,
-            eps=1e-12,
-            )
+        sched_prob_sigmoid = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
 
         if cfg.training.mode == "standard":
             losses = train_loop(
@@ -291,7 +307,7 @@ def main(cfg: DictConfig):
                 optimizer,
                 generator=gen,
                 batch_size=cfg.batch_size,
-                schedule_prob=epoch * 0.10,
+                schedule_prob=epoch * sched_prob,
                 process_name=process_name,
                 )
 
@@ -305,7 +321,6 @@ def main(cfg: DictConfig):
 
         all_losses.extend(losses)
 
-    np.save(os.path.join(run_dir, "loss_history.npy"), torch.stack(all_losses).cpu().numpy())
     save_path = os.path.join(run_dir, cfg.checkpoint.save_path,)
 
     torch.save(
@@ -314,6 +329,8 @@ def main(cfg: DictConfig):
         else model.state_dict(),
         save_path,
     )
+
+    np.save(os.path.join(run_dir, "loss_history.npy"), torch.stack(all_losses).cpu().numpy())
 
     print("DONE!!!")
 

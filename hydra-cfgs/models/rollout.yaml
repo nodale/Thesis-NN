@@ -24,6 +24,6 @@ architecture:
     norm: rms
 
   cls_kwargs:
-    n_heads: 4
+    n_heads: 8
     positional_encoding: False
     max_len: 5000

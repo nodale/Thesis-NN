@@ -22,9 +22,9 @@ evaluation:
 
 training:
   mode: rollout
-  lr: 1e-4
+  lr: 2e-4
   weight_decay: 1e-2
-  rollout_steps: 32
+  rollout_steps: 24
 
 checkpoint:
   save_path: hydra-test.pth
