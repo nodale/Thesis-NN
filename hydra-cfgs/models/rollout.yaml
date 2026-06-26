@@ -2,8 +2,8 @@ n_dim: 23
 out_dim: 13 
 
 architecture:
-  d_model: 32
-  n_encoder_layers: 3
+  d_model: 64
+  n_encoder_layers: 2
   n_decoder_layers: 0
 
   block_type: cls

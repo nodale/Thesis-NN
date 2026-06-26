@@ -4,7 +4,7 @@ defaults:
 
 input_len: 32
 output_len: 1
-batch_size: 256
+batch_size: 512
 epochs: 1
 seed: 0
 

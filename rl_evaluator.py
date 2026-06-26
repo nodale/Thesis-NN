@@ -50,9 +50,16 @@ def load_run(run_dir, device):
     # find checkpoint
     ckpt = list(run_dir.glob("**/*.pth"))[0]
     print("Loading:", ckpt)
+
+    mode = cfg["training"]["mode"]
+    if mode == "rollout":
+        out_dim = cfg["models"]["out_dim"]
+    else:
+        out_dim = cfg["models"]["out_dim"] * 2
+
     model = JeuralJetwork(
         n_dim=cfg["models"]["n_dim"],
-        out_dim=cfg["models"]["out_dim"],
+        out_dim=out_dim,
         input_len=cfg["input_len"],
         output_len=cfg["output_len"],
         **cfg["models"]["architecture"]

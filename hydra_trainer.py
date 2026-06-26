@@ -25,16 +25,23 @@ print(f"Using {device} device")
 def loss_fn(pred, truth):
     return (torch.nn.functional.mse_loss(pred, truth))
 
-def loss_fn_gml(pred_vec, truth_vec):
-    pred_mean = pred_vec[..., :3]
-    raw_var = pred_vec[..., 3:]
-    var = torch.nn.functional.softplus(raw_var) + 1e-12
-    e = truth_vec - pred_mean
-    logdet = torch.log(var).sum(dim=-1)
-    mahal = (e.square() / var).sum(dim=-1)
-    loss = 0.5 * (logdet + mahal)
+def loss_fn_gml(pred, target, eps=1e-6):
+    """
+    pred:   [B, T, 2D] -> first D mean, second D log_var
+    target: [B, T, D]
+    """
+    d = int(target.shape[-1]/2)
 
-    return loss.mean(), var[-1, :].detach().cpu()
+    mu = pred[..., :d]
+    log_var = pred[..., d:]
+
+    var = torch.exp(log_var) + eps
+
+    loss = 0.5 * (log_var + (target[..., :d] - mu) ** 2 / var)
+    loss = loss.mean()
+
+    return loss
+
 
 def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6, plot=False):
     #monitoring
@@ -48,10 +55,12 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
     model.train()
     running_loss = 0.0  
     count = 0          
-    t0 = time.perf_counter()
     tot_len = len(loader)
 
     for vec in loader:
+        torch.cuda.synchronize()
+        t0 = time.perf_counter()
+
         delta = (vec[:, model.input_len:model.input_len+1, :pred_dim] - vec[:, model.input_len-1:model.input_len, :pred_dim])
         vec = vec.to(device, non_blocking=True)
         in_vec = vec[:, :model.input_len, :]
@@ -107,9 +116,11 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
     model.train()
     running_loss = 0.0  
     count = 0          
-    t0 = time.perf_counter()
     tot_len = len(loader)
     for vec in loader:
+        torch.cuda.synchronize()
+        t0 = time.perf_counter()
+
         delta = (
             vec[:, model.input_len:, :pred_dim]
             - vec[:, model.input_len-1:model.input_len, :pred_dim]
@@ -161,8 +172,6 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         torch.cuda.synchronize()
         t1=time.perf_counter()
         dt = t1 - t0
-        t0 = t1
-
 
         losses.append(running_loss.cpu())
         if count % batch_size == 0:
@@ -188,37 +197,136 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
     return losses
 
 
-def train_loop_gml(loader, model, optimizer, batch_size=100):
+def train_gml_loop(loader, model, optimizer, batch_size=100, device="cuda"):
     model.train()
-    running_loss = 0.0  
-    count = 0          
-    t0 = time.perf_counter()
+    running_loss = 0.0
+    losses = []
+    count = 0
     tot_len = len(loader)
+
     for vec in loader:
+        torch.cuda.synchronize()
+        t0 = time.perf_counter()
+
         vec = vec.to(device, non_blocking=True)
 
         in_vec = vec[:, :model.input_len, :]
-        truth_vec = vec[:, model.input_len:, :3] - vec[:, model.input_len - 1:model.input_len, :3]
+        truth_vec = vec[:, model.input_len:, :]
+
         pred_vec = model(in_vec)
 
-        loss, var = loss_fn_gml(pred_vec, truth_vec)
+        loss = loss_fn_gml(pred_vec, truth_vec)
 
         loss.backward()
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
 
         running_loss += loss.detach()
-        count += 1.0
+        count += 1
 
-
-        torch.cuda.synchronize()
-        t1=time.perf_counter()
-        dt = t1 - t0
-        t0 = t1
+        losses.append(running_loss.cpu())
         if count % batch_size == 0:
-            print(f"avg_loss: {running_loss / batch_size:.12f}          random_var: {var}         time_per_window : {dt/batch_size:.6f}        progress : {count/tot_len:.3f}")
+            t1 = time.perf_counter()
+            dt = t1 - t0
+            t0 = t1
+
+            print(
+                f"avg_loss: {running_loss / batch_size:.8f} "
+                f"var: {var:.6f} "
+                f"time/window: {dt/batch_size:.6f} "
+                f"progress: {count/tot_len:.3f}"
+            )
             running_loss = 0.0
 
+    return losses
+
+def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=12, plot=False):
+    #monitoring
+    if plot is True:
+        plt.ion()
+        fig, ax = plt.subplots()
+    
+    losses = []
+
+    #training
+    model.train()
+    running_loss = 0.0  
+    count = 0          
+    tot_len = len(loader)
+    for vec in loader:
+        torch.cuda.synchronize()
+        t0 = time.perf_counter()
+        o
+        delta = (
+            vec[:, model.input_len:, :pred_dim]
+            - vec[:, model.input_len-1:model.input_len, :pred_dim]
+        )
+
+        vec = vec.to(device, non_blocking=True)
+        history = vec[:, :model.input_len, :].clone()
+        loss = 0
+        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda")
+        rollout_steps = rollout_max_steps
+        for step in range(rollout_steps):
+            pred = model(history)
+            pred_delta = pred[:,0,:pred_dim]
+            curr_state = history[:,-1,:pred_dim]
+            pred_state = curr_state + pred_delta
+            gt_state = vec[:, model.input_len + step, :pred_dim]
+            loss += loss_fn_gml(pred_state, gt_state)
+            next_frame = vec[:, model.input_len + step, :].clone()
+            use_pred = (
+                torch.rand(
+                    history.shape[0],
+                    device=history.device,
+                    generator=generator
+                ) < schedule_prob
+            )
+
+            next_frame[:, :pred_dim] = torch.where(
+                use_pred.unsqueeze(1),   # (B,1)
+                pred_state,              # (B,3)
+                gt_state                 # (B,3)
+            )
+
+            history = torch.cat(
+                [history[:,1:,:],
+                 next_frame.unsqueeze(1)],
+                dim=1
+            )
+        loss /= rollout_steps
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+        running_loss += loss.detach()
+        count += 1.0
+        t1 = time.perf_counter()
+        dt = t1 - t0
+        t0 = t1
+
+
+        losses.append(running_loss.cpu())
+        if count % batch_size == 0:
+            print(f"name: {process_name}    avg_loss: {running_loss / batch_size:.12f}  time_per_window : {dt/batch_size:.6f}   progress : {count/tot_len:.3f}")
+
+            if plot is True:
+                ax.clear()
+                ax.plot(losses)
+                ax.text(
+                    0.02,
+                    0.95,
+                    process_name,
+                    transform=ax.transAxes,
+                    fontsize=10,
+                    verticalalignment="top"
+                )
+                ax.set_yscale("linear")
+                fig.canvas.flush_events()
+                plt.pause(0.05)
+
+            running_loss = 0.0
+
+    return losses
 
 @hydra.main(
     version_base=None,
@@ -236,13 +344,20 @@ def main(cfg: DictConfig):
     total_len = cfg.input_len + cfg.output_len
     all_losses = []
 
-    model = JeuralJetwork(
-        n_dim=cfg.models.n_dim,
-        out_dim=cfg.models.out_dim,
-        input_len=cfg.input_len,
-        output_len=cfg.output_len,
-        **cfg.models.architecture,).to(device)
-
+    if cfg.training.mode == "rollout":
+        model = JeuralJetwork(
+            n_dim=cfg.models.n_dim,
+            out_dim=cfg.models.out_dim,
+            input_len=cfg.input_len,
+            output_len=cfg.output_len,
+            **cfg.models.architecture,).to(device)
+    else:
+        model = JeuralJetwork(
+            n_dim=cfg.models.n_dim,
+            out_dim=cfg.models.out_dim*2,
+            input_len=cfg.input_len,
+            output_len=cfg.output_len,
+            **cfg.models.architecture,).to(device)
     if cfg.checkpoint.load:
         state_dict = torch.load(cfg.checkpoint.path, map_location=device)
         model.load_state_dict(state_dict)
@@ -259,7 +374,7 @@ def main(cfg: DictConfig):
     train_loader = DataLoader(
         train_dataset,
         batch_size=cfg.batch_size,
-        num_workers=32,
+        num_workers=24,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
@@ -274,7 +389,7 @@ def main(cfg: DictConfig):
     val_loader = DataLoader(
         val_dataset,
         batch_size=cfg.batch_size,
-        num_workers=32,
+        num_workers=8,
         pin_memory=True,
         multiprocessing_context='fork',
         persistent_workers=True,
@@ -307,7 +422,8 @@ def main(cfg: DictConfig):
                 optimizer,
                 generator=gen,
                 batch_size=cfg.batch_size,
-                schedule_prob=epoch * sched_prob,
+                rollout_max_steps=cfg.training.rollout_steps,
+                schedule_prob=sched_prob_sigmoid,
                 process_name=process_name,
                 )
 
@@ -318,6 +434,30 @@ def main(cfg: DictConfig):
                 optimizer,
                 batch_size=cfg.batch_size,
                 )
+
+        elif cfg.training.mode == "gml_rollout":
+            if epoch < 1:
+                losses = train_rollout_loop(
+                    train_loader,
+                    model,
+                    optimizer,
+                    generator=gen,
+                    batch_size=cfg.batch_size,
+                    rollout_max_steps=cfg.training.rollout_steps,
+                    schedule_prob=sched_prob_sigmoid,
+                    process_name=process_name,
+                    )
+            else:
+                losses = train_gml_rollout_loop(
+                    train_loader,
+                    model,
+                    optimizer,
+                    generator=gen,
+                    batch_size=cfg.batch_size,
+                    schedule_prob=sched_prob_sigmoid,
+                    process_name=process_name,
+                    plot=True
+                    )
 
         all_losses.extend(losses)
 

@@ -22,11 +22,11 @@ def build_architecture(trial, cfg):
     # -----------------------
     # CORE MODEL CAPACITY
     # -----------------------
-    arch["d_model"] = trial.suggest_categorical("d_model", [16, 32, 128])
+    arch["d_model"] = trial.suggest_categorical("d_model", [4, 8, 16, 32, 64])
     arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 3)
 
-    arch["layer_scale"] = trial.suggest_float("layer_scale", 0.0, 1e-4)
-    arch["drop_path"] = trial.suggest_float("drop_path", 0.0, 0.2)
+    arch["layer_scale"] = trial.suggest_categorical("layer_scale", [0.0, 1e-4])
+    arch["drop_path"] = trial.suggest_categorical("drop_path", [0.0, 0.15])
 
     # -----------------------
     # BLOCK TYPE
@@ -65,7 +65,7 @@ def build_architecture(trial, cfg):
         ck = arch["cls_kwargs"]
 
         ck["n_heads"] = trial.suggest_categorical("cls_heads", [2, 4, 8])
-        ck["dropout"] = trial.suggest_float("cls_dropout", 0.0, 0.3)
+        ck["dropout"] = trial.suggest_categorical("cls_dropout", [0.0, 0.15])
 
         ck["positional_encoding"] = trial.suggest_categorical(
             "cls_posenc",
@@ -121,8 +121,8 @@ rollout_steps   : {cfg.training.rollout_steps}
 
 def make_train_loader(cfg):
 
-    max_input = 128
-    max_rollout = 48
+    max_input = 64
+    max_rollout = 64
 
     total_len = (
         max_input
@@ -181,10 +181,12 @@ def objective(trial, base_cfg, loader, root):
     try:
         cfg = OmegaConf.create(OmegaConf.to_container(base_cfg, resolve=True))
 
-        cfg.training.lr = trial.suggest_float("lr", 5e-4, 1e-3, log=True)
-        cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64,128])
-        cfg.training.weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-1, log=True)
-        cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
+        cfg.training.lr = trial.suggest_categorical("lr", [5e-4, 1e-4, 5e-4, 1e-3], log=True)
+        cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64])
+        cfg.training.weight_decay = trial.suggest_categorical("weight_decay", [1e-4, 1e-2, 1e-1], log=True)
+        #cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
+        cfg.training.rollout_steps = cfg.input_len
+        cfg.epochs = trial.suggest_categorical("epochs", [5], log=True)
 
         arch = build_architecture(trial, cfg)
 
@@ -203,8 +205,9 @@ def objective(trial, base_cfg, loader, root):
         )
 
         gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
-
-        for epoch in range(3):
+        sched_prob = 1.0/(1.0 + cfg.epochs)
+        for epoch in range(cfg.epochs):
+            sched_prob_sigmoid = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
             print(f"Trial {trial.number} | epoch {epoch+1}/3")
 
             train_rollout_loop(
@@ -215,7 +218,7 @@ def objective(trial, base_cfg, loader, root):
                 process_name=f"trial {trial.number}",
                 generator=gen,
                 rollout_max_steps=cfg.training.rollout_steps,
-                schedule_prob=epoch*0.35
+                schedule_prob=sched_prob_sigmoid
             )
 
             acc = evaluate_model(
