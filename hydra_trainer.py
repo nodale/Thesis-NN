@@ -26,14 +26,18 @@ def loss_fn(pred, truth):
     return (torch.nn.functional.mse_loss(pred, truth))
 
 def loss_fn_gml(pred, target, eps=1e-6):
-    d = pred.shape[-1] // 2
-    mu = pred[..., :d]
-    log_var = pred[..., d:]
-    var = torch.exp(log_var) + eps
-    loss = 0.5 * (
-        log_var +
-        (target - mu)**2 / var
-    )
+    h = pred.shape[-1] // 2
+
+    sigma = torch.prod(pred[..., h:], dim=1, keepdim=True)
+    a = 0.5 * torch.log(sigma)
+
+    err =  pred[..., :h] - target[..., :h]
+    print(err.shape)
+    print(pred[..., h:].shape)
+    b = 0.5 * err * pred[..., h:] * err
+
+    loss = a + b
+
     return loss.mean()
 
 def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6, plot=False):
@@ -97,7 +101,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
             running_loss = 0.0
     return losses
 
-def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=6, plot=False):
+def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=13, est_dim=6, plot=False):
     #monitoring
     if plot is True:
         plt.ion()
@@ -127,6 +131,10 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
                 pred_state = curr_state + pred_delta
                 gt_state = vec[:, model.input_len + step, :pred_dim]
                 loss += loss_fn(pred_state, gt_state)
+
+                est_state = pred_state[:, :est_dim]
+                real_state = vec[:, model.input_len + step, :est_dim]
+
             next_frame = vec[:, model.input_len + step, :].clone()
 
             use_pred = (
@@ -136,11 +144,10 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
                     generator=generator
                 ) < schedule_prob
             )
-
-            next_frame[:, :pred_dim] = torch.where(
+            next_frame[:, :est_dim] = torch.where(
                 use_pred.unsqueeze(1),
-                pred_state,
-                gt_state
+                est_state,
+                real_state
             )
             history = torch.roll(history, -1, dims=1)
             history[:,-1,:] = next_frame
@@ -179,7 +186,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
 
     return losses
 
-def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=6, plot=False):
+def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=13, est_dim=6, plot=False):
     #monitoring
     if plot is True:
         plt.ion()
@@ -201,6 +208,7 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
         loss = 0
         #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda")
         rollout_steps = rollout_max_steps
+
         for step in range(rollout_steps):
             with torch.amp.autocast("cuda", dtype=torch.float16):
                 pred = model(history)
@@ -208,9 +216,12 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
                 curr_state = history[:,-1,:pred_dim]
                 pred_state = curr_state + pred_delta
                 gt_state = vec[:, model.input_len + step, :pred_dim]
-                #tring horizon weighting
                 weight = (step + 1) / (rollout_steps * (rollout_steps + 1) / 2)
                 loss += weight * loss_fn(pred_state, gt_state)
+
+                est_state = pred_state[:, :est_dim]
+                real_state = vec[:, model.input_len + step, :est_dim]
+
             next_frame = vec[:, model.input_len + step, :].clone()
 
             use_pred = (
@@ -220,20 +231,13 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
                     generator=generator
                 ) < schedule_prob
             )
-
-            next_frame[:, :pred_dim] = torch.where(
+            next_frame[:, :est_dim] = torch.where(
                 use_pred.unsqueeze(1),
-                pred_state,
-                gt_state
+                est_state,
+                real_state
             )
-
-            history = torch.cat(
-                [
-                    history[:,1:,:],
-                    next_frame.unsqueeze(1)
-                ],
-                dim=1
-            )
+            history = torch.roll(history, -1, dims=1)
+            history[:,-1,:] = next_frame
 
         #loss /= rollout_steps
         scaler.scale(loss).backward()
@@ -287,6 +291,7 @@ def train_gml_loop(loader, model, optimizer, batch_size=100, device="cuda"):
 
         with torch.amp.autocast("cuda", dtype=torch.float16):
             pred_vec = model(in_vec)
+            print(pred_vec)
             loss = loss_fn_gml(pred_vec, truth_vec)
 
         scaler.scale(loss).backward()
@@ -313,7 +318,7 @@ def train_gml_loop(loader, model, optimizer, batch_size=100, device="cuda"):
 
     return losses
 
-def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=13, plot=False):
+def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, schedule_prob=0.01, rollout_max_steps=24, process_name=" ", pred_dim=13, est_dim=6, plot=False):
     #monitoring
     if plot is True:
         plt.ion()
@@ -339,18 +344,22 @@ def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, 
         for step in range(rollout_max_steps):
             with torch.amp.autocast("cuda", dtype=torch.float16):
                 pred=model(history)
-                mu_delta=pred[:,:,:pred_dim]
-                logvar=pred[:,:,pred_dim:]
+                mu_delta=pred[:,0,:pred_dim]
+                logvar=pred[:,0,pred_dim:]
                 curr=history[:,-1,:pred_dim]
                 mu_state=curr+mu_delta
                 gt_state=vec[:,model.input_len+step,:pred_dim]
                 pred_gaussian=torch.cat([mu_state,logvar],dim=-1)
-                #loss+=loss_fn_gml(pred_gaussian,gt_state)
-                loss+=loss_fn_gml(torch.cat([mu_state, logvar], -1), gt_state)
+                loss+=loss_fn_gml(pred_gaussian,gt_state)
+                #loss+=loss_fn_gml(torch.cat([mu_state, logvar], -1), gt_state)
+
+                est_state = mu_state[:, :est_dim]
+                real_state = vec[:, model.input_len + step, :est_dim]
+
             next_frame=vec[:,model.input_len+step,:].clone()
             use_pred=(torch.rand(history.shape[0],device=history.device,generator=generator)<schedule_prob)
-            #next_frame[:, :pred_dim]=torch.where(use_pred.unsqueeze(1),mu_state,gt_state)
-            next_frame[:, :pred_dim]=gt_state
+            #next_frame[:, :pred_dim]=torch.where(use_pred.unsqueeze(1),est_state,real_state)
+            next_frame[:, :est_dim]=real_state
             history=torch.cat([history[:,1:,:],next_frame.unsqueeze(1)],dim=1)
 
         loss /= rollout_steps
@@ -414,7 +423,7 @@ def main(cfg: DictConfig):
     else:
         model = JeuralJetwork(
             n_dim=cfg.models.n_dim,
-            out_dim=cfg.models.out_dim*2,
+            out_dim=cfg.models.out_dim * 2,
             input_len=cfg.input_len,
             output_len=cfg.output_len,
             **cfg.models.architecture,).to(device)
@@ -458,21 +467,22 @@ def main(cfg: DictConfig):
         persistent_workers=True,
         prefetch_factor=2,
     )
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=cfg.training.lr,
+        weight_decay=cfg.training.weight_decay,
+        eps=1e-12,
+        )
     sched_prob = 1.0/(1.0 + cfg.epochs)
 
-    plot = True
+    plot = False
     for epoch in range(cfg.epochs):
         #sched_prob_imp = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
         #p = epoch/cfg.epochs
         #sched_prob_imp = p**2
-        sched_prob_imp = sched_prob * epoch
+        #sched_prob_imp = sched_prob * epoch
+        sched_prob_imp = 0.0
 
-        optimizer = torch.optim.AdamW(
-            model.parameters(),
-            lr=cfg.training.lr,
-            weight_decay=cfg.training.weight_decay,
-            eps=1e-12,
-            )
         if cfg.training.mode == "standard":
             losses = train_loop(
                 train_loader,
@@ -490,6 +500,7 @@ def main(cfg: DictConfig):
                 optimizer,
                 generator=gen,
                 batch_size=cfg.batch_size,
+                pred_dim=cfg.models.out_dim,
                 rollout_max_steps=cfg.training.rollout_steps,
                 schedule_prob=sched_prob_imp,
                 process_name=process_name,
@@ -503,6 +514,7 @@ def main(cfg: DictConfig):
                 optimizer,
                 generator=gen,
                 batch_size=cfg.batch_size,
+                pred_dim=cfg.models.out_dim,
                 rollout_max_steps=cfg.training.rollout_steps,
                 schedule_prob=sched_prob_imp,
                 process_name=process_name,
@@ -518,13 +530,14 @@ def main(cfg: DictConfig):
                 )
 
         elif cfg.training.mode == "gml_rollout":
-            if epoch < 3:
+            if epoch < 0:
                 losses = train_rollout_loop(
                     train_loader,
                     model,
                     optimizer,
                     generator=gen,
                     batch_size=cfg.batch_size,
+                    pred_dim=cfg.models.out_dim,
                     rollout_max_steps=cfg.training.rollout_steps,
                     schedule_prob=sched_prob_imp,
                     process_name=process_name,
@@ -537,6 +550,7 @@ def main(cfg: DictConfig):
                     optimizer,
                     generator=gen,
                     batch_size=cfg.batch_size,
+                    pred_dim=cfg.models.out_dim,
                     rollout_max_steps=cfg.training.rollout_steps,
                     schedule_prob=sched_prob_imp,
                     process_name=process_name,
