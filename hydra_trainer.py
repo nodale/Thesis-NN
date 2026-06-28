@@ -106,7 +106,6 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
     if plot is True:
         plt.ion()
         fig, ax = plt.subplots()
-    
     losses = []
 
     #training
