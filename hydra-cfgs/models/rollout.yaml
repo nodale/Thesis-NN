@@ -23,7 +23,10 @@ architecture:
     expand: 2
     norm: rms
 
+  skip: False
+
   cls_kwargs:
-    n_heads: 8
+    n_heads: 2
+    n_mlp: 2
     positional_encoding: False
     max_len: 5000
