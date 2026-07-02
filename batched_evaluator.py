@@ -224,7 +224,7 @@ def run_eval(run_path, eps_indices):
 
     root = zarr.open(
         zarr.storage.LocalStore(
-            "/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/"
+            cfg["evaluation"]["path"]
         ),
         mode="r"
     )["episodes"]
