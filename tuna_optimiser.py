@@ -2,6 +2,7 @@ import optuna
 import hydra
 import torch
 import zarr
+import math
 from omegaconf import OmegaConf
 
 from include.mama import JeuralJetwork
@@ -22,8 +23,8 @@ def build_architecture(trial, cfg):
     # -----------------------
     # CORE MODEL CAPACITY
     # -----------------------
-    arch["d_model"] = trial.suggest_categorical("d_model", [4, 8, 16, 32, 64])
-    arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 3)
+    arch["d_model"] = trial.suggest_categorical("d_model", [32, 64, 128, 256])
+    arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 4)
 
     arch["layer_scale"] = trial.suggest_categorical("layer_scale", [0.0, 1e-4])
     arch["drop_path"] = trial.suggest_categorical("drop_path", [0.0, 0.15])
@@ -139,10 +140,10 @@ def make_train_loader(cfg):
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg.batch_size,
-        num_workers=12,
+        num_workers=6,
         pin_memory=True,
         persistent_workers=False,
-        prefetch_factor=24,
+        prefetch_factor=4,
     )
 
     return loader
@@ -181,12 +182,12 @@ def objective(trial, base_cfg, loader, root):
     try:
         cfg = OmegaConf.create(OmegaConf.to_container(base_cfg, resolve=True))
 
-        cfg.training.lr = trial.suggest_categorical("lr", [5e-4, 1e-4, 5e-4, 1e-3], log=True)
+        cfg.training.lr = trial.suggest_categorical("lr", [1e-3], )
         cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64])
-        cfg.training.weight_decay = trial.suggest_categorical("weight_decay", [1e-4, 1e-2, 1e-1], log=True)
-        #cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
+        cfg.training.weight_decay = trial.suggest_categorical("weight_decay", [1e-2], )
+        #cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, )
         cfg.training.rollout_steps = cfg.input_len
-        cfg.epochs = trial.suggest_categorical("epochs", [5], log=True)
+        cfg.epochs = trial.suggest_categorical("epochs", [1], )
 
         arch = build_architecture(trial, cfg)
 
@@ -217,6 +218,7 @@ def objective(trial, base_cfg, loader, root):
                 batch_size=cfg.batch_size,
                 process_name=f"trial {trial.number}",
                 generator=gen,
+                pred_dim=cfg.models.out_dim,
                 rollout_max_steps=cfg.training.rollout_steps,
                 schedule_prob=sched_prob_sigmoid
             )
@@ -321,9 +323,15 @@ def main(cfg):
         mode="r"
     )["episodes"]
 
+    sampler = optuna.samplers.TPESampler(
+        n_startup_trials=5,
+        multivariate=True
+    )
+
     study = optuna.create_study(
         direction="minimize",
-        pruner=optuna.pruners.MedianPruner()
+        sampler=sampler,
+        pruner=optuna.pruners.HyperbandPruner()
     )
 
     study.optimize(
@@ -333,9 +341,10 @@ def main(cfg):
             TRAIN_LOADER,
             ZARR_ROOT,
         ),
-        n_trials=50,
+        n_trials=25,
         callbacks=[print_callback],
-        n_jobs=2,
+        n_jobs=5,
+        catch=(Exception,)
         )
 
     print("\n====================")
