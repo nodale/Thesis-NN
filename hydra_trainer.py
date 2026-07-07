@@ -529,11 +529,7 @@ def main(cfg: DictConfig):
                 )
 
         elif cfg.training.mode == "gml_rollout":
-<<<<<<< HEAD
             if epoch < 2:
-=======
-            if epoch < 0:
->>>>>>> refs/remotes/origin/state_space_trainer
                 losses = train_rollout_loop(
                     train_loader,
                     model,
