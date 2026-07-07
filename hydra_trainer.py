@@ -39,6 +39,7 @@ def loss_fn_gml(pred, target, eps=1e-6, use_logvar=False):
 
     mahalanobis = (err.pow(2) / var).sum(dim=-1)
     loss = 0.5 * log_det + 0.5 * mahalanobis
+    return loss.mean()
 
 def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6, plot=False):
     #monitoring
