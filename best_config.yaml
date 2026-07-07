@@ -2,10 +2,10 @@ models:
   n_dim: 23
   out_dim: 13
   architecture:
-    d_model: 128
+    d_model: 64
     n_encoder_layers: 2
     n_decoder_layers: 0
-    block_type: simple
+    block_type: cls
     time_adapter: last_token
     in_norm: none
     out_norm: none
@@ -23,7 +23,7 @@ models:
       max_len: 5000
 input_len: 16
 output_len: 1
-batch_size: 256
+batch_size: 128
 epochs: 1
 seed: 0
 dataset:
@@ -34,9 +34,9 @@ evaluation:
   evaluation_size: 10
 training:
   mode: rollout
-  lr: 0.0001
-  weight_decay: 0.01
-  rollout_steps: 24
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 16
 checkpoint:
   save_path: hydra-test.pth
   load: false

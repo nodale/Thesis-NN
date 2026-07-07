@@ -59,13 +59,22 @@ def load_model(run_dir, device):
     ckpt = list(run_dir.glob("**/*.pth"))[0]
     print("Loading:", ckpt)
 
-    model = JeuralJetwork(
-        n_dim=cfg["models"]["n_dim"],
-        out_dim=cfg["models"]["out_dim"],
-        input_len=cfg["input_len"],
-        output_len=cfg["output_len"],
-        **cfg["models"]["architecture"]
-    )
+    if cfg["training"]["mode"] == "gml_rollout" or cfg["training"]["mode"] == "gml":
+        model = JeuralJetwork(
+            n_dim=cfg["models"]["n_dim"],
+            out_dim=cfg["models"]["out_dim"]*2,
+            input_len=cfg["input_len"],
+            output_len=cfg["output_len"],
+            **cfg["models"]["architecture"]
+        )
+    else:
+        model = JeuralJetwork(
+            n_dim=cfg["models"]["n_dim"],
+            out_dim=cfg["models"]["out_dim"],
+            input_len=cfg["input_len"],
+            output_len=cfg["output_len"],
+            **cfg["models"]["architecture"]
+        )
 
     state = torch.load(ckpt, map_location=device)
 

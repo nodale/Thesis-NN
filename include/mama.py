@@ -180,7 +180,7 @@ class AdvancedMambaBlock(nn.Module):
         return x
  
 class CLSAttentionBlock(nn.Module):
-    def __init__(self, d_model, n_heads, dropout=0.1, positional_encoding=False, max_len=5000):
+    def __init__(self, d_model, n_heads, n_mlp=1, dropout=0.0, positional_encoding=False, max_len=5000):
         super().__init__()
         self.cls = nn.Parameter(torch.randn(1, 1, d_model))
         self.attn = nn.MultiheadAttention(
@@ -190,13 +190,15 @@ class CLSAttentionBlock(nn.Module):
             batch_first=True
         )
         self.norm1 = nn.LayerNorm(d_model)
-        self.ff = nn.Sequential(
-            nn.Linear(d_model, 2*d_model),
-            nn.GELU(),
-            nn.Linear(2*d_model, d_model),
-            nn.Dropout(dropout)
-        )
         self.norm2 = nn.LayerNorm(d_model)
+
+        layers = []
+        in_dim = d_model
+        for _ in range(n_mlp - 1):
+            layers.append(nn.Linear(in_dim, d_model))
+            layers.append(nn.GELU())
+        layers.append(nn.Linear(in_dim, d_model))
+        self.ff = nn.Sequential(*layers)
 
         if positional_encoding == True:
             self.pos_enc_bool = True
@@ -215,17 +217,53 @@ class CLSAttentionBlock(nn.Module):
         # attention
         attn_out, _ = self.attn(x, x, x)
         x = self.norm1(x + attn_out)
-        # FFN
+
         x = self.norm2(x + self.ff(x))
         # return CLS only
         #return x[:, 0]
         # or return the eniter thing cuz LastTokenAdapter already does it
         return x
  
+class SimpleCLSBlock(nn.Module):
+    def __init__(self,d_model,n_heads, n_mlp=0, dropout=0.0, positional_encoding=False, max_len=5000):
+        super().__init__()
+
+        self.cls = nn.Parameter(torch.randn(1,1,d_model)*0.10)
+
+        self.attn = nn.MultiheadAttention(
+            d_model,
+            n_heads,
+            batch_first=True
+        )
+        self.norm = nn.LayerNorm(d_model)
+
+        if positional_encoding == True:
+            self.pos_enc_bool = True
+            self.pos_enc = PositionalEncoding(d_model=d_model, max_len=max_len)
+        else:
+            self.pos_enc_bool = False
+
+    def forward(self,x):
+        if self.pos_enc_bool == True:
+            x = self.pos_enc(x)
+
+        B = x.shape[0]
+        cls = self.cls.expand(B,-1,-1)
+
+        x = torch.cat([x, cls], dim=1)
+        cls,_ = self.attn(
+            query=x,
+            key=x,
+            value=x
+        )
+
+        return self.norm(cls)
+
 _BLOCKS = {
     "simple":   SimpleMambaBlock,
     "advanced": AdvancedMambaBlock,
-    "cls":      CLSAttentionBlock
+    "cls":      CLSAttentionBlock,
+    "simple_cls": SimpleCLSBlock,
 }
 
 _MAMBA_IMPLS = {
@@ -325,7 +363,7 @@ class LastTokenAdapter(nn.Module):
         self.proj = nn.Sequential(
             nn.Linear(d_model, d_model),
             nn.GELU(),
-            nn.Dropout(0.10),
+            nn.Dropout(0.0),
 
             nn.Linear(d_model, output_len*d_model),
             nn.GELU(),
@@ -412,6 +450,7 @@ class JeuralJetwork(nn.Module):
         layer_scale: float = 1e-4,
         drop_path: float = 0.0,
         mlp_mult: float = 4.0,
+        skip: bool = False,
         mamba_type: str = "mamba",
         mamba_kwargs: dict | None = None,
         cls_kwargs: dict | None = None,
@@ -422,6 +461,7 @@ class JeuralJetwork(nn.Module):
         self.output_len = output_len
         self.out_dim = out_dim
         self.n_dim = n_dim
+        self.ff = skip
  
         ak = adapter_kwargs or {}
         mk = mamba_kwargs or {}
@@ -439,7 +479,7 @@ class JeuralJetwork(nn.Module):
                 f"{list(_MAMBA_IMPLS)}"
             )
 
-        if block_type == "cls":
+        if block_type == "cls" or block_type == "simple_cls":
             block_kwargs = dict(**ck)
         else:
             mamba_impl = _MAMBA_IMPLS[mamba_type]
@@ -485,7 +525,12 @@ class JeuralJetwork(nn.Module):
         h = self.in_proj(x)
         for blk in self.encoder:
             h = blk(h)
+
         h = self.time_projector(h)
+
+        if self.ff is True:
+            h = blk(h) + h
+
         for blk in self.decoder:
             h = blk(h)
         return self.out_proj(h)

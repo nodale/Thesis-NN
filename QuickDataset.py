@@ -34,6 +34,7 @@ class QuickDataset2(IterableDataset):
 
         self.rng = np.random.default_rng(seed)
         self.indices = self._generate_random_idx()
+        self.seed = seed
 
     def __len__(self):
         return self.training_size
@@ -46,9 +47,10 @@ class QuickDataset2(IterableDataset):
 
     def __iter__(self):
 
-        store = zarr.storage.LocalStore(self.path)
-        root = zarr.open(store=store, mode="r")
-        data = root["episodes"]
+        #store = zarr.storage.LocalStore(self.path)
+        #root = zarr.open(store=store, mode="r")
+        #data = root["episodes"]
+        data = self.data
 
         worker_info = torch.utils.data.get_worker_info()
 
@@ -59,7 +61,7 @@ class QuickDataset2(IterableDataset):
             worker_id = worker_info.id
             num_workers = worker_info.num_workers
 
-        rng = np.random.default_rng(worker_id)
+        rng = np.random.default_rng(self.seed + worker_id)
 
         for i in range(worker_id, self.training_size, num_workers):
 
@@ -70,11 +72,14 @@ class QuickDataset2(IterableDataset):
                 self.seq_len - self.window_size + 1,
             )
 
-            window = data[
-                ep_idx,
-                t_idx:t_idx + self.window_size,
-                :
-            ].astype(np.float32)
+            window = np.asarray(
+                data[
+                    ep_idx,
+                    t_idx:t_idx+self.window_size,
+                    :
+                ],
+                dtype=np.float32
+            )
 
             if self.normalise:
                 window = (window - self.mean) / self.std

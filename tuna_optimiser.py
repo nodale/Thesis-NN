@@ -2,6 +2,8 @@ import optuna
 import hydra
 import torch
 import zarr
+import math
+
 from omegaconf import OmegaConf
 
 from include.mama import JeuralJetwork
@@ -22,11 +24,12 @@ def build_architecture(trial, cfg):
     # -----------------------
     # CORE MODEL CAPACITY
     # -----------------------
-    arch["d_model"] = trial.suggest_categorical("d_model", [4, 8, 16, 32, 64])
-    arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 3)
+    arch["d_model"] = trial.suggest_categorical("d_model", [16, 32, 64])
+    arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 4)
 
     arch["layer_scale"] = trial.suggest_categorical("layer_scale", [0.0, 1e-4])
     arch["drop_path"] = trial.suggest_categorical("drop_path", [0.0, 0.15])
+    #arch["time_adapter"] = trial.suggest_categorical("time_adapter", ["attn","conv","last_token"])
 
     # -----------------------
     # BLOCK TYPE
@@ -64,8 +67,9 @@ def build_architecture(trial, cfg):
 
         ck = arch["cls_kwargs"]
 
-        ck["n_heads"] = trial.suggest_categorical("cls_heads", [2, 4, 8])
+        ck["n_heads"] = trial.suggest_categorical("cls_heads", [2, 4])
         ck["dropout"] = trial.suggest_categorical("cls_dropout", [0.0, 0.15])
+        ck["n_mlp"] = trial.suggest_int("n_mlp", 1, 12)
 
         ck["positional_encoding"] = trial.suggest_categorical(
             "cls_posenc",
@@ -121,8 +125,8 @@ rollout_steps   : {cfg.training.rollout_steps}
 
 def make_train_loader(cfg):
 
-    max_input = 64
-    max_rollout = 64
+    max_input = 32
+    max_rollout = 32
 
     total_len = (
         max_input
@@ -139,10 +143,11 @@ def make_train_loader(cfg):
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg.batch_size,
-        num_workers=12,
+        num_workers=6,
+        multiprocessing_context='fork',
         pin_memory=True,
-        persistent_workers=False,
-        prefetch_factor=24,
+        persistent_workers=True,
+        prefetch_factor=4,
     )
 
     return loader
@@ -181,15 +186,15 @@ def objective(trial, base_cfg, loader, root):
     try:
         cfg = OmegaConf.create(OmegaConf.to_container(base_cfg, resolve=True))
 
-        cfg.training.lr = trial.suggest_categorical("lr", [5e-4, 1e-4, 5e-4, 1e-3], log=True)
-        cfg.input_len = trial.suggest_categorical("input_len", [8,16,32,64])
-        cfg.training.weight_decay = trial.suggest_categorical("weight_decay", [1e-4, 1e-2, 1e-1], log=True)
-        #cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, log=True)
+        cfg.training.lr = trial.suggest_categorical("lr", [1e-3], )
+        cfg.input_len = trial.suggest_categorical("input_len", [4,8,16,32])
+        cfg.training.weight_decay = trial.suggest_categorical("weight_decay", [1e-1], )
+        #cfg.training.rollout_steps = trial.suggest_int("rollout_steps", 5, 48, )
         cfg.training.rollout_steps = cfg.input_len
-        cfg.epochs = trial.suggest_categorical("epochs", [5], log=True)
+        cfg.batch_size = trial.suggest_categorical("batch_size", [128])
+        cfg.epochs = trial.suggest_categorical("epochs", [1], )
 
         arch = build_architecture(trial, cfg)
-
         model = JeuralJetwork(
             n_dim=cfg.models.n_dim,
             out_dim=cfg.models.out_dim,
@@ -207,8 +212,9 @@ def objective(trial, base_cfg, loader, root):
         gen = torch.Generator(device="cuda").manual_seed(cfg.seed)
         sched_prob = 1.0/(1.0 + cfg.epochs)
         for epoch in range(cfg.epochs):
-            sched_prob_sigmoid = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
-            print(f"Trial {trial.number} | epoch {epoch+1}/3")
+            #sched_prob_sigmoid = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
+            sched_prob_sigmoid = 0.0
+            print(f"Trial {trial.number} | epoch {epoch+1}")
 
             train_rollout_loop(
                 loader,
@@ -248,7 +254,7 @@ def objective(trial, base_cfg, loader, root):
         acc = evaluate_model(
             model,
             root,
-            eps_indices=[0,1,2],
+            eps_indices=[0,1,2,3],
             input_len=cfg.input_len,
             output_len=cfg.output_len,
             device=device
@@ -316,14 +322,21 @@ def main(cfg):
     TRAIN_LOADER = make_train_loader(cfg)
     ZARR_ROOT = zarr.open(
         zarr.storage.LocalStore(
-            cfg.evaluation.path
+            cfg.dataset.path
         ),
         mode="r"
     )["episodes"]
 
+    torch.cuda.set_per_process_memory_fraction(0.45, device=0)
+    sampler = optuna.samplers.TPESampler(
+        n_startup_trials=5,
+        multivariate=True
+    )
+
     study = optuna.create_study(
         direction="minimize",
-        pruner=optuna.pruners.MedianPruner()
+        sampler=sampler,
+        pruner=optuna.pruners.HyperbandPruner()
     )
 
     study.optimize(
@@ -333,34 +346,23 @@ def main(cfg):
             TRAIN_LOADER,
             ZARR_ROOT,
         ),
-        n_trials=50,
+        n_trials=25,
         callbacks=[print_callback],
-        n_jobs=2,
+        n_jobs=1,
+        catch=(Exception,)
         )
 
     print("\n====================")
     print("OPTIMIZATION DONE")
     print("====================")
 
-    print(
-        "Best score:",
-        study.best_value
-    )
-
-    print(
-        "Best params:"
-    )
+    print("Best score:", study.best_value)
+    print("Best params:")
 
     best_cfg = OmegaConf.create(cfg)
-
     for k,v in study.best_params.items():
         print(f"  {k}: {v}")
-
-    OmegaConf.save(
-        best_cfg,
-        "best_config.yaml"
-    )
-
+    OmegaConf.save(best_cfg, "best_config.yaml")
 
 if __name__ == "__main__":
     main()
