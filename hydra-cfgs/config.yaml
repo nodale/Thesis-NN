@@ -13,11 +13,11 @@ hydra:
     n_jobs: 4
 
 dataset:
-  path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
-  training_size: 1500000
+  path: /home/joey/Thesis/data/patient_one_data.zarr/
+  training_size: 2500000
 
 evaluation:
-  path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
+  path: /home/joey/Thesis/data/patient_two_data.zarr/
   evaluation_size: 10
 
 training:

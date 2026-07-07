@@ -3,7 +3,10 @@ import hydra
 import torch
 import zarr
 import math
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/state_space_trainer
 from omegaconf import OmegaConf
 
 from include.mama import JeuralJetwork
@@ -24,7 +27,7 @@ def build_architecture(trial, cfg):
     # -----------------------
     # CORE MODEL CAPACITY
     # -----------------------
-    arch["d_model"] = trial.suggest_categorical("d_model", [16, 32, 64])
+    arch["d_model"] = trial.suggest_categorical("d_model", [32, 64, 128, 256])
     arch["n_encoder_layers"] = trial.suggest_int("enc_layers", 1, 4)
 
     arch["layer_scale"] = trial.suggest_categorical("layer_scale", [0.0, 1e-4])
@@ -223,6 +226,7 @@ def objective(trial, base_cfg, loader, root):
                 batch_size=cfg.batch_size,
                 process_name=f"trial {trial.number}",
                 generator=gen,
+                pred_dim=cfg.models.out_dim,
                 rollout_max_steps=cfg.training.rollout_steps,
                 schedule_prob=sched_prob_sigmoid
             )
@@ -327,7 +331,6 @@ def main(cfg):
         mode="r"
     )["episodes"]
 
-    torch.cuda.set_per_process_memory_fraction(0.45, device=0)
     sampler = optuna.samplers.TPESampler(
         n_startup_trials=5,
         multivariate=True

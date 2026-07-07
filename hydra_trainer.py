@@ -39,7 +39,6 @@ def loss_fn_gml(pred, target, eps=1e-6, use_logvar=False):
 
     mahalanobis = (err.pow(2) / var).sum(dim=-1)
     loss = 0.5 * log_det + 0.5 * mahalanobis
-    return loss.mean()
 
 def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_dim=6, plot=False):
     #monitoring
@@ -475,7 +474,11 @@ def main(cfg: DictConfig):
         )
     sched_prob = 1.0/(-1.0 + cfg.epochs)
 
+<<<<<<< HEAD
     plot = True
+=======
+    plot = False
+>>>>>>> refs/remotes/origin/state_space_trainer
     for epoch in range(cfg.epochs):
         #sched_prob_imp = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
         #p = epoch/cfg.epochs
@@ -530,7 +533,11 @@ def main(cfg: DictConfig):
                 )
 
         elif cfg.training.mode == "gml_rollout":
+<<<<<<< HEAD
             if epoch < 2:
+=======
+            if epoch < 0:
+>>>>>>> refs/remotes/origin/state_space_trainer
                 losses = train_rollout_loop(
                     train_loader,
                     model,
