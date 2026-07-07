@@ -474,11 +474,7 @@ def main(cfg: DictConfig):
         )
     sched_prob = 1.0/(-1.0 + cfg.epochs)
 
-<<<<<<< HEAD
-    plot = True
-=======
     plot = False
->>>>>>> refs/remotes/origin/state_space_trainer
     for epoch in range(cfg.epochs):
         #sched_prob_imp = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
         #p = epoch/cfg.epochs
