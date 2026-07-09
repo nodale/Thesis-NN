@@ -218,11 +218,12 @@ __marimo__/
 .streamlit/secrets.toml
 
 
-*.pth
+#*.pth
 .h5
 dataset/
 outputs/
 multirun/
+models/
 *.png
 *.ulog
 *.ulg
