@@ -10,10 +10,10 @@ from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from torch.utils.data import DataLoader
 
-from QuickDataset import QuickDatasetStraight
-from include.mama import JeuralJetwork
-from include.metrics import print_all_metrics, MetricsAccumulator
-from include.central_denormaliser import denormalise
+from data.dataset import QuickDatasetStraight
+from model.network import JeuralJetwork
+from evaluate.metrics import print_all_metrics, MetricsAccumulator
+from data.denormaliser import denormalise
 
 import matplotlib.pyplot as plt
 

@@ -3,17 +3,14 @@ import hydra
 import torch
 import zarr
 import math
-<<<<<<< HEAD
 
-=======
->>>>>>> refs/remotes/origin/state_space_trainer
 from omegaconf import OmegaConf
 
-from include.mama import JeuralJetwork
-from QuickDataset import QuickDataset2
+from model.network import JeuralJetwork
+from data.dataset import QuickDataset2
 
-from hydra_trainer import train_loop, train_rollout_loop
-from batched_evaluator import evaluate_model   # your evaluation file
+from train.trainer import train_loop, train_rollout_loop
+from evaluate.batched_evaluator import evaluate_model
 
 device = torch.device("cuda")
 import copy
@@ -314,7 +311,7 @@ def print_callback(study, trial):
 
 @hydra.main(
     version_base=None,
-    config_path="hydra-cfgs",
+    config_path="../config",
     config_name="config"
 )
 def main(cfg):
@@ -369,4 +366,3 @@ def main(cfg):
 
 if __name__ == "__main__":
     main()
-

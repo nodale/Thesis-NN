@@ -6,8 +6,8 @@ import math
 
 from omegaconf import DictConfig, OmegaConf
 from hydra.core.hydra_config import HydraConfig
-from include.mama import JeuralJetwork
-from QuickDataset import QuickDataset2
+from model.network import JeuralJetwork
+from data.dataset import QuickDataset2
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
@@ -46,14 +46,14 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
     if plot is True:
         plt.ion()
         fig, ax = plt.subplots()
-    
+
     losses = []
 
     #training
     model.train()
     scaler = torch.amp.GradScaler("cuda")
-    running_loss = 0.0  
-    count = 0          
+    running_loss = 0.0
+    count = 0
     tot_len = len(loader)
 
     for vec in loader:
@@ -112,8 +112,8 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
     #training
     model.train()
     scaler = torch.amp.GradScaler("cuda")
-    running_loss = 0.0  
-    count = 0          
+    running_loss = 0.0
+    count = 0
     tot_len = len(loader)
     for vec in loader:
         t0 = time.perf_counter()
@@ -191,14 +191,14 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
     if plot is True:
         plt.ion()
         fig, ax = plt.subplots()
-    
+
     losses = []
 
     #training
     model.train()
     scaler = torch.amp.GradScaler("cuda")
-    running_loss = 0.0  
-    count = 0          
+    running_loss = 0.0
+    count = 0
     tot_len = len(loader)
     for vec in loader:
         t0 = time.perf_counter()
@@ -323,14 +323,14 @@ def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, 
     if plot is True:
         plt.ion()
         fig, ax = plt.subplots()
-    
+
     losses = []
 
     #training
     model.train()
     scaler = torch.amp.GradScaler("cuda")
-    running_loss = 0.0  
-    count = 0          
+    running_loss = 0.0
+    count = 0
     tot_len = len(loader)
     for vec in loader:
         t0 = time.perf_counter()
@@ -399,7 +399,7 @@ def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, 
 
 @hydra.main(
     version_base=None,
-    config_path="hydra-cfgs",
+    config_path="../config",
     config_name="config",
 )
 def main(cfg: DictConfig):
@@ -442,7 +442,7 @@ def main(cfg: DictConfig):
         path=cfg.dataset.path,
         training_size=cfg.dataset.training_size,
         window_size=total_len+cfg.input_len,)
-            
+
     train_loader = DataLoader(
         train_dataset,
         batch_size=cfg.batch_size,
@@ -580,4 +580,3 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     main()
-

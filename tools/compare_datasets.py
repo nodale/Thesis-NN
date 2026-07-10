@@ -1,12 +1,9 @@
-import sys
-sys.path.insert(0, "/home/egghead/Thesis/Thesis-NN")
-
 import torch
 import zarr
 import numpy as np
 
-from include.metrics import MetricsAccumulator
-from include.central_denormaliser import denormalise
+from evaluate.metrics import MetricsAccumulator
+from data.denormaliser import denormalise
 
 
 # --------------------------------------------------

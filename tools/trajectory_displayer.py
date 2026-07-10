@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0, "/home/egghead/Thesis/Thesis-NN")
-
 import matplotlib
 import torch
 import zarr
@@ -8,8 +5,8 @@ matplotlib.use("QtAgg")
 
 import matplotlib.pyplot as plt
 
-from QuickDataset import QuickDatasetStraight
-from include.central_denormaliser import denormalise
+from data.dataset import QuickDatasetStraight
+from data.denormaliser import denormalise
 
 def load_trajectory(path, episode_idx, pred_dim=6, window_size=None):
     if window_size is None:
@@ -81,20 +78,18 @@ def plot_trajectories(trajectories, pred_dim=3, window_size=None):
     plt.show()
 
 def main():
-    #TODO: DO EVALUATION BETWEEN TWO ZARR DATASETS, THESE TWO ARE THE ESTIMATEN AND GROUND TRUTH
-
     window_size = 2000
     position_dim = 3
 
     trajectories = [
         {
             "path": "/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/",
-            "episode": 3,
+            "episode": 0,
             "label": "GT",
         },
         {
             "path": "/media/egghead/Scratch/joey/simulation_data/patient_three_data.zarr/",
-            "episode": 3,
+            "episode": 0,
             "label": "EKF2",
         },
     ]

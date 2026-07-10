@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 from torch.utils.data import DataLoader, IterableDataset
-from QuickDataset import QuickDatasetStraight, FlightLog
-from include.mama import JeuralJetwork
+from data.dataset import QuickDatasetStraight, FlightLog
+from model.network import JeuralJetwork
 from pathlib import Path
-from include.metrics import print_all_metrics
-from include.central_denormaliser import denormalise
+from evaluate.metrics import print_all_metrics
+from data.denormaliser import denormalise
 
 matplotlib.use("QtAgg")
 
@@ -165,10 +165,10 @@ def main():
         )
         input_len = cfg["input_len"]
         output_len = cfg["output_len"]
-        
+
         #log = torch.load("rl_dataset/converted.pt")
         #dataset = FlightLog(data=log, window_size=input_len+output_len)
-        
+
         dataset = QuickDatasetStraight(
             path=cfg["evaluation"]["path"],
             episode_idx=0,

@@ -1,5 +1,5 @@
 """
-StateEstimator.py
+estimator.py
 
 Loads a trained JeuralJetwork odometry model from a Hydra run (the same
 config/checkpoint layout produced by the training code and consumed by
@@ -48,8 +48,8 @@ from typing import Optional, Union
 import torch
 import yaml
 
-from include.mama import JeuralJetwork
-from include.central_denormaliser import denormalise
+from model.network import JeuralJetwork
+from data.denormaliser import denormalise
 
 
 # ----------------------------------------------------------------------
@@ -333,16 +333,10 @@ if __name__ == "__main__":
     Example: load a real JeuralJetwork from the latest Hydra multirun and
     run a handful of simulated step() calls to verify the pipeline.
 
-    The Hydra config produced by training already contains everything
-    needed to reconstruct the model (n_dim, out_dim, input_len, output_len,
-    architecture kwargs) so no arguments need to be passed manually here -
-    from_latest_multirun() reads config.yaml and builds the exact same
-    JeuralJetwork topology that was saved.
-
     Usage:
-        python -m include.StateEstimator
-        python -m include.StateEstimator --run multirun/2026-07-08/12-00-00/0
-        python -m include.StateEstimator --envs 8 --pred-dim 6
+        python -m deploy.estimator
+        python -m deploy.estimator --run multirun/2026-07-08/12-00-00/0
+        python -m deploy.estimator --envs 8 --pred-dim 6
     """
     import argparse
 
@@ -379,16 +373,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # ------------------------------------------------------------------
-    # 1. Load JeuralJetwork from the Hydra run
-    # ------------------------------------------------------------------
-    # from_run / from_latest_multirun both:
-    #   - read .hydra/config.yaml
-    #   - call _build_model(cfg) which constructs JeuralJetwork with the
-    #     exact same (n_dim, out_dim, input_len, output_len, **architecture)
-    #     kwargs that were used during training
-    #   - load the .pth state dict (stripping torch.compile prefixes)
-    #   - set model.eval()
     if args.run is not None:
         run_dir = Path(args.run)
         print(f"Loading from specified run: {run_dir}")
@@ -423,13 +407,6 @@ if __name__ == "__main__":
     )
     print(f"\n{estimator.model}\n")
 
-    # ------------------------------------------------------------------
-    # 2. Simulate stepping through input_len + 3 ticks
-    # ------------------------------------------------------------------
-    # Observations are built in the same normalised layout as DroneEnv:
-    #   pos/3.0 (3), lin_vel/0.8 (3), quat_frd (4), ang_vel/0.5 (3),
-    #   acc/25.0 (3), thrust/9.81 (4), setpoint/3.0 (3) = 23 dims total
-    # Here we just fill them with random values to exercise the pipeline.
     n_dim = cfg["models"]["n_dim"]
     input_len = cfg["input_len"]
     total_steps = input_len + 3
@@ -448,9 +425,6 @@ if __name__ == "__main__":
                 f"mean_norm={result.norm(dim=1).mean().item():.4f}"
             )
 
-    # ------------------------------------------------------------------
-    # 3. Partial reset (env 0 only) and confirm its history cleared
-    # ------------------------------------------------------------------
     print(f"\nResetting env 0 only ...")
     estimator.reset(torch.tensor([0], device=args.device))
     print(f"  filled after reset: {estimator.filled.tolist()}")
