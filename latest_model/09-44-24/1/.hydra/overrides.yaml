@@ -1,0 +1,4 @@
+- epochs=4
+- training.mode=rollout
+- models.out_dim=10
+- dataset.training_size=1500000
