@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Ablation study runner.
 #
-# Add one config (a string of hydra overrides) per entry in CONFIGS below.
-# Each config is run with `python -m train.trainer --multirun <config>`,
-# using hydra's joblib launcher (n_jobs=4, set in config/config.yaml) so up
-# to 4 processes run at a time within that config's sweep.
-# (invoked as `-m` so the `model`/`data` package imports resolve correctly)
+# Add one config (a short name + hydra overrides) per entry in CONFIGS below.
+# Up to MAX_PARALLEL configs train simultaneously (separate `python -m
+# train.trainer` processes, each pinned to its own hydra.sweep.dir so they
+# never collide). Once all training finishes, each config is evaluated in
+# turn and results are collected under one results folder.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -17,18 +17,39 @@ CONFIGS=(
   # "replica_lr_sweep        models=replica training.lr=1e-3,2e-4"
 )
 
-RESULTS_DIR="ablation_results/$(date +%Y-%m-%d_%H-%M-%S)"
-mkdir -p "$RESULTS_DIR"
+MAX_PARALLEL="${MAX_PARALLEL:-4}"
 
+RUN_ID="$(date +%Y-%m-%d_%H-%M-%S)"
+RUNS_DIR="ablation_runs/${RUN_ID}"
+RESULTS_DIR="ablation_results/${RUN_ID}"
+mkdir -p "$RUNS_DIR" "$RESULTS_DIR"
+
+# --- train all configs, MAX_PARALLEL at a time ---
+pids=()
 for entry in "${CONFIGS[@]}"; do
   name="${entry%% *}"
   cfg="${entry#* }"
 
-  echo "=== Running ablation config: ${name} (${cfg}) ==="
-  python -m train.trainer --multirun ${cfg}
+  while [ "$(jobs -rp | wc -l)" -ge "$MAX_PARALLEL" ]; do
+    wait -n
+  done
+
+  echo "=== Training config: ${name} (${cfg}) ==="
+  python -m train.trainer --multirun "hydra.sweep.dir=${RUNS_DIR}/${name}" ${cfg} \
+    > "${RESULTS_DIR}/${name}.train.log" 2>&1 &
+  pids+=($!)
+done
+
+wait "${pids[@]}"
+echo "All training finished."
+
+# --- evaluate each config in turn ---
+for entry in "${CONFIGS[@]}"; do
+  name="${entry%% *}"
 
   echo "=== Evaluating: ${name} ==="
-  EVAL_OUTPUT="${RESULTS_DIR}/${name}.json" python -m evaluate.batched_evaluator
+  SWEEP_DIR="${RUNS_DIR}/${name}" EVAL_OUTPUT="${RESULTS_DIR}/${name}.json" \
+    python -m evaluate.batched_evaluator
 done
 
 echo "All ablation results saved under ${RESULTS_DIR}/"

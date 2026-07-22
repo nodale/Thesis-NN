@@ -358,8 +358,8 @@ def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, 
 
             next_frame=vec[:,model.input_len+step,:].clone()
             use_pred=(torch.rand(history.shape[0],device=history.device,generator=generator)<schedule_prob)
-            #next_frame[:, :pred_dim]=torch.where(use_pred.unsqueeze(1),est_state,real_state)
-            next_frame[:, :est_dim]=real_state
+            next_frame[:, :est_dim]=torch.where(use_pred.unsqueeze(1),est_state,real_state)
+            #next_frame[:, :est_dim]=real_state
             history=torch.cat([history[:,1:,:],next_frame.unsqueeze(1)],dim=1)
 
         loss /= rollout_steps
@@ -413,7 +413,7 @@ def main(cfg: DictConfig):
     total_len = cfg.input_len + cfg.output_len
     all_losses = []
 
-    if cfg.training.mode == "rollout":
+    if cfg.training.mode == "rollout" or cfg.training.mode == "standard":
         model = JeuralJetwork(
             n_dim=cfg.models.n_dim,
             out_dim=cfg.models.out_dim,
@@ -477,11 +477,11 @@ def main(cfg: DictConfig):
 
     plot = False
     for epoch in range(cfg.epochs):
-        #sched_prob_imp = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
+        sched_prob_imp = 1 / (1 + math.exp(-12*(epoch*sched_prob-0.5)))
         #p = epoch/cfg.epochs
         #sched_prob_imp = p**2
         #sched_prob_imp = sched_prob * epoch
-        sched_prob_imp = 0.0
+        #sched_prob_imp = 0.0
 
         if cfg.training.mode == "standard":
             losses = train_loop(
@@ -530,7 +530,9 @@ def main(cfg: DictConfig):
                 )
 
         elif cfg.training.mode == "gml_rollout":
-            if epoch < 2:
+            gml_sched_prob = 1.0/(-1.0 + (cfg.epochs//2))
+            if epoch < cfg.epochs - 1:
+                #sched_prob_imp = 1 / (1 + math.exp(-12*(epoch*gml_sched_prob-0.5)))
                 losses = train_rollout_loop(
                     train_loader,
                     model,
@@ -544,6 +546,8 @@ def main(cfg: DictConfig):
                     plot=plot
                     )
             else:
+                gml_sched_prob_imp = 1 / (1 + math.exp(-12*((epoch-4)*gml_sched_prob-0.5)))
+                gml_sched_prob_imp = 0.0
                 losses = train_gml_rollout_loop(
                     train_loader,
                     model,
@@ -552,7 +556,7 @@ def main(cfg: DictConfig):
                     batch_size=cfg.batch_size,
                     pred_dim=cfg.models.out_dim,
                     rollout_max_steps=cfg.training.rollout_steps,
-                    schedule_prob=sched_prob_imp,
+                    schedule_prob=gml_sched_prob_imp,
                     process_name=process_name,
                     plot=plot
                     )

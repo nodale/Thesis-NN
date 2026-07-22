@@ -18,9 +18,9 @@ architecture:
   mamba_type: mamba
 
   mamba_kwargs:
-    d_state: 64
-    d_conv: 4
-    expand: 4
+    d_state: 16
+    d_conv: 2
+    expand: 2
     norm: rms
 
   skip: False

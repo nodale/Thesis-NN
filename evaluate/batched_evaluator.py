@@ -1,4 +1,5 @@
 import os
+import json
 import yaml
 import torch
 import matplotlib.pyplot as plt
@@ -32,7 +33,7 @@ def plot(pred_list, truth_list, name="trajectories"):
         pred = pred.detach().cpu().numpy()
         truth = truth.detach().cpu().numpy()
 
-        ax.plot(pred[:, 0], pred[:, 1], pred[:, 2], alpha=0.8)
+        #ax.plot(pred[:, 0], pred[:, 1], pred[:, 2], alpha=0.8)
         ax.plot(truth[:, 0], truth[:, 1], truth[:, 2], linestyle="--", alpha=0.5)
 
     ax.set_title(name)
@@ -199,7 +200,7 @@ def evaluate_model(model, root, eps_indices, input_len, output_len, device):
     episodes = load_episode_tensor(
         root,
         eps_indices,
-        input_len + output_len + 1000  # buffer for rollout
+        input_len + output_len + 4500  # buffer for rollout
     )
 
     preds, truths = rollout_batched(
@@ -258,14 +259,18 @@ def run_eval(run_path, eps_indices):
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 def main():
-    sweep = max(Path("multirun").glob("*/*"), key=lambda p: p.stat().st_mtime)
+    sweep_override = os.environ.get("SWEEP_DIR")
+    if sweep_override:
+        sweep = Path(sweep_override)
+    else:
+        sweep = max(Path("multirun").glob("*/*"), key=lambda p: p.stat().st_mtime)
 
     runs = [
         r for r in sweep.iterdir()
         if r.is_dir() and (r / ".hydra").exists()
     ]
 
-    eps_indices = list(range(10))  # <- choose how many trajectories you want
+    eps_indices = list(range(int(os.environ.get("EVAL_EPISODES", 500))))
 
     with ProcessPoolExecutor(max_workers=min(len(runs), os.cpu_count())) as ex:
         futures = [
@@ -280,6 +285,23 @@ def main():
     print("\nDONE")
     for name, avg_metrics in results:
         print(name, avg_metrics)
+
+    out_path = os.environ.get("EVAL_OUTPUT")
+    if out_path:
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "sweep": str(sweep),
+            "runs": {
+                name: {
+                    "overrides": get_overrides(next(r for r in runs if r.name == name)),
+                    "metrics": avg_metrics,
+                }
+                for name, avg_metrics in results
+            },
+        }
+        with open(out_path, "w") as f:
+            json.dump(payload, f, indent=2, default=str)
+        print(f"\nSaved results to {out_path}")
 
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)

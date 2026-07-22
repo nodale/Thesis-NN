@@ -2,7 +2,7 @@ defaults:
   - models: rollout
   - override hydra/launcher: joblib
 
-input_len: 16
+input_len: 64
 output_len: 1
 batch_size: 128
 epochs: 1
@@ -13,18 +13,18 @@ hydra:
     n_jobs: 4
 
 dataset:
-  path: /home/joey/Thesis/data/patient_one_data.zarr/
-  training_size: 2500000
+  path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
+  training_size: 1500000
 
 evaluation:
-  path: /home/joey/Thesis/data/patient_two_data.zarr/
+  path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
   evaluation_size: 10
 
 training:
   mode: rollout
   lr: 2e-4
   weight_decay: 1e-1
-  rollout_steps: 16
+  rollout_steps: 32
 
 checkpoint:
   save_path: hydra-test.pth
