@@ -223,7 +223,6 @@ __marimo__/
 dataset/
 outputs/
 multirun/
-models/
 *.png
 *.ulog
 *.ulg
