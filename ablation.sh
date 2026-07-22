@@ -11,10 +11,18 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 CONFIGS=(
-  "baseline_rollout          models=rollout training.mode=rollout"
-  "baseline_standard         models=rollout training.mode=standard"
-  "replica_rollout           models=replica training.mode=rollout"
-  # "replica_lr_sweep        models=replica training.lr=1e-3,2e-4"
+  "baseline_simple_mamba       	models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout"
+  "simple_mamba2                models.architecture.block_type=simple models.architecture.mamba_type=mamba2 training.mode=rollout"
+  "advanced_mamba3              models.architecture.block_type=advanced models.architecture.mamba_type=mamba3 training.mode=rollout"
+  "simple_cls_block             models.architecture.block_type=simple_cls training.mode=rollout"
+  "cls_block                    models.architecture.block_type=cls training.mode=rollout"
+  "advanced_deep                models.architecture.block_type=advanced models.architecture.mamba_type=mamba models.architecture.n_encoder_layers=4 models.architecture.n_decoder_layers=2 training.mode=rollout"
+  "simple_mamba_gml_rollout     models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=gml_rollout"
+  "simple_mamba_short_rollout   models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=16"
+  "simple_mamba_long_rollout    models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=48"
+  "simple_mamba_out6            models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=6"
+  "simple_mamba_out10           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=10"
+  "simple_mamba_out13           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=13"
 )
 
 MAX_PARALLEL="${MAX_PARALLEL:-4}"
