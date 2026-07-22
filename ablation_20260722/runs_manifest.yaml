@@ -1,0 +1,29 @@
+baseline_fixed:
+  dataset.training_size: 1500000
+  epochs: 5
+  batch_size: 128
+  training.lr: 2e-4
+  training.weight_decay: 1e-1
+  models.architecture.drop_path: 0.05
+runs:
+  - id: 01_baseline
+    overrides: []
+    note: "control - rerun of current config/models/rollout.yaml as-is (mode=gml_rollout)"
+  - id: 02_rollout_horz
+    overrides: ["training.mode=rollout_horz"]
+  - id: 03_standard
+    overrides: ["training.mode=standard"]
+  - id: 04_rollout
+    overrides: ["training.mode=rollout"]
+  - id: 05_simple_block
+    overrides: ["models.architecture.block_type=simple", "models.architecture.time_adapter=linear", "models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}"]
+  - id: 06_simple_cls_block
+    overrides: ["models.architecture.block_type=simple_cls"]
+  - id: 07_mamba2_backbone
+    overrides: ["models.architecture.block_type=simple", "models.architecture.mamba_type=mamba2", "models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}"]
+  - id: 08_fewer_enc_layers
+    overrides: ["models.architecture.n_encoder_layers=1"]
+  - id: 09_enc_dec_split
+    overrides: ["models.architecture.n_encoder_layers=1", "models.architecture.n_decoder_layers=1"]
+  - id: 10_advanced_matched
+    overrides: ["models.architecture.block_type=advanced", "models.architecture.n_encoder_layers=1", "models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}"]

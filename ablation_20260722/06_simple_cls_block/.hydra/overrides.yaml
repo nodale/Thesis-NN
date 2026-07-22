@@ -1,0 +1,4 @@
+- epochs=5
+- dataset.training_size=1500000
+- batch_size=128
+- models.architecture.block_type=simple_cls

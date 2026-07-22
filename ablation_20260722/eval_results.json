@@ -1,0 +1,93 @@
+[
+  [
+    "01_baseline",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.11087373",
+      "mean_error": "0.10626206",
+      "max_error": "0.16079882",
+      "endpoint_error": "0.112431146",
+      "kitti_translation_drift": "29.760654",
+      "drift_percent": "2.6360574",
+      "drift_m_per_km": "26.360577"
+    }
+  ],
+  [
+    "02_rollout_horz",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.11873176",
+      "mean_error": "0.11344138",
+      "max_error": "0.17742757",
+      "endpoint_error": "0.113302685",
+      "kitti_translation_drift": "34.97097",
+      "drift_percent": "2.620188",
+      "drift_m_per_km": "26.201878"
+    }
+  ],
+  [
+    "03_standard",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.24757876",
+      "mean_error": "0.23536813",
+      "max_error": "0.34676194",
+      "endpoint_error": "0.29563323",
+      "kitti_translation_drift": "39.614304",
+      "drift_percent": "6.992977",
+      "drift_m_per_km": "69.92978"
+    }
+  ],
+  [
+    "04_rollout",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.11065624",
+      "mean_error": "0.10717706",
+      "max_error": "0.15655158",
+      "endpoint_error": "0.12097433",
+      "kitti_translation_drift": "29.415146",
+      "drift_percent": "2.8544085",
+      "drift_m_per_km": "28.544086"
+    }
+  ],
+  [
+    "06_simple_cls_block",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.08891953",
+      "mean_error": "0.08364168",
+      "max_error": "0.14412788",
+      "endpoint_error": "0.09533724",
+      "kitti_translation_drift": "35.056534",
+      "drift_percent": "2.239427",
+      "drift_m_per_km": "22.394272"
+    }
+  ],
+  [
+    "08_fewer_enc_layers",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.09202883",
+      "mean_error": "0.088975124",
+      "max_error": "0.13609827",
+      "endpoint_error": "0.08887888",
+      "kitti_translation_drift": "24.019993",
+      "drift_percent": "2.1069517",
+      "drift_m_per_km": "21.069519"
+    }
+  ],
+  [
+    "09_enc_dec_split",
+    {
+      "trajectory_length": "4.482813",
+      "ate_rmse": "0.35260525",
+      "mean_error": "0.3467012",
+      "max_error": "0.43003112",
+      "endpoint_error": "0.36848778",
+      "kitti_translation_drift": "45.943306",
+      "drift_percent": "8.705341",
+      "drift_m_per_km": "87.05343"
+    }
+  ]
+]
