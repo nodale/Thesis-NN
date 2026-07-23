@@ -1,50 +1,48 @@
 #!/usr/bin/env bash
-# Ablation study runner (train + evaluate, no extra steps).
+# Ablation study evaluator — evaluate an already-trained ablation run.
 #
-# Same CONFIGS format as ablation.sh: a short name + hydra overrides per
-# entry. Up to MAX_PARALLEL configs train simultaneously (separate
-# `python -m train.trainer` processes, each pinned to its own
-# hydra.sweep.dir so they never collide). Once all training finishes,
-# each config is evaluated in turn and results are stored under one
-# results folder.
+# Usage: ./ablation_eval_only.sh <RUN_ID>
+#   <RUN_ID> must match an existing ablation_runs/<RUN_ID>/ directory
+#   produced by a previous ablation.sh training run.
+#
+# Same CONFIGS list as ablation.sh (must match the names used for training).
+# Each config is evaluated in turn and results are stored under
+# ablation_results/<RUN_ID>/.
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
 CONFIGS=(
-  "baseline_simple_mamba       	models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout"
-  "simple_mamba2                models.architecture.block_type=simple models.architecture.mamba_type=mamba2 training.mode=rollout"
-  "advanced_mamba3              models.architecture.block_type=advanced models.architecture.mamba_type=mamba3 training.mode=rollout"
-  "simple_cls_block             models.architecture.block_type=simple_cls training.mode=rollout"
-  "cls_block                    models.architecture.block_type=cls training.mode=rollout"
-  "advanced_deep                models.architecture.block_type=advanced models.architecture.mamba_type=mamba models.architecture.n_encoder_layers=4 models.architecture.n_decoder_layers=2 training.mode=rollout"
+  "simple_mamba_gml_rollout     models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=gml_rollout"
+  "simple_mamba_short_rollout   models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=16"
+  "simple_mamba_long_rollout    models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=48"
+  "simple_mamba_out6            models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=6"
+  "simple_mamba_out10           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=10"
+  "simple_mamba_out13           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=13"
+  "cls_gml_rollout     models.architecture.block_type=cls  training.mode=gml_rollout"
+  "cls_short_rollout   models.architecture.block_type=cls  training.mode=rollout training.rollout_steps=16"
+  "cls_long_rollout    models.architecture.block_type=cls  training.mode=rollout training.rollout_steps=48"
+  "cls_out6            models.architecture.block_type=cls  training.mode=rollout models.out_dim=6"
+  "cls_out10           models.architecture.block_type=cls  training.mode=rollout models.out_dim=10"
+  "cls_out13           models.architecture.block_type=cls  training.mode=rollout models.out_dim=13"
 )
 
-MAX_PARALLEL="${MAX_PARALLEL:-4}"
+RUN_ID="${1:-}"
+if [ -z "$RUN_ID" ]; then
+  echo "Usage: $0 <RUN_ID>" >&2
+  echo "Available runs:" >&2
+  ls -1 ablation_runs 2>/dev/null >&2
+  exit 1
+fi
 
-RUN_ID="$(date +%Y-%m-%d_%H-%M-%S)"
 RUNS_DIR="ablation_runs/${RUN_ID}"
+if [ ! -d "$RUNS_DIR" ]; then
+  echo "Error: ${RUNS_DIR} does not exist." >&2
+  exit 1
+fi
+
 RESULTS_DIR="ablation_results/${RUN_ID}"
-mkdir -p "$RUNS_DIR" "$RESULTS_DIR"
-
-# --- train all configs, MAX_PARALLEL at a time ---
-pids=()
-for entry in "${CONFIGS[@]}"; do
-  name="${entry%% *}"
-  cfg="${entry#* }"
-
-  while [ "$(jobs -rp | wc -l)" -ge "$MAX_PARALLEL" ]; do
-    wait -n
-  done
-
-  echo "=== Training config: ${name} (${cfg}) ==="
-  python -m train.trainer --multirun "hydra.sweep.dir=${RUNS_DIR}/${name}" ${cfg} \
-    > "${RESULTS_DIR}/${name}.train.log" 2>&1 &
-  pids+=($!)
-done
-
-wait "${pids[@]}"
-echo "All training finished."
+mkdir -p "$RESULTS_DIR"
 
 # --- evaluate each config in turn, storing results as JSON ---
 for entry in "${CONFIGS[@]}"; do
@@ -56,4 +54,41 @@ for entry in "${CONFIGS[@]}"; do
     > "${RESULTS_DIR}/${name}.eval.log" 2>&1
 done
 
-echo "Training + evaluation done. Results saved under ${RESULTS_DIR}/"
+echo "Evaluation done. Results saved under ${RESULTS_DIR}/"
+
+# --- collect all per-config JSON results into one markdown table ---
+SUMMARY="${RESULTS_DIR}/summary.md"
+
+METRIC_KEYS=(
+  trajectory_length ate_rmse mean_error max_error
+  endpoint_error kitti_translation_drift drift_percent drift_m_per_km
+)
+
+{
+  header="| name | overrides |"
+  sep="|---|---|"
+  for k in "${METRIC_KEYS[@]}"; do
+    header+=" ${k} |"
+    sep+="---|"
+  done
+  echo "$header"
+  echo "$sep"
+
+  for entry in "${CONFIGS[@]}"; do
+    name="${entry%% *}"
+    json="${RESULTS_DIR}/${name}.json"
+    [ -f "$json" ] || continue
+
+    jq -r --arg name "$name" '
+      .runs | to_entries[] |
+      [$name, .value.overrides,
+       .value.metrics.trajectory_length, .value.metrics.ate_rmse,
+       .value.metrics.mean_error, .value.metrics.max_error,
+       .value.metrics.endpoint_error, .value.metrics.kitti_translation_drift,
+       .value.metrics.drift_percent, .value.metrics.drift_m_per_km
+      ] | "| " + join(" | ") + " |"
+    ' "$json"
+  done
+} > "$SUMMARY"
+
+echo "Summary table saved to ${SUMMARY}"

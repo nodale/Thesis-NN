@@ -1,0 +1,3 @@
+- models.architecture.block_type=simple
+- models.architecture.mamba_type=mamba2
+- training.mode=rollout

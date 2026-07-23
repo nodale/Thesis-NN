@@ -1,0 +1,18 @@
+{
+  "sweep": "ablation_runs/2026-07-23_10-49-16/cls_out6",
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=cls, training.mode=rollout, models.out_dim=6",
+      "metrics": {
+        "trajectory_length": "4.692267",
+        "ate_rmse": "0.07024668",
+        "mean_error": "0.068002425",
+        "max_error": "0.100546084",
+        "endpoint_error": "0.063735776",
+        "kitti_translation_drift": "22.744305",
+        "drift_percent": "1.4524293",
+        "drift_m_per_km": "14.524293"
+      }
+    }
+  }
+}

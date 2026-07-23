@@ -11,18 +11,18 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 CONFIGS=(
-  "baseline_simple_mamba       	models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout"
-  "simple_mamba2                models.architecture.block_type=simple models.architecture.mamba_type=mamba2 training.mode=rollout"
-  "advanced_mamba3              models.architecture.block_type=advanced models.architecture.mamba_type=mamba3 training.mode=rollout"
-  "simple_cls_block             models.architecture.block_type=simple_cls training.mode=rollout"
-  "cls_block                    models.architecture.block_type=cls training.mode=rollout"
-  "advanced_deep                models.architecture.block_type=advanced models.architecture.mamba_type=mamba models.architecture.n_encoder_layers=4 models.architecture.n_decoder_layers=2 training.mode=rollout"
   "simple_mamba_gml_rollout     models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=gml_rollout"
-  "simple_mamba_short_rollout   models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=16"
-  "simple_mamba_long_rollout    models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=48"
+  "simple_mamba_short_rollout   models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=4"
+  "simple_mamba_long_rollout    models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=32"
   "simple_mamba_out6            models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=6"
   "simple_mamba_out10           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=10"
   "simple_mamba_out13           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=13"
+  "cls_gml_rollout     models.architecture.block_type=cls  training.mode=gml_rollout"
+  "cls_short_rollout   models.architecture.block_type=cls  training.mode=rollout training.rollout_steps=4"
+  "cls_long_rollout    models.architecture.block_type=cls  training.mode=rollout training.rollout_steps=32"
+  "cls_out6            models.architecture.block_type=cls  training.mode=rollout models.out_dim=6"
+  "cls_out10           models.architecture.block_type=cls  training.mode=rollout models.out_dim=10"
+  "cls_out13           models.architecture.block_type=cls  training.mode=rollout models.out_dim=13"
 )
 
 MAX_PARALLEL="${MAX_PARALLEL:-4}"

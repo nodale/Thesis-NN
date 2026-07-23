@@ -1,0 +1,18 @@
+{
+  "sweep": "ablation_runs/2026-07-23_10-49-16/simple_mamba_gml_rollout",
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=simple, models.architecture.mamba_type=mamba, training.mode=gml_rollout",
+      "metrics": {
+        "trajectory_length": "4.692267",
+        "ate_rmse": "0.8508527",
+        "mean_error": "0.80400956",
+        "max_error": "1.0621996",
+        "endpoint_error": "1.025382",
+        "kitti_translation_drift": "69.954254",
+        "drift_percent": "23.070667",
+        "drift_m_per_km": "230.70668"
+      }
+    }
+  }
+}
