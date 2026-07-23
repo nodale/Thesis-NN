@@ -12,12 +12,11 @@ GPU_ID=1
 cd "$(dirname "$0")"
 
 CONFIGS=(
-  "simple_cls_gml_rollout     models.architecture.block_type=simple_cls  training.mode=gml_rollout"
-  "simple_cls_short_rollout   models.architecture.block_type=simple_cls  training.mode=rollout training.rollout_steps=4"
-  "simple_cls_long_rollout    models.architecture.block_type=simple_cls  training.mode=rollout training.rollout_steps=32"
-  "simple_cls_out6            models.architecture.block_type=simple_cls  training.mode=rollout models.out_dim=6"
-  "simple_cls_out10           models.architecture.block_type=simple_cls  training.mode=rollout models.out_dim=10"
-  "simple_cls_out13           models.architecture.block_type=simple_cls  training.mode=rollout models.out_dim=13"
+  "cls_gml_short_rollout   models.architecture.block_type=cls  training.mode=gml_rollout training.rollout_steps=4"
+  "cls_gml_long_rollout    models.architecture.block_type=cls  training.mode=gml_rollout training.rollout_steps=32"
+  "cls_gml_out6            models.architecture.block_type=cls  training.mode=gml_rollout models.out_dim=6"
+  "cls_gml_out10           models.architecture.block_type=cls  training.mode=gml_rollout models.out_dim=10"
+  "cls_gml_out13           models.architecture.block_type=cls  training.mode=gml_rollout models.out_dim=13"
 )
 
 MAX_PARALLEL="${MAX_PARALLEL:-4}"

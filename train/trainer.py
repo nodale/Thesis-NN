@@ -18,7 +18,7 @@ torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 torch.set_float32_matmul_precision("high")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 print(f"Using {device} device")
 
@@ -51,7 +51,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
 
     #training
     model.train()
-    scaler = torch.amp.GradScaler("cuda:0")
+    scaler = torch.amp.GradScaler("cuda")
     running_loss = 0.0
     count = 0
     tot_len = len(loader)
@@ -62,7 +62,7 @@ def train_loop(loader, model, optimizer, batch_size=100, process_name=" ", pred_
         vec = vec.to(device, non_blocking=True)
         in_vec = vec[:, :model.input_len, :]
         truth_vec = vec[:, model.input_len:model.input_len+1, :pred_dim] - vec[:, model.input_len - 1:model.input_len, :pred_dim]
-        with torch.amp.autocast("cuda:0", dtype=torch.float16):
+        with torch.amp.autocast("cuda", dtype=torch.float16):
             pred_vec = model(in_vec)
             loss = loss_fn(pred_vec[:, :, :pred_dim], truth_vec)
 
@@ -111,7 +111,7 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
 
     #training
     model.train()
-    scaler = torch.amp.GradScaler("cuda:0")
+    scaler = torch.amp.GradScaler("cuda")
     running_loss = 0.0
     count = 0
     tot_len = len(loader)
@@ -121,10 +121,10 @@ def train_rollout_loop(loader, model, optimizer, generator, batch_size=100, sche
         vec = vec.to(device, non_blocking=True)
         history = vec[:, :model.input_len, :].clone()
         loss = 0
-        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda:0")
+        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device=device)
         rollout_steps = rollout_max_steps
         for step in range(rollout_steps):
-            with torch.amp.autocast("cuda:0", dtype=torch.float16):
+            with torch.amp.autocast("cuda", dtype=torch.float16):
                 pred = model(history)
                 pred_delta = pred[:,0,:pred_dim]
                 curr_state = history[:,-1,:pred_dim]
@@ -196,7 +196,7 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
 
     #training
     model.train()
-    scaler = torch.amp.GradScaler("cuda:0")
+    scaler = torch.amp.GradScaler("cuda")
     running_loss = 0.0
     count = 0
     tot_len = len(loader)
@@ -206,11 +206,11 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
         vec = vec.to(device, non_blocking=True)
         history = vec[:, :model.input_len, :].clone()
         loss = 0
-        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda:0")
+        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device=device)
         rollout_steps = rollout_max_steps
 
         for step in range(rollout_steps):
-            with torch.amp.autocast("cuda:0", dtype=torch.float16):
+            with torch.amp.autocast("cuda", dtype=torch.float16):
                 pred = model(history)
                 pred_delta = pred[:,0,:pred_dim]
                 curr_state = history[:,-1,:pred_dim]
@@ -273,9 +273,9 @@ def train_rollout_horizon_loop(loader, model, optimizer, generator, batch_size=1
 
     return losses
 
-def train_gml_loop(loader, model, optimizer, batch_size=100, device="cuda:0"):
+def train_gml_loop(loader, model, optimizer, batch_size=100, device=device):
     model.train()
-    scaler = torch.amp.GradScaler("cuda:0")
+    scaler = torch.amp.GradScaler("cuda")
     running_loss = 0.0
     losses = []
     count = 0
@@ -289,7 +289,7 @@ def train_gml_loop(loader, model, optimizer, batch_size=100, device="cuda:0"):
         in_vec = vec[:, :model.input_len, :]
         truth_vec = vec[:, model.input_len:, :]
 
-        with torch.amp.autocast("cuda:0", dtype=torch.float16):
+        with torch.amp.autocast("cuda", dtype=torch.float16):
             pred_vec = model(in_vec)
             print(pred_vec)
             loss = loss_fn_gml(pred_vec, truth_vec)
@@ -328,7 +328,7 @@ def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, 
 
     #training
     model.train()
-    scaler = torch.amp.GradScaler("cuda:0")
+    scaler = torch.amp.GradScaler("cuda")
     running_loss = 0.0
     count = 0
     tot_len = len(loader)
@@ -338,11 +338,11 @@ def train_gml_rollout_loop(loader, model, optimizer, generator, batch_size=100, 
         vec = vec.to(device, non_blocking=True)
         history = vec[:, :model.input_len, :].clone()
         loss = 0
-        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device="cuda:0")
+        #rollout_steps = torch.randint(low=3,high=rollout_max_steps, size=(), generator=generator, device=device)
         rollout_steps = rollout_max_steps
 
         for step in range(rollout_max_steps):
-            with torch.amp.autocast("cuda:0", dtype=torch.float16):
+            with torch.amp.autocast("cuda", dtype=torch.float16):
                 pred=model(history)
                 mu_delta=pred[:,0,:pred_dim]
                 logvar=pred[:,0,pred_dim:]
@@ -408,7 +408,7 @@ def main(cfg: DictConfig):
     run_dir = HydraConfig.get().runtime.output_dir
     process_name = "\n".join(HydraConfig.get().overrides.task)
 
-    gen = torch.Generator(device="cuda:0").manual_seed(cfg.seed)
+    gen = torch.Generator(device=device).manual_seed(cfg.seed)
 
     total_len = cfg.input_len + cfg.output_len
     all_losses = []

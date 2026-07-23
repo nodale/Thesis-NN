@@ -1,0 +1,2 @@
+- models.architecture.block_type=mamba3
+- training.mode=gml_rollout

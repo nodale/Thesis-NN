@@ -1,0 +1,3 @@
+- models.architecture.block_type=simple_cls
+- training.mode=rollout
+- training.rollout_steps=4

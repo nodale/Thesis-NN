@@ -7,6 +7,7 @@
 # never collide). Once all training finishes, each config is evaluated in
 # turn and results are collected under one results folder.
 set -euo pipefail
+GPU_ID=0
 
 cd "$(dirname "$0")"
 
@@ -43,7 +44,7 @@ for entry in "${CONFIGS[@]}"; do
   done
 
   echo "=== Training config: ${name} (${cfg}) ==="
-  python -m train.trainer --multirun "hydra.sweep.dir=${RUNS_DIR}/${name}" ${cfg} \
+  CUDA_VISIBLE_DEVICES=$GPU_ID python -m train.trainer --multirun "hydra.sweep.dir=${RUNS_DIR}/${name}" ${cfg} \
     > "${RESULTS_DIR}/${name}.train.log" 2>&1 &
   pids+=($!)
 done
@@ -57,7 +58,7 @@ for entry in "${CONFIGS[@]}"; do
 
   echo "=== Evaluating: ${name} ==="
   SWEEP_DIR="${RUNS_DIR}/${name}" EVAL_OUTPUT="${RESULTS_DIR}/${name}.json" \
-    python -m evaluate.batched_evaluator
+  CUDA_VISIBLE_DEVICES=$GPU_ID    python -m evaluate.batched_evaluator
 done
 
 echo "All ablation results saved under ${RESULTS_DIR}/"
