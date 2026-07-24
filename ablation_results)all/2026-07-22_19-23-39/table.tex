@@ -1,0 +1,22 @@
+\begin{table}[ht]
+\centering
+\caption{Ablation study results}
+\label{tab:ablation}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ll rr rr rr}
+\toprule
+\textbf{Config} & \textbf{Overrides} &
+\textbf{ATE RMSE} & \textbf{Mean Err} &
+\textbf{Max Err} & \textbf{EP Err} &
+\textbf{Drift \%} & \textbf{Drift m/km} \\
+\midrule
+simple\_mamba\_gml\_rollout & \texttt{block\_type=simple, mamba\_type=mamba, mode=gml\_rollout} & 0.3568 & 0.3239 & 0.5294 & 0.4956 & 11.4394 & 114.3938 \\
+simple\_mamba\_long\_rollout & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, rollout\_steps=48} & 3.5441 & 2.9261 & 6.3403 & 6.3403 & 146.1414 & 1461.4137 \\
+simple\_mamba\_out10 & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, out\_dim=10} & 0.1962 & 0.1787 & 0.2999 & 0.1924 & 4.4716 & 44.7159 \\
+simple\_mamba\_out13 & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, out\_dim=13} & 0.0600 & 0.0576 & 0.0891 & 0.0633 & 1.4624 & 14.6235 \\
+simple\_mamba\_out6 & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, out\_dim=6} & 0.0724 & 0.0686 & 0.1064 & 0.0826 & 1.8492 & 18.4918 \\
+simple\_mamba\_short\_rollout & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, rollout\_steps=16} & 0.0688 & 0.0656 & 0.0917 & 0.0772 & 1.7600 & 17.5996 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,28 @@
+\begin{table}[ht]
+\centering
+\caption{Ablation study results}
+\label{tab:ablation}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ll rr rr rr}
+\toprule
+\textbf{Config} & \textbf{Overrides} &
+\textbf{ATE RMSE} & \textbf{Mean Err} &
+\textbf{Max Err} & \textbf{EP Err} &
+\textbf{Drift \%} & \textbf{Drift m/km} \\
+\midrule
+cls\_gml\_rollout & \texttt{block\_type=cls, mode=gml\_rollout} & 0.1123 & 0.1054 & 0.1590 & 0.1292 & 2.8842 & 28.8420 \\
+cls\_long\_rollout & \texttt{block\_type=cls, mode=rollout, rollout\_steps=32} & 0.2436 & 0.2300 & 0.3457 & 0.2540 & 5.6914 & 56.9136 \\
+cls\_out10 & \texttt{block\_type=cls, mode=rollout, out\_dim=10} & 0.0629 & 0.0601 & 0.0978 & 0.0598 & 1.3268 & 13.2683 \\
+cls\_out13 & \texttt{block\_type=cls, mode=rollout, out\_dim=13} & 0.1143 & 0.1090 & 0.1688 & 0.0856 & 1.9333 & 19.3335 \\
+cls\_out6 & \texttt{block\_type=cls, mode=rollout, out\_dim=6} & 0.0702 & 0.0678 & 0.1025 & 0.0647 & 1.4347 & 14.3471 \\
+cls\_short\_rollout & \texttt{block\_type=cls, mode=rollout, rollout\_steps=4} & 0.0960 & 0.0931 & 0.1344 & 0.0874 & 1.9618 & 19.6183 \\
+simple\_mamba\_gml\_rollout & \texttt{block\_type=simple, mamba\_type=mamba, mode=gml\_rollout} & 0.8561 & 0.8095 & 1.0671 & 1.0244 & 23.0161 & 230.1606 \\
+simple\_mamba\_long\_rollout & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, rollout\_steps=32} & 1.3826 & 1.0419 & 3.2664 & 3.2651 & 73.3957 & 733.9575 \\
+simple\_mamba\_out10 & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, out\_dim=10} & 0.4366 & 0.4157 & 0.5354 & 0.5089 & 11.4412 & 114.4115 \\
+simple\_mamba\_out13 & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, out\_dim=13} & 0.3129 & 0.2942 & 0.4131 & 0.3497 & 7.8905 & 78.9051 \\
+simple\_mamba\_out6 & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, out\_dim=6} & 0.0517 & 0.0488 & 0.0754 & 0.0609 & 1.3646 & 13.6456 \\
+simple\_mamba\_short\_rollout & \texttt{block\_type=simple, mamba\_type=mamba, mode=rollout, rollout\_steps=4} & 0.3324 & 0.3214 & 0.4444 & 0.2837 & 6.3681 & 63.6807 \\
+\bottomrule
+\end{tabular}
+\end{table}

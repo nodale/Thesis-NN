@@ -1,0 +1,21 @@
+\begin{table}[ht]
+\centering
+\caption{Ablation study results}
+\label{tab:ablation}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ll rr rr rr}
+\toprule
+\textbf{Config} & \textbf{Overrides} &
+\textbf{ATE RMSE} & \textbf{Mean Err} &
+\textbf{Max Err} & \textbf{EP Err} &
+\textbf{Drift \%} & \textbf{Drift m/km} \\
+\midrule
+simple\_gml\_cls\_long\_rollout & \texttt{block\_type=simple\_cls, mode=gml\_rollout, rollout\_steps=32} & 0.0903 & 0.0874 & 0.1292 & 0.0922 & 2.0603 & 20.6034 \\
+simple\_gml\_cls\_out10 & \texttt{block\_type=simple\_cls, mode=gml\_rollout, out\_dim=10} & 0.0817 & 0.0786 & 0.1273 & 0.0784 & 1.7425 & 17.4250 \\
+simple\_gml\_cls\_out13 & \texttt{block\_type=simple\_cls, mode=gml\_rollout, out\_dim=13} & 8.5596 & 7.0716 & 15.4212 & 15.4050 & 347.0346 & 3470.3460 \\
+simple\_gml\_cls\_out6 & \texttt{block\_type=simple\_cls, mode=gml\_rollout, out\_dim=6} & 0.2572 & 0.2514 & 0.3312 & 0.2658 & 5.9507 & 59.5069 \\
+simple\_gml\_cls\_short\_rollout & \texttt{block\_type=simple\_cls, mode=gml\_rollout, rollout\_steps=4} & 0.1196 & 0.1170 & 0.1616 & 0.1151 & 2.5818 & 25.8181 \\
+\bottomrule
+\end{tabular}
+\end{table}

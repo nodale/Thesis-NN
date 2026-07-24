@@ -1,0 +1,18 @@
+{
+  "sweep": "ablation_runs/2026-07-23_10-49-16/simple_mamba_long_rollout",
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=simple, models.architecture.mamba_type=mamba, training.mode=rollout, training.rollout_steps=32",
+      "metrics": {
+        "trajectory_length": "4.663243",
+        "ate_rmse": "1.3826151",
+        "mean_error": "1.0418916",
+        "max_error": "3.266369",
+        "endpoint_error": "3.2650921",
+        "kitti_translation_drift": "216.725",
+        "drift_percent": "73.39574",
+        "drift_m_per_km": "733.95746"
+      }
+    }
+  }
+}
