@@ -5,27 +5,11 @@
 #   <RUN_ID> must match an existing ablation_runs/<RUN_ID>/ directory
 #   produced by a previous ablation.sh training run.
 #
-# Same CONFIGS list as ablation.sh (must match the names used for training).
-# Each config is evaluated in turn and results are stored under
-# ablation_results/<RUN_ID>/.
+# Evaluates every subdirectory under ablation_runs/<RUN_ID>/ and stores
+# results under ablation_results/<RUN_ID>/.
 set -euo pipefail
 
 cd "$(dirname "$0")"
-
-CONFIGS=(
-  "simple_mamba_gml_rollout     models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=gml_rollout"
-  "simple_mamba_short_rollout   models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=16"
-  "simple_mamba_long_rollout    models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=48"
-  "simple_mamba_out6            models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=6"
-  "simple_mamba_out10           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=10"
-  "simple_mamba_out13           models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout models.out_dim=13"
-  "cls_gml_rollout     models.architecture.block_type=cls  training.mode=gml_rollout"
-  "cls_short_rollout   models.architecture.block_type=cls  training.mode=rollout training.rollout_steps=16"
-  "cls_long_rollout    models.architecture.block_type=cls  training.mode=rollout training.rollout_steps=48"
-  "cls_out6            models.architecture.block_type=cls  training.mode=rollout models.out_dim=6"
-  "cls_out10           models.architecture.block_type=cls  training.mode=rollout models.out_dim=10"
-  "cls_out13           models.architecture.block_type=cls  training.mode=rollout models.out_dim=13"
-)
 
 RUN_ID="${1:-}"
 if [ -z "$RUN_ID" ]; then
@@ -41,54 +25,70 @@ if [ ! -d "$RUNS_DIR" ]; then
   exit 1
 fi
 
-RESULTS_DIR="ablation_results/${RUN_ID}"
+RESULTS_DIR="ablation_results_seeds_all/${RUN_ID}"
 mkdir -p "$RESULTS_DIR"
 
-# --- evaluate each config in turn, storing results as JSON ---
-for entry in "${CONFIGS[@]}"; do
-  name="${entry%% *}"
+# --- evaluate each config directory ---
+for config_dir in "${RUNS_DIR}"/*/; do
+  [ -d "$config_dir" ] || continue
+
+  name="$(basename "$config_dir")"
 
   echo "=== Evaluating: ${name} ==="
-  SWEEP_DIR="${RUNS_DIR}/${name}" EVAL_OUTPUT="${RESULTS_DIR}/${name}.json" \
+
+  SWEEP_DIR="$config_dir" \
+  EVAL_OUTPUT="${RESULTS_DIR}/${name}.json" \
     python -m evaluate.batched_evaluator \
     > "${RESULTS_DIR}/${name}.eval.log" 2>&1
 done
 
 echo "Evaluation done. Results saved under ${RESULTS_DIR}/"
 
-# --- collect all per-config JSON results into one markdown table ---
-SUMMARY="${RESULTS_DIR}/summary.md"
-
-METRIC_KEYS=(
-  trajectory_length ate_rmse mean_error max_error
-  endpoint_error kitti_translation_drift drift_percent drift_m_per_km
-)
-
-{
-  header="| name | overrides |"
-  sep="|---|---|"
-  for k in "${METRIC_KEYS[@]}"; do
-    header+=" ${k} |"
-    sep+="---|"
-  done
-  echo "$header"
-  echo "$sep"
-
-  for entry in "${CONFIGS[@]}"; do
-    name="${entry%% *}"
-    json="${RESULTS_DIR}/${name}.json"
-    [ -f "$json" ] || continue
-
-    jq -r --arg name "$name" '
-      .runs | to_entries[] |
-      [$name, .value.overrides,
-       .value.metrics.trajectory_length, .value.metrics.ate_rmse,
-       .value.metrics.mean_error, .value.metrics.max_error,
-       .value.metrics.endpoint_error, .value.metrics.kitti_translation_drift,
-       .value.metrics.drift_percent, .value.metrics.drift_m_per_km
-      ] | "| " + join(" | ") + " |"
-    ' "$json"
-  done
-} > "$SUMMARY"
-
-echo "Summary table saved to ${SUMMARY}"
+## --- collect all per-config JSON results into one markdown table ---
+#SUMMARY="${RESULTS_DIR}/summary.md"
+#
+#METRIC_KEYS=(
+#  trajectory_length
+#  ate_rmse
+#  mean_error
+#  max_error
+#  endpoint_error
+#  kitti_translation_drift
+#  drift_percent
+#  drift_m_per_km
+#)
+#
+#{
+#  header="| name | overrides |"
+#  sep="|---|---|"
+#
+#  for k in "${METRIC_KEYS[@]}"; do
+#    header+=" ${k} |"
+#    sep+="---|"
+#  done
+#
+#  echo "$header"
+#  echo "$sep"
+#
+#  for json in "${RESULTS_DIR}"/*.json; do
+#    [ -f "$json" ] || continue
+#
+#    name="$(basename "$json" .json)"
+#
+#    jq -r --arg name "$name" '
+#      .runs | to_entries[] |
+#      [$name, .value.overrides,
+#       .value.metrics.trajectory_length,
+#       .value.metrics.ate_rmse,
+#       .value.metrics.mean_error,
+#       .value.metrics.max_error,
+#       .value.metrics.endpoint_error,
+#       .value.metrics.kitti_translation_drift,
+#       .value.metrics.drift_percent,
+#       .value.metrics.drift_m_per_km
+#      ] | "| " + join(" | ") + " |"
+#    ' "$json"
+#  done
+#} > "$SUMMARY"
+#
+#echo "Summary table saved to ${SUMMARY}"
