@@ -1,0 +1,18 @@
+{
+  "sweep": "ablation_runs/2026-07-24_23-30-14/attention_1e1d_out10",
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=attention, training.mode=rollout, models.out_dim=10, models.architecture.n_encoder_layers=1, models.architecture.n_decoder_layers=1",
+      "metrics": {
+        "trajectory_length": "4.712171",
+        "ate_rmse": "0.37486476",
+        "mean_error": "0.36828974",
+        "max_error": "0.47325486",
+        "endpoint_error": "0.36882046",
+        "kitti_translation_drift": "51.167206",
+        "drift_percent": "8.186415",
+        "drift_m_per_km": "81.86415"
+      }
+    }
+  }
+}

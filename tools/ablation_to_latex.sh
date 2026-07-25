@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 if [ $# -ge 1 ]; then
   SESSION_DIR="$1"
 else
-  SESSION_DIR="ablation_results/$(ls ablation_results/ | sort | tail -1)"
+  SESSION_DIR="ablation_results)all/$(ls ablation_results/ | sort | tail -1)"
 fi
 
 echo "Using session: $SESSION_DIR" >&2

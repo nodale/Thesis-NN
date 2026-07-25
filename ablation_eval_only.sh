@@ -25,7 +25,7 @@ if [ ! -d "$RUNS_DIR" ]; then
   exit 1
 fi
 
-RESULTS_DIR="ablation_results_seeds_all/${RUN_ID}"
+RESULTS_DIR="ablation_results_1000_all/${RUN_ID}"
 mkdir -p "$RESULTS_DIR"
 
 # --- evaluate each config directory ---

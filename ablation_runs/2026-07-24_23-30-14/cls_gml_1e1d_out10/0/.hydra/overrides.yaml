@@ -1,0 +1,5 @@
+- models.architecture.block_type=cls
+- training.mode=gml_rollout
+- models.out_dim=10
+- models.architecture.n_encoder_layers=1
+- models.architecture.n_decoder_layers=1

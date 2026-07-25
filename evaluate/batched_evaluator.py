@@ -270,7 +270,7 @@ def main():
         if r.is_dir() and (r / ".hydra").exists()
     ]
 
-    eps_indices = list(range(int(os.environ.get("EVAL_EPISODES", 100))))
+    eps_indices = list(range(int(os.environ.get("EVAL_EPISODES", 1000))))
 
     with ProcessPoolExecutor(max_workers=min(len(runs), os.cpu_count())) as ex:
         futures = [

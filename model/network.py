@@ -259,11 +259,41 @@ class SimpleCLSBlock(nn.Module):
 
         return self.norm(cls)
 
+class AttentionBlock(nn.Module):
+    def __init__(self,d_model,n_heads, n_mlp=0, dropout=0.0, positional_encoding=False, max_len=5000):
+        super().__init__()
+
+        self.attn = nn.MultiheadAttention(
+            d_model,
+            n_heads,
+            batch_first=True
+        )
+        self.norm = nn.LayerNorm(d_model)
+
+        if positional_encoding == True:
+            self.pos_enc_bool = True
+            self.pos_enc = PositionalEncoding(d_model=d_model, max_len=max_len)
+        else:
+            self.pos_enc_bool = False
+
+    def forward(self,x):
+        if self.pos_enc_bool == True:
+            x = self.pos_enc(x)
+
+        cls,_ = self.attn(
+            query=x,
+            key=x,
+            value=x
+        )
+
+        return self.norm(cls)
+
 _BLOCKS = {
     "simple":   SimpleMambaBlock,
     "advanced": AdvancedMambaBlock,
     "cls":      CLSAttentionBlock,
     "simple_cls": SimpleCLSBlock,
+    "attention": AttentionBlock,
 }
 
 _MAMBA_IMPLS = {
@@ -479,7 +509,7 @@ class JeuralJetwork(nn.Module):
                 f"{list(_MAMBA_IMPLS)}"
             )
 
-        if block_type == "cls" or block_type == "simple_cls":
+        if block_type == "cls" or block_type == "simple_cls" or block_type == "attention":
             block_kwargs = dict(**ck)
         else:
             mamba_impl = _MAMBA_IMPLS[mamba_type]
