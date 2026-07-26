@@ -1,0 +1,6 @@
+- models.architecture.d_model=64
+- training.rollout_steps=8
+- models.architecture.block_type=simple
+- models.architecture.mamba_type=mamba
+- training.mode=rollout
+- models.out_dim=6
