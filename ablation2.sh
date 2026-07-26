@@ -20,7 +20,8 @@ CONFIGS=(
   "simple_cls_out13           models.architecture.block_type=simple_cls  training.mode=rollout models.out_dim=13"
 )
 
-MAX_PARALLEL="${MAX_PARALLEL:-4}"
+MAX_PARALLEL="${MAX_PARALLEL:-1}"
+SEEDS="${SEEDS:-0,1,2,3,4}"
 
 RUN_ID="$(date +%Y-%m-%d_%H-%M-%S)"
 RUNS_DIR="ablation_runs/${RUN_ID}"
@@ -38,7 +39,7 @@ for entry in "${CONFIGS[@]}"; do
   done
 
   echo "=== Training config: ${name} (${cfg}) ==="
-  CUDA_VISIBLE_DEVICES=$GPU_ID python -m train.trainer --multirun "hydra.sweep.dir=${RUNS_DIR}/${name}" ${cfg} \
+  CUDA_VISIBLE_DEVICES=$GPU_ID python -m train.trainer --multirun "hydra.sweep.dir=${RUNS_DIR}/${name}" ${cfg} seed=${SEEDS} \
     > "${RESULTS_DIR}/${name}.train.log" 2>&1 &
   pids+=($!)
 done

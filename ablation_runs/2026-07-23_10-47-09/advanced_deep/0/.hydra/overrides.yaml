@@ -1,0 +1,5 @@
+- models.architecture.block_type=advanced
+- models.architecture.mamba_type=mamba
+- models.architecture.n_encoder_layers=4
+- models.architecture.n_decoder_layers=2
+- training.mode=rollout

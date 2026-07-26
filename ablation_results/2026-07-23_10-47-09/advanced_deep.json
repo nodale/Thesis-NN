@@ -1,0 +1,18 @@
+{
+  "sweep": "ablation_runs/2026-07-23_10-47-09/advanced_deep",
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=advanced, models.architecture.mamba_type=mamba, models.architecture.n_encoder_layers=4, models.architecture.n_decoder_layers=2, training.mode=rollout",
+      "metrics": {
+        "trajectory_length": "4.7492404",
+        "ate_rmse": "0.07526092",
+        "mean_error": "0.07161035",
+        "max_error": "0.102368265",
+        "endpoint_error": "0.08147199",
+        "kitti_translation_drift": "14.929615",
+        "drift_percent": "1.8144084",
+        "drift_m_per_km": "18.144083"
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ seed: 0
 
 hydra:
   launcher:
-    n_jobs: 4
+    n_jobs: 6
 
 dataset:
   path: /home/jdihardjo/simdata/train.zarr/

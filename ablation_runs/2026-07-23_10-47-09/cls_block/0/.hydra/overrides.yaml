@@ -1,0 +1,2 @@
+- models.architecture.block_type=cls
+- training.mode=rollout

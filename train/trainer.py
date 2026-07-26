@@ -408,6 +408,10 @@ def main(cfg: DictConfig):
     run_dir = HydraConfig.get().runtime.output_dir
     process_name = "\n".join(HydraConfig.get().overrides.task)
 
+    torch.manual_seed(cfg.seed)
+    if device.type == "cuda":
+        torch.cuda.manual_seed_all(cfg.seed)
+
     gen = torch.Generator(device=device).manual_seed(cfg.seed)
 
     total_len = cfg.input_len + cfg.output_len

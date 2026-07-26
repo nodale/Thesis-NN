@@ -289,8 +289,20 @@ def main():
     out_path = os.environ.get("EVAL_OUTPUT")
     if out_path:
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+
+        metric_keys = results[0][1].keys() if results else []
+        summary = {
+            key: {
+                "mean": float(np.mean([m[key] for _, m in results])),
+                "std": float(np.std([m[key] for _, m in results])),
+                "n": len(results),
+            }
+            for key in metric_keys
+        }
+
         payload = {
             "sweep": str(sweep),
+            "summary": summary,
             "runs": {
                 name: {
                     "overrides": get_overrides(next(r for r in runs if r.name == name)),
