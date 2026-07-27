@@ -1,0 +1,18 @@
+Loading: /home/egghead/Thesis/Thesis-NN/ablation_runs/2026-07-27_11-13-35_train_mode/attn_out10_rollout5_gml1/0/hydra-test.pth
+
+RUN: 0
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.749240
+ate_rmse: 1.412331
+mean_error: 1.267185
+max_error: 2.381196
+endpoint_error: 2.351310
+kitti_translation_drift: 184.068069
+drift_percent: 53.201401
+drift_m_per_km: 532.014038
+
+DONE
+0 {'trajectory_length': np.float32(4.7492404), 'ate_rmse': np.float32(1.4123306), 'mean_error': np.float32(1.2671851), 'max_error': np.float32(2.3811963), 'endpoint_error': np.float32(2.3513105), 'kitti_translation_drift': np.float32(184.06807), 'drift_percent': np.float32(53.2014), 'drift_m_per_km': np.float32(532.01404)}
+
+Saved results to /home/egghead/Thesis/Thesis-NN/ablation_train_mode/2026-07-27_11-13-35/attn_out10_rollout5_gml1.json

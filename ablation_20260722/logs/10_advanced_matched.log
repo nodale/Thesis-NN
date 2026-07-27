@@ -1,0 +1,246 @@
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda device
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 1
+    n_decoder_layers: 0
+    block_type: advanced
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba
+    mamba_kwargs:
+      d_state: 64
+      d_conv: 4
+      expand: 4
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 64
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
+  training_size: 1500000
+evaluation:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
+  evaluation_size: 10
+training:
+  mode: rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 32
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: false
+
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000146571649  time_per_window : 0.004486   progress : 0.011
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000803792  time_per_window : 0.004592   progress : 0.022
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000405809  time_per_window : 0.004476   progress : 0.033
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000281379  time_per_window : 0.004477   progress : 0.044
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000239359  time_per_window : 0.004483   progress : 0.055
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000197438  time_per_window : 0.004469   progress : 0.066
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000163750  time_per_window : 0.004449   progress : 0.076
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000128102  time_per_window : 0.004460   progress : 0.087
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000093923  time_per_window : 0.004455   progress : 0.098
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000074883  time_per_window : 0.004445   progress : 0.109
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000069979  time_per_window : 0.005299   progress : 0.120
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000063093  time_per_window : 0.004429   progress : 0.131
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000054922  time_per_window : 0.004657   progress : 0.142
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000050015  time_per_window : 0.004447   progress : 0.153
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000045845  time_per_window : 0.004910   progress : 0.164
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000043406  time_per_window : 0.004457   progress : 0.175
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000041864  time_per_window : 0.004748   progress : 0.186
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000039233  time_per_window : 0.004607   progress : 0.197
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000036559  time_per_window : 0.004468   progress : 0.208
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000035513  time_per_window : 0.004458   progress : 0.218
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000035160  time_per_window : 0.004889   progress : 0.229
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000033706  time_per_window : 0.005324   progress : 0.240
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000036086  time_per_window : 0.004495   progress : 0.251
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000033203  time_per_window : 0.004910   progress : 0.262
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000032185  time_per_window : 0.004657   progress : 0.273
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000032128  time_per_window : 0.004942   progress : 0.284
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000031836  time_per_window : 0.005302   progress : 0.295
+name: epochs=5
+dataset.training_size=1500000
+batch_size=128
+compile=false
+models.architecture.block_type=advanced
+models.architecture.n_encoder_layers=1
+models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}    avg_loss: 0.000000031971  time_per_window : 0.004435   progress : 0.306

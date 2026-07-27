@@ -1,0 +1,60 @@
+{
+  "sweep": "/home/egghead/Thesis/Thesis-NN/ablation_runs/2026-07-27_11-13-35_train_mode/attn_out10_rollout5_gml5_phase2",
+  "summary": {
+    "trajectory_length": {
+      "mean": 4.749240398406982,
+      "std": 0.0,
+      "n": 1
+    },
+    "ate_rmse": {
+      "mean": 16.467073440551758,
+      "std": 0.0,
+      "n": 1
+    },
+    "mean_error": {
+      "mean": 14.293246269226074,
+      "std": 0.0,
+      "n": 1
+    },
+    "max_error": {
+      "mean": 28.49750328063965,
+      "std": 0.0,
+      "n": 1
+    },
+    "endpoint_error": {
+      "mean": 28.49750328063965,
+      "std": 0.0,
+      "n": 1
+    },
+    "kitti_translation_drift": {
+      "mean": 1762.6273193359375,
+      "std": 0.0,
+      "n": 1
+    },
+    "drift_percent": {
+      "mean": 633.74853515625,
+      "std": 0.0,
+      "n": 1
+    },
+    "drift_m_per_km": {
+      "mean": 6337.48583984375,
+      "std": 0.0,
+      "n": 1
+    }
+  },
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=attention, models.out_dim=10, dataset.path=/media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr, evaluation.path=/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr, training.mode=gml_rollout_pure, epochs=5, seed=0, checkpoint.load=True, checkpoint.path=/home/egghead/Thesis/Thesis-NN/ablation_runs/2026-07-27_11-13-35_train_mode/attn_out10_rollout5_gml5_phase1/0/hydra-test.pth",
+      "metrics": {
+        "trajectory_length": "4.7492404",
+        "ate_rmse": "16.467073",
+        "mean_error": "14.293246",
+        "max_error": "28.497503",
+        "endpoint_error": "28.497503",
+        "kitti_translation_drift": "1762.6273",
+        "drift_percent": "633.74854",
+        "drift_m_per_km": "6337.486"
+      }
+    }
+  }
+}

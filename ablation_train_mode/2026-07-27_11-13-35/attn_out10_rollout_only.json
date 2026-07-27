@@ -1,0 +1,60 @@
+{
+  "sweep": "/home/egghead/Thesis/Thesis-NN/ablation_runs/2026-07-27_11-13-35_train_mode/attn_out10_rollout_only",
+  "summary": {
+    "trajectory_length": {
+      "mean": 4.749240398406982,
+      "std": 0.0,
+      "n": 1
+    },
+    "ate_rmse": {
+      "mean": 0.09524522721767426,
+      "std": 0.0,
+      "n": 1
+    },
+    "mean_error": {
+      "mean": 0.09101417660713196,
+      "std": 0.0,
+      "n": 1
+    },
+    "max_error": {
+      "mean": 0.13565805554389954,
+      "std": 0.0,
+      "n": 1
+    },
+    "endpoint_error": {
+      "mean": 0.09856069833040237,
+      "std": 0.0,
+      "n": 1
+    },
+    "kitti_translation_drift": {
+      "mean": 24.432544708251953,
+      "std": 0.0,
+      "n": 1
+    },
+    "drift_percent": {
+      "mean": 2.1785364151000977,
+      "std": 0.0,
+      "n": 1
+    },
+    "drift_m_per_km": {
+      "mean": 21.785364151000977,
+      "std": 0.0,
+      "n": 1
+    }
+  },
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=attention, models.out_dim=10, dataset.path=/media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr, evaluation.path=/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr, training.mode=rollout, epochs=5, seed=0",
+      "metrics": {
+        "trajectory_length": "4.7492404",
+        "ate_rmse": "0.09524523",
+        "mean_error": "0.09101418",
+        "max_error": "0.13565806",
+        "endpoint_error": "0.0985607",
+        "kitti_translation_drift": "24.432545",
+        "drift_percent": "2.1785364",
+        "drift_m_per_km": "21.785364"
+      }
+    }
+  }
+}

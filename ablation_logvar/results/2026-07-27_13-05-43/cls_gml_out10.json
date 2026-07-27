@@ -1,0 +1,60 @@
+{
+  "sweep": "ablation_logvar/runs/2026-07-27_13-05-43/cls_gml_out10",
+  "summary": {
+    "trajectory_length": {
+      "mean": 4.749240398406982,
+      "std": 0.0,
+      "n": 1
+    },
+    "ate_rmse": {
+      "mean": 1.5880392789840698,
+      "std": 0.0,
+      "n": 1
+    },
+    "mean_error": {
+      "mean": 1.3545165061950684,
+      "std": 0.0,
+      "n": 1
+    },
+    "max_error": {
+      "mean": 2.94572114944458,
+      "std": 0.0,
+      "n": 1
+    },
+    "endpoint_error": {
+      "mean": 2.9456772804260254,
+      "std": 0.0,
+      "n": 1
+    },
+    "kitti_translation_drift": {
+      "mean": 199.6339874267578,
+      "std": 0.0,
+      "n": 1
+    },
+    "drift_percent": {
+      "mean": 65.12657165527344,
+      "std": 0.0,
+      "n": 1
+    },
+    "drift_m_per_km": {
+      "mean": 651.2657470703125,
+      "std": 0.0,
+      "n": 1
+    }
+  },
+  "runs": {
+    "0": {
+      "overrides": "models.architecture.block_type=cls, training.mode=gml_rollout, models.out_dim=10, seed=0",
+      "metrics": {
+        "trajectory_length": "4.7492404",
+        "ate_rmse": "1.5880393",
+        "mean_error": "1.3545165",
+        "max_error": "2.9457211",
+        "endpoint_error": "2.9456773",
+        "kitti_translation_drift": "199.63399",
+        "drift_percent": "65.12657",
+        "drift_m_per_km": "651.26575"
+      }
+    }
+  }
+}

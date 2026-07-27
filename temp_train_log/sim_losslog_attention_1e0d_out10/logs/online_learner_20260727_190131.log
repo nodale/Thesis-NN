@@ -1,0 +1,529 @@
+Using cuda device
+[collector] episode saved (1 this session, 1 total)
+[collector] episode saved (2 this session, 2 total)
+[collector] episode saved (3 this session, 3 total)
+[nn.learner] min_gen_dwell_s=32.0s (each generation flies at least one full lap before the next swap)
+[nn.learner] cycle 0 — waiting for enough online data…
+[collector] episode saved (4 this session, 4 total)
+[collector] episode saved (5 this session, 5 total)
+[collector] episode saved (6 this session, 6 total)
+[collector] episode saved (7 this session, 7 total)
+[collector] episode saved (8 this session, 8 total)
+[collector] episode saved (9 this session, 9 total)
+[collector] episode saved (10 this session, 10 total)
+[collector] episode saved (11 this session, 11 total)
+[collector] episode saved (12 this session, 12 total)
+[collector] episode saved (13 this session, 13 total)
+[collector] episode saved (14 this session, 14 total)
+[collector] episode saved (15 this session, 15 total)
+[collector] episode saved (16 this session, 16 total)
+[collector] episode saved (17 this session, 17 total)
+[collector] episode saved (18 this session, 18 total)
+[collector] episode saved (19 this session, 19 total)
+[collector] episode saved (20 this session, 20 total)
+[collector] episode saved (21 this session, 21 total)
+[collector] episode saved (22 this session, 22 total)
+[collector] episode saved (23 this session, 23 total)
+[collector] episode saved (24 this session, 24 total)
+[collector] episode saved (25 this session, 25 total)
+
+[nn.learner] ===== Cycle 0/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (26 this session, 26 total)
+[collector] episode saved (27 this session, 27 total)
+[collector] episode saved (28 this session, 28 total)
+[collector] episode saved (29 this session, 29 total)
+[collector] episode saved (30 this session, 30 total)
+[collector] episode saved (31 this session, 31 total)
+[collector] episode saved (32 this session, 32 total)
+[collector] episode saved (33 this session, 33 total)
+[collector] episode saved (34 this session, 34 total)
+[collector] episode saved (35 this session, 35 total)
+[collector] episode saved (36 this session, 36 total)
+[collector] episode saved (37 this session, 37 total)
+[collector] episode saved (38 this session, 38 total)
+[collector] episode saved (39 this session, 39 total)
+[collector] episode saved (40 this session, 40 total)
+[collector] episode saved (41 this session, 41 total)
+[collector] episode saved (42 this session, 42 total)
+[collector] episode saved (43 this session, 43 total)
+[nn.learner] evaluating…
+[collector] episode saved (44 this session, 44 total)
+[collector] episode saved (45 this session, 45 total)
+[nn.learner] cur_ATE=0.8652  new_ATE=0.0965
+[collector] episode saved (46 this session, 46 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=1 ckpt=gen_cycle_001.pth cycle_t=nans pos=(-0.83,-0.57,-1.37)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_001.pth
+[nn.learner] cycle 1 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 1/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (47 this session, 47 total)
+[collector] episode saved (48 this session, 48 total)
+[collector] episode saved (49 this session, 49 total)
+[collector] episode saved (50 this session, 50 total)
+[collector] episode saved (51 this session, 51 total)
+[collector] episode saved (52 this session, 52 total)
+[collector] episode saved (53 this session, 53 total)
+[collector] episode saved (54 this session, 54 total)
+[collector] episode saved (55 this session, 55 total)
+[collector] episode saved (56 this session, 56 total)
+[collector] episode saved (57 this session, 57 total)
+[collector] episode saved (58 this session, 58 total)
+[collector] episode saved (59 this session, 59 total)
+[collector] episode saved (60 this session, 60 total)
+[collector] episode saved (61 this session, 61 total)
+[collector] episode saved (62 this session, 62 total)
+[collector] episode saved (63 this session, 63 total)
+[nn.learner] evaluating…
+[collector] episode saved (64 this session, 64 total)
+[collector] episode saved (65 this session, 65 total)
+[nn.learner] cur_ATE=0.1000  new_ATE=0.0613
+[nn.learner] challenger already won -- holding current gen 11.4s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (66 this session, 66 total)
+[collector] episode saved (67 this session, 67 total)
+[collector] episode saved (68 this session, 68 total)
+[collector] episode saved (69 this session, 69 total)
+[collector] episode saved (70 this session, 70 total)
+[collector] episode saved (71 this session, 71 total)
+[collector] episode saved (72 this session, 72 total)
+[collector] episode saved (73 this session, 73 total)
+[collector] episode saved (74 this session, 74 total)
+[collector] episode saved (75 this session, 75 total)
+[collector] episode saved (76 this session, 76 total)
+[collector] episode saved (77 this session, 77 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=2 ckpt=gen_cycle_002.pth cycle_t=nans pos=(-0.36,0.33,-0.97)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_002.pth
+[nn.learner] cycle 2 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 2/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (78 this session, 78 total)
+[collector] episode saved (79 this session, 79 total)
+[collector] episode saved (80 this session, 80 total)
+[collector] episode saved (81 this session, 81 total)
+[collector] episode saved (82 this session, 82 total)
+[collector] episode saved (83 this session, 83 total)
+[collector] episode saved (84 this session, 84 total)
+[collector] episode saved (85 this session, 85 total)
+[collector] episode saved (86 this session, 86 total)
+[collector] episode saved (87 this session, 87 total)
+[collector] episode saved (88 this session, 88 total)
+[collector] episode saved (89 this session, 89 total)
+[collector] episode saved (90 this session, 90 total)
+[collector] episode saved (91 this session, 91 total)
+[collector] episode saved (92 this session, 92 total)
+[collector] episode saved (93 this session, 93 total)
+[collector] episode saved (94 this session, 94 total)
+[nn.learner] evaluating…
+[collector] episode saved (95 this session, 95 total)
+[collector] episode saved (96 this session, 96 total)
+[nn.learner] cur_ATE=0.0530  new_ATE=0.0467
+[nn.learner] challenger already won -- holding current gen 10.9s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (97 this session, 97 total)
+[collector] episode saved (98 this session, 98 total)
+[collector] episode saved (99 this session, 99 total)
+[collector] episode saved (100 this session, 100 total)
+[collector] episode saved (101 this session, 101 total)
+[collector] episode saved (102 this session, 102 total)
+[collector] episode saved (103 this session, 103 total)
+[collector] episode saved (104 this session, 104 total)
+[collector] episode saved (105 this session, 105 total)
+[collector] episode saved (106 this session, 106 total)
+[collector] episode saved (107 this session, 107 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=3 ckpt=gen_cycle_003.pth cycle_t=nans pos=(0.90,-1.23,-0.81)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_003.pth
+[nn.learner] cycle 3 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 3/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (108 this session, 108 total)
+[collector] episode saved (109 this session, 109 total)
+[collector] episode saved (110 this session, 110 total)
+[collector] episode saved (111 this session, 111 total)
+[collector] episode saved (112 this session, 112 total)
+[collector] episode saved (113 this session, 113 total)
+[collector] episode saved (114 this session, 114 total)
+[collector] episode saved (115 this session, 115 total)
+[collector] episode saved (116 this session, 116 total)
+[collector] episode saved (117 this session, 117 total)
+[collector] episode saved (118 this session, 118 total)
+[collector] episode saved (119 this session, 119 total)
+[collector] episode saved (120 this session, 120 total)
+[collector] episode saved (121 this session, 121 total)
+[collector] episode saved (122 this session, 122 total)
+[collector] episode saved (123 this session, 123 total)
+[collector] episode saved (124 this session, 124 total)
+[nn.learner] evaluating…
+[collector] episode saved (125 this session, 125 total)
+[collector] episode saved (126 this session, 126 total)
+[nn.learner] cur_ATE=0.0489  new_ATE=0.0420
+[nn.learner] challenger already won -- holding current gen 11.4s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (127 this session, 127 total)
+[collector] episode saved (128 this session, 128 total)
+[collector] episode saved (129 this session, 129 total)
+[collector] episode saved (130 this session, 130 total)
+[collector] episode saved (131 this session, 131 total)
+[collector] episode saved (132 this session, 132 total)
+[collector] episode saved (133 this session, 133 total)
+[collector] episode saved (134 this session, 134 total)
+[collector] episode saved (135 this session, 135 total)
+[collector] episode saved (136 this session, 136 total)
+[collector] episode saved (137 this session, 137 total)
+[collector] episode saved (138 this session, 138 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=4 ckpt=gen_cycle_004.pth cycle_t=nans pos=(0.46,-0.40,-0.87)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_004.pth
+[nn.learner] cycle 4 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 4/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (139 this session, 139 total)
+[collector] episode saved (140 this session, 140 total)
+[collector] episode saved (141 this session, 141 total)
+[collector] episode saved (142 this session, 142 total)
+[collector] episode saved (143 this session, 143 total)
+[collector] episode saved (144 this session, 144 total)
+[collector] episode saved (145 this session, 145 total)
+[collector] episode saved (146 this session, 146 total)
+[collector] episode saved (147 this session, 147 total)
+[collector] episode saved (148 this session, 148 total)
+[collector] episode saved (149 this session, 149 total)
+[collector] episode saved (150 this session, 150 total)
+[collector] episode saved (151 this session, 151 total)
+[collector] episode saved (152 this session, 152 total)
+[collector] episode saved (153 this session, 153 total)
+[collector] episode saved (154 this session, 154 total)
+[collector] episode saved (155 this session, 155 total)
+[nn.learner] evaluating…
+[collector] episode saved (156 this session, 156 total)
+[collector] episode saved (157 this session, 157 total)
+[nn.learner] cur_ATE=0.0644  new_ATE=0.0547
+[nn.learner] challenger already won -- holding current gen 10.5s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (158 this session, 158 total)
+[collector] episode saved (159 this session, 159 total)
+[collector] episode saved (160 this session, 160 total)
+[collector] episode saved (161 this session, 161 total)
+[collector] episode saved (162 this session, 162 total)
+[collector] episode saved (163 this session, 163 total)
+[collector] episode saved (164 this session, 164 total)
+[collector] episode saved (165 this session, 165 total)
+[collector] episode saved (166 this session, 166 total)
+[collector] episode saved (167 this session, 167 total)
+[collector] episode saved (168 this session, 168 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=5 ckpt=gen_cycle_005.pth cycle_t=nans pos=(-0.10,-0.10,-1.07)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_005.pth
+[nn.learner] cycle 5 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 5/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (169 this session, 169 total)
+[collector] episode saved (170 this session, 170 total)
+[collector] episode saved (171 this session, 171 total)
+[collector] episode saved (172 this session, 172 total)
+[collector] episode saved (173 this session, 173 total)
+[collector] episode saved (174 this session, 174 total)
+[collector] episode saved (175 this session, 175 total)
+[collector] episode saved (176 this session, 176 total)
+[collector] episode saved (177 this session, 177 total)
+[collector] episode saved (178 this session, 178 total)
+[collector] episode saved (179 this session, 179 total)
+[collector] episode saved (180 this session, 180 total)
+[collector] episode saved (181 this session, 181 total)
+[collector] episode saved (182 this session, 182 total)
+[collector] episode saved (183 this session, 183 total)
+[collector] episode saved (184 this session, 184 total)
+[collector] episode saved (185 this session, 185 total)
+[nn.learner] evaluating…
+[collector] episode saved (186 this session, 186 total)
+[collector] episode saved (187 this session, 187 total)
+[nn.learner] cur_ATE=0.0549  new_ATE=0.0517
+[nn.learner] challenger already won -- holding current gen 11.2s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (188 this session, 188 total)
+[collector] episode saved (189 this session, 189 total)
+[collector] episode saved (190 this session, 190 total)
+[collector] episode saved (191 this session, 191 total)
+[collector] episode saved (192 this session, 192 total)
+[collector] episode saved (193 this session, 193 total)
+[collector] episode saved (194 this session, 194 total)
+[collector] episode saved (195 this session, 195 total)
+[collector] episode saved (196 this session, 196 total)
+[collector] episode saved (197 this session, 197 total)
+[collector] episode saved (198 this session, 198 total)
+[collector] episode saved (199 this session, 199 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=6 ckpt=gen_cycle_006.pth cycle_t=nans pos=(-0.40,-0.35,-1.01)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_006.pth
+[nn.learner] cycle 6 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 6/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (200 this session, 200 total)
+[collector] episode saved (201 this session, 201 total)
+[collector] episode saved (202 this session, 202 total)
+[collector] episode saved (203 this session, 203 total)
+[collector] episode saved (204 this session, 204 total)
+[collector] episode saved (205 this session, 205 total)
+[collector] episode saved (206 this session, 206 total)
+[collector] episode saved (207 this session, 207 total)
+[collector] episode saved (208 this session, 208 total)
+[collector] episode saved (209 this session, 209 total)
+[collector] episode saved (210 this session, 210 total)
+[collector] episode saved (211 this session, 211 total)
+[collector] episode saved (212 this session, 212 total)
+[collector] episode saved (213 this session, 213 total)
+[collector] episode saved (214 this session, 214 total)
+[collector] episode saved (215 this session, 215 total)
+[nn.learner] evaluating…
+[collector] episode saved (216 this session, 216 total)
+[collector] episode saved (217 this session, 217 total)
+[collector] episode saved (218 this session, 218 total)
+[nn.learner] cur_ATE=0.0374  new_ATE=0.0317
+[nn.learner] challenger already won -- holding current gen 11.1s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (219 this session, 219 total)
+[collector] episode saved (220 this session, 220 total)
+[collector] episode saved (221 this session, 221 total)
+[collector] episode saved (222 this session, 222 total)
+[collector] episode saved (223 this session, 223 total)
+[collector] episode saved (224 this session, 224 total)
+[collector] episode saved (225 this session, 225 total)
+[collector] episode saved (226 this session, 226 total)
+[collector] episode saved (227 this session, 227 total)
+[collector] episode saved (228 this session, 228 total)
+[collector] episode saved (229 this session, 229 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=7 ckpt=gen_cycle_007.pth cycle_t=nans pos=(-0.60,0.81,-1.10)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_007.pth
+[nn.learner] cycle 7 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 7/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (230 this session, 230 total)
+[collector] episode saved (231 this session, 231 total)
+[collector] episode saved (232 this session, 232 total)
+[collector] episode saved (233 this session, 233 total)
+[collector] episode saved (234 this session, 234 total)
+[collector] episode saved (235 this session, 235 total)
+[collector] episode saved (236 this session, 236 total)
+[collector] episode saved (237 this session, 237 total)
+[collector] episode saved (238 this session, 238 total)
+[collector] episode saved (239 this session, 239 total)
+[collector] episode saved (240 this session, 240 total)
+[collector] episode saved (241 this session, 241 total)
+[collector] episode saved (242 this session, 242 total)
+[collector] episode saved (243 this session, 243 total)
+[collector] episode saved (244 this session, 244 total)
+[collector] episode saved (245 this session, 245 total)
+[collector] episode saved (246 this session, 246 total)
+[nn.learner] evaluating…
+[collector] episode saved (247 this session, 247 total)
+[collector] episode saved (248 this session, 248 total)
+[collector] episode saved (249 this session, 249 total)
+[nn.learner] cur_ATE=0.0362  new_ATE=0.0390
+[nn.learner] current gen retained — challenger continues.
+[nn.learner] cycle 8 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 8/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (250 this session, 250 total)
+[collector] episode saved (251 this session, 251 total)
+[collector] episode saved (252 this session, 252 total)
+[collector] episode saved (253 this session, 253 total)
+[collector] episode saved (254 this session, 254 total)
+[collector] episode saved (255 this session, 255 total)
+[collector] episode saved (256 this session, 256 total)
+[collector] episode saved (257 this session, 257 total)
+[collector] episode saved (258 this session, 258 total)
+[collector] episode saved (259 this session, 259 total)
+[collector] episode saved (260 this session, 260 total)
+[collector] episode saved (261 this session, 261 total)
+[collector] episode saved (262 this session, 262 total)
+[collector] episode saved (263 this session, 263 total)
+[collector] episode saved (264 this session, 264 total)
+[collector] episode saved (265 this session, 265 total)
+[collector] episode saved (266 this session, 266 total)
+[nn.learner] evaluating…
+[collector] episode saved (267 this session, 267 total)
+[collector] episode saved (268 this session, 268 total)
+[nn.learner] cur_ATE=0.0334  new_ATE=0.0332
+[collector] episode saved (269 this session, 269 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=8 ckpt=gen_cycle_008.pth cycle_t=nans pos=(0.52,-0.46,-0.86)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_008.pth
+[nn.learner] cycle 9 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 9/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (270 this session, 270 total)
+[collector] episode saved (271 this session, 271 total)
+[collector] episode saved (272 this session, 272 total)
+[collector] episode saved (273 this session, 273 total)
+[collector] episode saved (274 this session, 274 total)
+[collector] episode saved (275 this session, 275 total)
+[collector] episode saved (276 this session, 276 total)
+[collector] episode saved (277 this session, 277 total)
+[collector] episode saved (278 this session, 278 total)
+[collector] episode saved (279 this session, 279 total)
+[collector] episode saved (280 this session, 280 total)
+[collector] episode saved (281 this session, 281 total)
+[collector] episode saved (282 this session, 282 total)
+[collector] episode saved (283 this session, 283 total)
+[collector] episode saved (284 this session, 284 total)
+[collector] episode saved (285 this session, 285 total)
+[collector] episode saved (286 this session, 286 total)
+[nn.learner] evaluating…
+[collector] episode saved (287 this session, 287 total)
+[collector] episode saved (288 this session, 288 total)
+[nn.learner] cur_ATE=0.0381  new_ATE=0.0351
+[nn.learner] challenger already won -- holding current gen 10.7s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (289 this session, 289 total)
+[collector] episode saved (290 this session, 290 total)
+[collector] episode saved (291 this session, 291 total)
+[collector] episode saved (292 this session, 292 total)
+[collector] episode saved (293 this session, 293 total)
+[collector] episode saved (294 this session, 294 total)
+[collector] episode saved (295 this session, 295 total)
+[collector] episode saved (296 this session, 296 total)
+[collector] episode saved (297 this session, 297 total)
+[collector] episode saved (298 this session, 298 total)
+[collector] episode saved (299 this session, 299 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=9 ckpt=gen_cycle_009.pth cycle_t=nans pos=(-0.54,0.63,-1.21)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_009.pth
+[nn.learner] cycle 10 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 10/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (300 this session, 300 total)
+[collector] episode saved (301 this session, 301 total)
+[collector] episode saved (302 this session, 302 total)
+[collector] episode saved (303 this session, 303 total)
+[collector] episode saved (304 this session, 304 total)
+[collector] episode saved (305 this session, 305 total)
+[collector] episode saved (306 this session, 306 total)
+[collector] episode saved (307 this session, 307 total)
+[collector] episode saved (308 this session, 308 total)
+[collector] episode saved (309 this session, 309 total)
+[collector] episode saved (310 this session, 310 total)
+[collector] episode saved (311 this session, 311 total)
+[collector] episode saved (312 this session, 312 total)
+[collector] episode saved (313 this session, 313 total)
+[collector] episode saved (314 this session, 314 total)
+[collector] episode saved (315 this session, 315 total)
+[collector] episode saved (316 this session, 316 total)
+[nn.learner] evaluating…
+[collector] episode saved (317 this session, 317 total)
+[collector] episode saved (318 this session, 318 total)
+[nn.learner] cur_ATE=0.0382  new_ATE=0.0359
+[nn.learner] challenger already won -- holding current gen 11.3s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (319 this session, 319 total)
+[collector] episode saved (320 this session, 320 total)
+[collector] episode saved (321 this session, 321 total)
+[collector] episode saved (322 this session, 322 total)
+[collector] episode saved (323 this session, 323 total)
+[collector] episode saved (324 this session, 324 total)
+[collector] episode saved (325 this session, 325 total)
+[collector] episode saved (326 this session, 326 total)
+[collector] episode saved (327 this session, 327 total)
+[collector] episode saved (328 this session, 328 total)
+[collector] episode saved (329 this session, 329 total)
+[collector] episode saved (330 this session, 330 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=10 ckpt=gen_cycle_010.pth cycle_t=nans pos=(-0.44,-0.40,-1.00)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_010.pth
+[nn.learner] cycle 11 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 11/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (331 this session, 331 total)
+[collector] episode saved (332 this session, 332 total)
+[collector] episode saved (333 this session, 333 total)
+[collector] episode saved (334 this session, 334 total)
+[collector] episode saved (335 this session, 335 total)
+[collector] episode saved (336 this session, 336 total)
+[collector] episode saved (337 this session, 337 total)
+[collector] episode saved (338 this session, 338 total)
+[collector] episode saved (339 this session, 339 total)
+[collector] episode saved (340 this session, 340 total)
+[collector] episode saved (341 this session, 341 total)
+[collector] episode saved (342 this session, 342 total)
+[collector] episode saved (343 this session, 343 total)
+[collector] episode saved (344 this session, 344 total)
+[collector] episode saved (345 this session, 345 total)
+[collector] episode saved (346 this session, 346 total)
+[collector] episode saved (347 this session, 347 total)
+[nn.learner] evaluating…
+[collector] episode saved (348 this session, 348 total)
+[collector] episode saved (349 this session, 349 total)
+[nn.learner] cur_ATE=0.0485  new_ATE=0.0433
+[nn.learner] challenger already won -- holding current gen 10.4s more (min_gen_dwell_s=32.0s) before swap…
+[collector] episode saved (350 this session, 350 total)
+[collector] episode saved (351 this session, 351 total)
+[collector] episode saved (352 this session, 352 total)
+[collector] episode saved (353 this session, 353 total)
+[collector] episode saved (354 this session, 354 total)
+[collector] episode saved (355 this session, 355 total)
+[collector] episode saved (356 this session, 356 total)
+[collector] episode saved (357 this session, 357 total)
+[collector] episode saved (358 this session, 358 total)
+[collector] episode saved (359 this session, 359 total)
+[collector] episode saved (360 this session, 360 total)
+[nn.learner] swap gate: timed out after 1.0s -- swapping now
+[nn.learner] swap event logged: gen=11 ckpt=gen_cycle_011.pth cycle_t=nans pos=(-0.08,0.23,-0.98)
+[nn.learner] new gen wins → swapped. Saved: /home/me/devel/nn_portable/nn/generations/gen_cycle_011.pth
+[nn.learner] cycle 12 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 12/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (361 this session, 361 total)
+[collector] episode saved (362 this session, 362 total)
+[collector] episode saved (363 this session, 363 total)
+[collector] episode saved (364 this session, 364 total)
+[collector] episode saved (365 this session, 365 total)
+[collector] episode saved (366 this session, 366 total)
+[collector] episode saved (367 this session, 367 total)
+[collector] episode saved (368 this session, 368 total)
+[collector] episode saved (369 this session, 369 total)
+[collector] episode saved (370 this session, 370 total)
+[collector] episode saved (371 this session, 371 total)
+[collector] episode saved (372 this session, 372 total)
+[collector] episode saved (373 this session, 373 total)
+[collector] episode saved (374 this session, 374 total)
+[collector] episode saved (375 this session, 375 total)
+[collector] episode saved (376 this session, 376 total)
+[collector] episode saved (377 this session, 377 total)
+[nn.learner] evaluating…
+[collector] episode saved (378 this session, 378 total)
+[collector] episode saved (379 this session, 379 total)
+[nn.learner] cur_ATE=0.0312  new_ATE=0.0324
+[nn.learner] current gen retained — challenger continues.
+[nn.learner] cycle 13 — waiting for enough online data…
+
+[nn.learner] ===== Cycle 13/inf (sched=0.000) =====
+[nn.learner] training: 250 sim + 7500 online steps, online episodes[0:] only (this session's data)
+[nn.learner] training challenger…
+[collector] episode saved (380 this session, 380 total)
+[collector] episode saved (381 this session, 381 total)
+[collector] episode saved (382 this session, 382 total)
+[collector] episode saved (383 this session, 383 total)
+[nn.learner] evaluating…
+[nn.learner] cur_ATE=0.0405  new_ATE=0.0407
+[nn.learner] current gen retained — challenger continues.
+[nn.learner] done.

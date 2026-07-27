@@ -1,0 +1,94 @@
+=== 01_baseline ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.110874
+mean_error: 0.106262
+max_error: 0.160799
+endpoint_error: 0.112431
+kitti_translation_drift: 29.760654
+drift_percent: 2.636057
+drift_m_per_km: 26.360577
+--- 01_baseline done ---
+=== 02_rollout_horz ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.118732
+mean_error: 0.113441
+max_error: 0.177428
+endpoint_error: 0.113303
+kitti_translation_drift: 34.970970
+drift_percent: 2.620188
+drift_m_per_km: 26.201878
+--- 02_rollout_horz done ---
+=== 03_standard ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.247579
+mean_error: 0.235368
+max_error: 0.346762
+endpoint_error: 0.295633
+kitti_translation_drift: 39.614304
+drift_percent: 6.992977
+drift_m_per_km: 69.929779
+--- 03_standard done ---
+=== 04_rollout ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.110656
+mean_error: 0.107177
+max_error: 0.156552
+endpoint_error: 0.120974
+kitti_translation_drift: 29.415146
+drift_percent: 2.854409
+drift_m_per_km: 28.544086
+--- 04_rollout done ---
+=== 06_simple_cls_block ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.088920
+mean_error: 0.083642
+max_error: 0.144128
+endpoint_error: 0.095337
+kitti_translation_drift: 35.056534
+drift_percent: 2.239427
+drift_m_per_km: 22.394272
+--- 06_simple_cls_block done ---
+=== 08_fewer_enc_layers ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.092029
+mean_error: 0.088975
+max_error: 0.136098
+endpoint_error: 0.088879
+kitti_translation_drift: 24.019993
+drift_percent: 2.106952
+drift_m_per_km: 21.069519
+--- 08_fewer_enc_layers done ---
+=== 09_enc_dec_split ===
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.482813
+ate_rmse: 0.352605
+mean_error: 0.346701
+max_error: 0.430031
+endpoint_error: 0.368488
+kitti_translation_drift: 45.943306
+drift_percent: 8.705341
+drift_m_per_km: 87.053429
+--- 09_enc_dec_split done ---
+
+=== FINAL SUMMARY ===
+01_baseline {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.11087373), 'mean_error': np.float32(0.10626206), 'max_error': np.float32(0.16079882), 'endpoint_error': np.float32(0.112431146), 'kitti_translation_drift': np.float32(29.760654), 'drift_percent': np.float32(2.6360574), 'drift_m_per_km': np.float32(26.360577)}
+02_rollout_horz {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.11873176), 'mean_error': np.float32(0.11344138), 'max_error': np.float32(0.17742757), 'endpoint_error': np.float32(0.113302685), 'kitti_translation_drift': np.float32(34.97097), 'drift_percent': np.float32(2.620188), 'drift_m_per_km': np.float32(26.201878)}
+03_standard {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.24757876), 'mean_error': np.float32(0.23536813), 'max_error': np.float32(0.34676194), 'endpoint_error': np.float32(0.29563323), 'kitti_translation_drift': np.float32(39.614304), 'drift_percent': np.float32(6.992977), 'drift_m_per_km': np.float32(69.92978)}
+04_rollout {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.11065624), 'mean_error': np.float32(0.10717706), 'max_error': np.float32(0.15655158), 'endpoint_error': np.float32(0.12097433), 'kitti_translation_drift': np.float32(29.415146), 'drift_percent': np.float32(2.8544085), 'drift_m_per_km': np.float32(28.544086)}
+06_simple_cls_block {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.08891953), 'mean_error': np.float32(0.08364168), 'max_error': np.float32(0.14412788), 'endpoint_error': np.float32(0.09533724), 'kitti_translation_drift': np.float32(35.056534), 'drift_percent': np.float32(2.239427), 'drift_m_per_km': np.float32(22.394272)}
+08_fewer_enc_layers {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.09202883), 'mean_error': np.float32(0.088975124), 'max_error': np.float32(0.13609827), 'endpoint_error': np.float32(0.08887888), 'kitti_translation_drift': np.float32(24.019993), 'drift_percent': np.float32(2.1069517), 'drift_m_per_km': np.float32(21.069519)}
+09_enc_dec_split {'trajectory_length': np.float32(4.482813), 'ate_rmse': np.float32(0.35260525), 'mean_error': np.float32(0.3467012), 'max_error': np.float32(0.43003112), 'endpoint_error': np.float32(0.36848778), 'kitti_translation_drift': np.float32(45.943306), 'drift_percent': np.float32(8.705341), 'drift_m_per_km': np.float32(87.05343)}
+SAVED

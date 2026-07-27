@@ -1,0 +1,526 @@
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda device
+[2026-07-23 08:09:37,777][HYDRA] Joblib.Parallel(n_jobs=4,backend=loky,prefer=processes,require=None,verbose=0,timeout=None,pre_dispatch=2*n_jobs,batch_size=auto,temp_folder=None,max_nbytes=None,mmap_mode=r) is launching 1 jobs
+[2026-07-23 08:09:37,777][HYDRA] Launching jobs, sweep output dir : ablation_runs/2026-07-23_08-09-28/baseline_simple_mamba
+[2026-07-23 08:09:37,777][HYDRA] 	#0 : models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 2
+    n_decoder_layers: 0
+    block_type: simple
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba
+    mamba_kwargs:
+      d_state: 16
+      d_conv: 2
+      expand: 2
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 64
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
+  training_size: 1500000
+evaluation:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
+  evaluation_size: 50
+training:
+  mode: rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 32
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/_dynamo/variables/functions.py:2311: UserWarning: Dynamo does not know how to trace the builtin `selective_scan_cuda.pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1.fwd.` This function is either a Python builtin (e.g. _warnings.warn) or a third-party C/C++ Python extension (perhaps created with pybind).
+If it is a Python builtin, please file an issue on GitHub so the PyTorch team can add support for it and see the next case for a workaround.
+If it is a third-party C/C++ Python extension, please either wrap it into a PyTorch-understood custom operator (see https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html for more details) or, if it is traceable, use `torch.compiler.allow_in_graph`.
+  torch._dynamo.utils.warn_once(explanation + "\n" + "\n".join(hints))
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000099633544  time_per_window : 0.002861   progress : 0.011
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000255193  time_per_window : 0.002885   progress : 0.022
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000220017  time_per_window : 0.002853   progress : 0.033
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000190918  time_per_window : 0.002858   progress : 0.044
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000181066  time_per_window : 0.002872   progress : 0.055
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000163096  time_per_window : 0.002913   progress : 0.066
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000160478  time_per_window : 0.002886   progress : 0.076
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000160051  time_per_window : 0.002867   progress : 0.087
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000150105  time_per_window : 0.002925   progress : 0.098
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000136473  time_per_window : 0.006117   progress : 0.109
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000142871  time_per_window : 0.003039   progress : 0.120
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000136747  time_per_window : 0.002914   progress : 0.131
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000131803  time_per_window : 0.002859   progress : 0.142
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000121366  time_per_window : 0.002856   progress : 0.153
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000112364  time_per_window : 0.002896   progress : 0.164
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000105990  time_per_window : 0.002984   progress : 0.175
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000095656  time_per_window : 0.002878   progress : 0.186
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000088542  time_per_window : 0.002894   progress : 0.197
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000074071  time_per_window : 0.002774   progress : 0.208
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000064394  time_per_window : 0.001902   progress : 0.218
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000056188  time_per_window : 0.002968   progress : 0.229
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000045431  time_per_window : 0.002976   progress : 0.240
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000042076  time_per_window : 0.002936   progress : 0.251
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000034865  time_per_window : 0.003007   progress : 0.262
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031338  time_per_window : 0.002930   progress : 0.273
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000032380  time_per_window : 0.002950   progress : 0.284
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000029956  time_per_window : 0.002951   progress : 0.295
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030919  time_per_window : 0.002948   progress : 0.306
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031008  time_per_window : 0.002961   progress : 0.317
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000033152  time_per_window : 0.002925   progress : 0.328
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000029665  time_per_window : 0.002937   progress : 0.339
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000029910  time_per_window : 0.002943   progress : 0.350
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000034892  time_per_window : 0.002939   progress : 0.360
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030753  time_per_window : 0.002924   progress : 0.371
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000028570  time_per_window : 0.002981   progress : 0.382
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000037551  time_per_window : 0.002945   progress : 0.393
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000033980  time_per_window : 0.002985   progress : 0.404
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031436  time_per_window : 0.002947   progress : 0.415
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000032708  time_per_window : 0.002973   progress : 0.426
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031682  time_per_window : 0.002969   progress : 0.437
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000035502  time_per_window : 0.002954   progress : 0.448
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000035421  time_per_window : 0.002957   progress : 0.459
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030526  time_per_window : 0.002917   progress : 0.470
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000036520  time_per_window : 0.002909   progress : 0.481
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000034128  time_per_window : 0.002943   progress : 0.492
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000033517  time_per_window : 0.002973   progress : 0.502
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031371  time_per_window : 0.002923   progress : 0.513/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000035255  time_per_window : 0.003024   progress : 0.524
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030009  time_per_window : 0.003006   progress : 0.535
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031655  time_per_window : 0.002979   progress : 0.546
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000035588  time_per_window : 0.002936   progress : 0.557
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030522  time_per_window : 0.002954   progress : 0.568
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031936  time_per_window : 0.002952   progress : 0.579
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000032516  time_per_window : 0.002978   progress : 0.590
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000029640  time_per_window : 0.002955   progress : 0.601
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000036099  time_per_window : 0.002939   progress : 0.612
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030209  time_per_window : 0.002960   progress : 0.623
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000027729  time_per_window : 0.002947   progress : 0.634
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000028397  time_per_window : 0.002951   progress : 0.644
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030216  time_per_window : 0.002950   progress : 0.655
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000031694  time_per_window : 0.002969   progress : 0.666
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000030042  time_per_window : 0.002931   progress : 0.677
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000027647  time_per_window : 0.003070   progress : 0.688
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000026275  time_per_window : 0.002954   progress : 0.699
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000032168  time_per_window : 0.002945   progress : 0.710
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000025664  time_per_window : 0.003051   progress : 0.721
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000025776  time_per_window : 0.003032   progress : 0.732
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000028244  time_per_window : 0.002955   progress : 0.743
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000023197  time_per_window : 0.002967   progress : 0.754
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000029660  time_per_window : 0.002978   progress : 0.765
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000024424  time_per_window : 0.002964   progress : 0.775
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000024366  time_per_window : 0.003020   progress : 0.786
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000024155  time_per_window : 0.002935   progress : 0.797
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000022575  time_per_window : 0.002941   progress : 0.808
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000024846  time_per_window : 0.003004   progress : 0.819
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000022258  time_per_window : 0.002926   progress : 0.830
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000023125  time_per_window : 0.002948   progress : 0.841
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000021276  time_per_window : 0.002960   progress : 0.852
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000022892  time_per_window : 0.002993   progress : 0.863
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000021934  time_per_window : 0.002953   progress : 0.874
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000020843  time_per_window : 0.002948   progress : 0.885
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000019447  time_per_window : 0.002941   progress : 0.896
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000019421  time_per_window : 0.002980   progress : 0.907
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000018022  time_per_window : 0.002954   progress : 0.917
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000018550  time_per_window : 0.002930   progress : 0.928
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000016885  time_per_window : 0.002946   progress : 0.939
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000015377  time_per_window : 0.002955   progress : 0.950
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000013960  time_per_window : 0.002914   progress : 0.961
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000013700  time_per_window : 0.002927   progress : 0.972
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011964  time_per_window : 0.002956   progress : 0.983
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000012563  time_per_window : 0.002946   progress : 0.994
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000021977  time_per_window : 0.003089   progress : 0.011
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009864  time_per_window : 0.003188   progress : 0.022
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000012013  time_per_window : 0.003089   progress : 0.033
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000012187  time_per_window : 0.003080   progress : 0.044
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011770  time_per_window : 0.003093   progress : 0.055
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011450  time_per_window : 0.003097   progress : 0.066
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011910  time_per_window : 0.003076   progress : 0.076
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000012187  time_per_window : 0.003260   progress : 0.087
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010996  time_per_window : 0.003077   progress : 0.098
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010922  time_per_window : 0.003079   progress : 0.109
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000012814  time_per_window : 0.003073   progress : 0.120
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000012980  time_per_window : 0.003093   progress : 0.131
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009550  time_per_window : 0.003109   progress : 0.142
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009576  time_per_window : 0.003121   progress : 0.153
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011988  time_per_window : 0.003116   progress : 0.164
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011478  time_per_window : 0.003174   progress : 0.175
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010792  time_per_window : 0.003265   progress : 0.186
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000011295  time_per_window : 0.003102   progress : 0.197
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010065  time_per_window : 0.003100   progress : 0.208
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010574  time_per_window : 0.003097   progress : 0.218
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010457  time_per_window : 0.003090   progress : 0.229
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010390  time_per_window : 0.003071   progress : 0.240
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010394  time_per_window : 0.003100   progress : 0.251
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009483  time_per_window : 0.003094   progress : 0.262
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009154  time_per_window : 0.003072   progress : 0.273
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009774  time_per_window : 0.003083   progress : 0.284
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009869  time_per_window : 0.001926   progress : 0.295
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009377  time_per_window : 0.003090   progress : 0.306
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009183  time_per_window : 0.003098   progress : 0.317
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009092  time_per_window : 0.003086   progress : 0.328
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010380  time_per_window : 0.003113   progress : 0.339
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009678  time_per_window : 0.003104   progress : 0.350
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009267  time_per_window : 0.003091   progress : 0.360
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008922  time_per_window : 0.003046   progress : 0.371
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008142  time_per_window : 0.003091   progress : 0.382
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000009580  time_per_window : 0.003048   progress : 0.393
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008917  time_per_window : 0.003047   progress : 0.404
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008565  time_per_window : 0.003041   progress : 0.415
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008468  time_per_window : 0.003087   progress : 0.426
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000010092  time_per_window : 0.003109   progress : 0.437
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000007823  time_per_window : 0.003066   progress : 0.448
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000007936  time_per_window : 0.003148   progress : 0.459
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008239  time_per_window : 0.003145   progress : 0.470
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008273  time_per_window : 0.003069   progress : 0.481
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008386  time_per_window : 0.003143   progress : 0.492
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008179  time_per_window : 0.003122   progress : 0.502
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000007515  time_per_window : 0.003144   progress : 0.513
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000008216  time_per_window : 0.003246   progress : 0.524
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000007653  time_per_window : 0.003086   progress : 0.535
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout    avg_loss: 0.000000007059  time_per_window : 0.003149   progress : 0.546Traceback (most recent call last):
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+            ^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 177, in sweep
+    results = self.launcher.launch(batch, initial_job_idx=initial_job_idx)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/joblib_launcher.py", line 45, in launch
+    return _core.launch(
+           ^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/_core.py", line 103, in launch
+    runs = Parallel(**joblib_cfg)(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGTERM(-15)}
+Detailed tracebacks of the workers should have been printed to stderr in the executor process if faulthandler was not disabled.
+/usr/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

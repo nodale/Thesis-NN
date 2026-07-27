@@ -1,0 +1,9 @@
+- models.architecture.block_type=attention
+- models.out_dim=10
+- dataset.path=/media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr
+- evaluation.path=/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr
+- training.mode=gml_rollout_pure
+- epochs=5
+- seed=0
+- checkpoint.load=True
+- checkpoint.path=/home/egghead/Thesis/Thesis-NN/ablation_runs/2026-07-27_11-13-35_train_mode/attn_out10_rollout5_gml5_phase1/0/hydra-test.pth

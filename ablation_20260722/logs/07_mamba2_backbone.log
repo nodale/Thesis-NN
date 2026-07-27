@@ -1,0 +1,111 @@
+/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda device
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 2
+    n_decoder_layers: 0
+    block_type: simple
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba2
+    mamba_kwargs:
+      d_state: 64
+      d_conv: 4
+      expand: 4
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 64
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr/
+  training_size: 1500000
+evaluation:
+  path: /media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr/
+  evaluation_size: 10
+training:
+  mode: rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 32
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+Error executing job with overrides: ['epochs=5', 'dataset.training_size=1500000', 'batch_size=128', 'models.architecture.block_type=simple', 'models.architecture.mamba_type=mamba2', 'models.architecture.mamba_kwargs={d_state:64,d_conv:4,expand:4,norm:rms}']
+Traceback (most recent call last):
+  File "/home/egghead/Thesis/Thesis-NN/train/trainer.py", line 497, in main
+    losses = train_rollout_loop(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/egghead/Thesis/Thesis-NN/train/trainer.py", line 128, in train_rollout_loop
+    pred = model(history)
+           ^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 473, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 1047, in compile_wrapper
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/egghead/Thesis/Thesis-NN/model/network.py", line 527, in forward
+    h = blk(h)
+        ^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/egghead/Thesis/Thesis-NN/model/network.py", line 131, in forward
+    return self.mixer(self.norm(x))
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/mamba_ssm/modules/mamba2.py", line 185, in forward
+    out = mamba_split_conv1d_scan_combined(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_combined.py", line 1003, in mamba_split_conv1d_scan_combined
+    return MambaSplitConv1dScanCombinedFn.apply(zxbcdt, conv1d_weight, conv1d_bias, dt_bias, A, D, chunk_size, initial_states, seq_idx, dt_limit, return_final_states, activation, rmsnorm_weight, rmsnorm_eps, outproj_weight, outproj_bias, headdim, ngroups, norm_before_gate, state_dtype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/autograd/function.py", line 596, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/torch/amp/autocast_mode.py", line 493, in decorate_fwd
+    return fwd(*args, **kwargs)  # pyrefly: ignore [not-callable]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/media/egghead/Scratch/joey/Thesis/mavenv/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_combined.py", line 845, in forward
+    causal_conv1d_fwd_function(rearrange(ensure_stride(xBC), "b s d -> b d s"),
+TypeError: 'NoneType' object is not callable
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

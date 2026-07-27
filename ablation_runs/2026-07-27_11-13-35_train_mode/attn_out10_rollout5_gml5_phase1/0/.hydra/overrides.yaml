@@ -1,0 +1,7 @@
+- models.architecture.block_type=attention
+- models.out_dim=10
+- dataset.path=/media/egghead/Scratch/joey/simulation_data/patient_one_data.zarr
+- evaluation.path=/media/egghead/Scratch/joey/simulation_data/patient_two_data.zarr
+- training.mode=rollout
+- epochs=5
+- seed=0
