@@ -1,0 +1,5 @@
+- models.architecture.block_type=simple
+- models.architecture.mamba_type=mamba
+- training.mode=rollout
+- training.rollout_steps=32
+- seed=2

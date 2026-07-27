@@ -1,0 +1,609 @@
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda device
+[2026-07-24 23:17:42,054][HYDRA] Joblib.Parallel(n_jobs=4,backend=loky,prefer=processes,require=None,verbose=0,timeout=None,pre_dispatch=2*n_jobs,batch_size=auto,temp_folder=None,max_nbytes=None,mmap_mode=r) is launching 1 jobs
+[2026-07-24 23:17:42,054][HYDRA] Launching jobs, sweep output dir : ablation_runs/2026-07-24_23-17-36/attention_1e0d_gml_out10
+[2026-07-24 23:17:42,054][HYDRA] 	#0 : models.architecture.block_type=attention training.mode=gml_rollout models.out_dim=10 models.architecture.n_encoder_layers=1 models.architecture.n_decoder_layers=0
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 1
+    n_decoder_layers: 0
+    block_type: attention
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba
+    mamba_kwargs:
+      d_state: 16
+      d_conv: 2
+      expand: 2
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 32
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /home/jdihardjo/simdata/train.zarr/
+  training_size: 1500000
+evaluation:
+  path: /home/jdihardjo/simdata/evaluation.zarr/
+  evaluation_size: 50
+training:
+  mode: gml_rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 16
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000079459547  time_per_window : 0.000162   progress : 0.011
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000622701  time_per_window : 0.000181   progress : 0.022
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000395832  time_per_window : 0.000196   progress : 0.033
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000313884  time_per_window : 0.000165   progress : 0.044
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000241639  time_per_window : 0.000181   progress : 0.055
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000206879  time_per_window : 0.000174   progress : 0.066
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000173941  time_per_window : 0.000214   progress : 0.076
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000151558  time_per_window : 0.000192   progress : 0.087
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000137306  time_per_window : 0.000162   progress : 0.098
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000125034  time_per_window : 0.000213   progress : 0.109
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000109480  time_per_window : 0.000194   progress : 0.120
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000104741  time_per_window : 0.000215   progress : 0.131
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000096615  time_per_window : 0.000206   progress : 0.142
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000089208  time_per_window : 0.000207   progress : 0.153
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000081915  time_per_window : 0.000190   progress : 0.164
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000079371  time_per_window : 0.000178   progress : 0.175
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000080398  time_per_window : 0.000208   progress : 0.186
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000084916  time_per_window : 0.000195   progress : 0.197
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000079300  time_per_window : 0.000207   progress : 0.208
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000094309  time_per_window : 0.000194   progress : 0.218
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000104338  time_per_window : 0.000194   progress : 0.229
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000120655  time_per_window : 0.000185   progress : 0.240
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000085334  time_per_window : 0.000203   progress : 0.251
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000116061  time_per_window : 0.000213   progress : 0.262
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000093980  time_per_window : 0.000186   progress : 0.273
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000095853  time_per_window : 0.000195   progress : 0.284
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000101633  time_per_window : 0.000194   progress : 0.295
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000124233  time_per_window : 0.000171   progress : 0.306
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000113689  time_per_window : 0.000208   progress : 0.317
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000084657  time_per_window : 0.000182   progress : 0.328
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000106829  time_per_window : 0.000192   progress : 0.339
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000105524  time_per_window : 0.000200   progress : 0.350
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000100981  time_per_window : 0.000196   progress : 0.360
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000099353  time_per_window : 0.000194   progress : 0.371
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000101630  time_per_window : 0.000194   progress : 0.382
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000104658  time_per_window : 0.000255   progress : 0.393
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000111165  time_per_window : 0.000226   progress : 0.404
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000104312  time_per_window : 0.000208   progress : 0.415
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000090298  time_per_window : 0.000201   progress : 0.426
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000092798  time_per_window : 0.000222   progress : 0.437
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000106275  time_per_window : 0.000216   progress : 0.448
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000098945  time_per_window : 0.000201   progress : 0.459
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000097483  time_per_window : 0.000186   progress : 0.470
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000090176  time_per_window : 0.000170   progress : 0.481
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000107758  time_per_window : 0.000186   progress : 0.492
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000095485  time_per_window : 0.000189   progress : 0.502
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000098216  time_per_window : 0.000177   progress : 0.513
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000084579  time_per_window : 0.000214   progress : 0.524
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000094554  time_per_window : 0.000170   progress : 0.535
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000086122  time_per_window : 0.000180   progress : 0.546
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000093693  time_per_window : 0.000178   progress : 0.557
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000091081  time_per_window : 0.000189   progress : 0.568
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000084751  time_per_window : 0.000204   progress : 0.579
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000075662  time_per_window : 0.000168   progress : 0.590
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000093008  time_per_window : 0.000209   progress : 0.601
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000077536  time_per_window : 0.000193   progress : 0.612
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000079266  time_per_window : 0.000202   progress : 0.623
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000079156  time_per_window : 0.000191   progress : 0.634
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000077478  time_per_window : 0.000185   progress : 0.644
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000076773  time_per_window : 0.000179   progress : 0.655
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000072615  time_per_window : 0.000176   progress : 0.666
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000071992  time_per_window : 0.000193   progress : 0.677
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000072901  time_per_window : 0.000197   progress : 0.688
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000068967  time_per_window : 0.000218   progress : 0.699
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000083391  time_per_window : 0.000171   progress : 0.710
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000060675  time_per_window : 0.000182   progress : 0.721
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000072559  time_per_window : 0.000182   progress : 0.732
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000073742  time_per_window : 0.000172   progress : 0.743/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000063835  time_per_window : 0.000178   progress : 0.754
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000067821  time_per_window : 0.000191   progress : 0.765
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000071460  time_per_window : 0.000188   progress : 0.775
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000064664  time_per_window : 0.000187   progress : 0.786
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000057592  time_per_window : 0.000206   progress : 0.797
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000057085  time_per_window : 0.000194   progress : 0.808
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000061183  time_per_window : 0.000215   progress : 0.819
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000062739  time_per_window : 0.000214   progress : 0.830
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000059367  time_per_window : 0.000188   progress : 0.841
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000064135  time_per_window : 0.000200   progress : 0.852
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000056431  time_per_window : 0.000186   progress : 0.863
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000063188  time_per_window : 0.000179   progress : 0.874
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000053109  time_per_window : 0.000225   progress : 0.885
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000049555  time_per_window : 0.000177   progress : 0.896
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000056840  time_per_window : 0.000186   progress : 0.907
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000061882  time_per_window : 0.000204   progress : 0.917
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000054316  time_per_window : 0.000200   progress : 0.928
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000056608  time_per_window : 0.000205   progress : 0.939
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000058239  time_per_window : 0.000153   progress : 0.950
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000050171  time_per_window : 0.000180   progress : 0.961
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000055241  time_per_window : 0.000227   progress : 0.972
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000047610  time_per_window : 0.000210   progress : 0.983
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000049764  time_per_window : 0.000204   progress : 0.994
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000159680  time_per_window : 0.000218   progress : 0.011
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000049321  time_per_window : 0.000247   progress : 0.022
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000047103  time_per_window : 0.000166   progress : 0.033
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000051512  time_per_window : 0.000242   progress : 0.044
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000046966  time_per_window : 0.000226   progress : 0.055
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000051787  time_per_window : 0.000234   progress : 0.066
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000049137  time_per_window : 0.000176   progress : 0.076
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000049179  time_per_window : 0.000263   progress : 0.087
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000049536  time_per_window : 0.000214   progress : 0.098
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000054664  time_per_window : 0.000254   progress : 0.109
+name: models.architecture.block_type=attention
+training.mode=gml_rollout
+models.out_dim=10
+models.architecture.n_encoder_layers=1
+models.architecture.n_decoder_layers=0    avg_loss: 0.000000045223  time_per_window : 0.000186   progress : 0.120Traceback (most recent call last):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+            ^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 177, in sweep
+    results = self.launcher.launch(batch, initial_job_idx=initial_job_idx)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/joblib_launcher.py", line 45, in launch
+    return _core.launch(
+           ^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/_core.py", line 103, in launch
+    runs = Parallel(**joblib_cfg)(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGTERM(-15)}
+Detailed tracebacks of the workers should have been printed to stderr in the executor process if faulthandler was not disabled.
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

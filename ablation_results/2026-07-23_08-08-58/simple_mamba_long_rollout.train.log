@@ -1,0 +1,759 @@
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda:0 device
+[2026-07-23 09:21:48,346][HYDRA] Joblib.Parallel(n_jobs=4,backend=loky,prefer=processes,require=None,verbose=0,timeout=None,pre_dispatch=2*n_jobs,batch_size=auto,temp_folder=None,max_nbytes=None,mmap_mode=r) is launching 1 jobs
+[2026-07-23 09:21:48,346][HYDRA] Launching jobs, sweep output dir : ablation_runs/2026-07-23_08-08-58/simple_mamba_long_rollout
+[2026-07-23 09:21:48,346][HYDRA] 	#0 : models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=rollout training.rollout_steps=48
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 2
+    n_decoder_layers: 0
+    block_type: simple
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba
+    mamba_kwargs:
+      d_state: 16
+      d_conv: 2
+      expand: 2
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 64
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /home/jdihardjo/simdata/train.zarr/
+  training_size: 1500000
+evaluation:
+  path: /home/jdihardjo/simdata/evaluation.zarr/
+  evaluation_size: 50
+training:
+  mode: rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 48
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_dynamo/variables/functions.py:2311: UserWarning: Dynamo does not know how to trace the builtin `selective_scan_cuda.pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1.fwd.` This function is either a Python builtin (e.g. _warnings.warn) or a third-party C/C++ Python extension (perhaps created with pybind).
+If it is a Python builtin, please file an issue on GitHub so the PyTorch team can add support for it and see the next case for a workaround.
+If it is a third-party C/C++ Python extension, please either wrap it into a PyTorch-understood custom operator (see https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html for more details) or, if it is traceable, use `torch.compiler.allow_in_graph`.
+  torch._dynamo.utils.warn_once(explanation + "\n" + "\n".join(hints))
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000166566533  time_per_window : 0.001547   progress : 0.011
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000269581  time_per_window : 0.001646   progress : 0.022
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000231274  time_per_window : 0.001532   progress : 0.033
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000210932  time_per_window : 0.001626   progress : 0.044
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000190140  time_per_window : 0.001734   progress : 0.055
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000177764  time_per_window : 0.001547   progress : 0.066
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000167859  time_per_window : 0.001577   progress : 0.076
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000161122  time_per_window : 0.001695   progress : 0.087
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000157232  time_per_window : 0.001655   progress : 0.098
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000159028  time_per_window : 0.001665   progress : 0.109
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000153575  time_per_window : 0.001570   progress : 0.120
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000146782  time_per_window : 0.001525   progress : 0.131
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000144542  time_per_window : 0.001643   progress : 0.142
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000138638  time_per_window : 0.001687   progress : 0.153
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000136057  time_per_window : 0.001658   progress : 0.164
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000132184  time_per_window : 0.001515   progress : 0.175
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000127987  time_per_window : 0.001541   progress : 0.186
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000124545  time_per_window : 0.001641   progress : 0.197
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000111489  time_per_window : 0.001565   progress : 0.208
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000099583  time_per_window : 0.001501   progress : 0.218
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000087079  time_per_window : 0.001664   progress : 0.229
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000076564  time_per_window : 0.001516   progress : 0.240
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000069079  time_per_window : 0.001614   progress : 0.251
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000057760  time_per_window : 0.001764   progress : 0.262
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000050708  time_per_window : 0.001598   progress : 0.273
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000051585  time_per_window : 0.001481   progress : 0.284
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000046605  time_per_window : 0.001503   progress : 0.295
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000043257  time_per_window : 0.001523   progress : 0.306
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000040540  time_per_window : 0.001651   progress : 0.317
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000044719  time_per_window : 0.001556   progress : 0.328
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000044464  time_per_window : 0.001658   progress : 0.339
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000041597  time_per_window : 0.001740   progress : 0.350
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000047996  time_per_window : 0.001624   progress : 0.360
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000042888  time_per_window : 0.001654   progress : 0.371
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000046713  time_per_window : 0.001661   progress : 0.382
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000048837  time_per_window : 0.001665   progress : 0.393
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000055036  time_per_window : 0.001439   progress : 0.404
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000053213  time_per_window : 0.001531   progress : 0.415
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000044760  time_per_window : 0.001520   progress : 0.426
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000046571  time_per_window : 0.001712   progress : 0.437
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000051857  time_per_window : 0.001673   progress : 0.448
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000055790  time_per_window : 0.001605   progress : 0.459
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000052888  time_per_window : 0.001586   progress : 0.470
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000048626  time_per_window : 0.001628   progress : 0.481
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000046857  time_per_window : 0.001523   progress : 0.492
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000047494  time_per_window : 0.001679   progress : 0.502
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000061089  time_per_window : 0.001650   progress : 0.513
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000054064  time_per_window : 0.001738   progress : 0.524
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000042759  time_per_window : 0.001649   progress : 0.535
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000049945  time_per_window : 0.001594   progress : 0.546
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000048914  time_per_window : 0.001646   progress : 0.557
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000051377  time_per_window : 0.001659   progress : 0.568
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000049707  time_per_window : 0.001593   progress : 0.579
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000052827  time_per_window : 0.001558   progress : 0.590
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000047833  time_per_window : 0.001574   progress : 0.601
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000041930  time_per_window : 0.001531   progress : 0.612
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000047875  time_per_window : 0.001572   progress : 0.623
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000047757  time_per_window : 0.001483   progress : 0.634
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000049014  time_per_window : 0.001579   progress : 0.644
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000046380  time_per_window : 0.001579   progress : 0.655
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000046749  time_per_window : 0.001519   progress : 0.666
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000041955  time_per_window : 0.001610   progress : 0.677
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000041023  time_per_window : 0.001502   progress : 0.688
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000054986  time_per_window : 0.001589   progress : 0.699
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000041164  time_per_window : 0.001759   progress : 0.710
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039091  time_per_window : 0.001430   progress : 0.721
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000047914  time_per_window : 0.001508   progress : 0.732
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039163  time_per_window : 0.001498   progress : 0.743
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000050747  time_per_window : 0.001556   progress : 0.754
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000037868  time_per_window : 0.001542   progress : 0.765
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000041978  time_per_window : 0.001562   progress : 0.775
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000042921  time_per_window : 0.001680   progress : 0.786
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000040038  time_per_window : 0.001612   progress : 0.797
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039716  time_per_window : 0.001782   progress : 0.808
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039828  time_per_window : 0.001742   progress : 0.819
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039115  time_per_window : 0.001567   progress : 0.830
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000037126  time_per_window : 0.001456   progress : 0.841
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000037901  time_per_window : 0.001399   progress : 0.852
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000038537  time_per_window : 0.001498   progress : 0.863
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000042262  time_per_window : 0.001638   progress : 0.874
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000038210  time_per_window : 0.001754   progress : 0.885
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000037098  time_per_window : 0.001514   progress : 0.896/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039079  time_per_window : 0.001599   progress : 0.907
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000036147  time_per_window : 0.001583   progress : 0.917
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000034502  time_per_window : 0.001613   progress : 0.928
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000036631  time_per_window : 0.004617   progress : 0.939
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000039235  time_per_window : 0.001600   progress : 0.950
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000038246  time_per_window : 0.001617   progress : 0.961
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000034209  time_per_window : 0.001510   progress : 0.972
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000036562  time_per_window : 0.001577   progress : 0.983
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000031102  time_per_window : 0.001581   progress : 0.994
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000056438  time_per_window : 0.001601   progress : 0.011
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000037606  time_per_window : 0.001735   progress : 0.022
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000032992  time_per_window : 0.001697   progress : 0.033
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000038447  time_per_window : 0.001716   progress : 0.044
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000038072  time_per_window : 0.001781   progress : 0.055
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000036851  time_per_window : 0.001672   progress : 0.066
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000034866  time_per_window : 0.001661   progress : 0.076
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000036187  time_per_window : 0.001677   progress : 0.087
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000036164  time_per_window : 0.001761   progress : 0.098
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000032850  time_per_window : 0.001673   progress : 0.109
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000032448  time_per_window : 0.001657   progress : 0.120
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000035308  time_per_window : 0.001784   progress : 0.131
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000034102  time_per_window : 0.001744   progress : 0.142
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000035170  time_per_window : 0.001716   progress : 0.153
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000033441  time_per_window : 0.001601   progress : 0.164
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000033915  time_per_window : 0.001517   progress : 0.175
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000033195  time_per_window : 0.001772   progress : 0.186
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000031042  time_per_window : 0.001722   progress : 0.197
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000033108  time_per_window : 0.001782   progress : 0.208
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000032418  time_per_window : 0.001741   progress : 0.218
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000032594  time_per_window : 0.001759   progress : 0.229
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000030391  time_per_window : 0.001800   progress : 0.240
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000034084  time_per_window : 0.001712   progress : 0.251
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000028865  time_per_window : 0.001641   progress : 0.262
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000029249  time_per_window : 0.001637   progress : 0.273
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000029887  time_per_window : 0.001758   progress : 0.284
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000032341  time_per_window : 0.001770   progress : 0.295
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000029032  time_per_window : 0.001687   progress : 0.306
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000026314  time_per_window : 0.001753   progress : 0.317
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000026465  time_per_window : 0.001639   progress : 0.328
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000024486  time_per_window : 0.001819   progress : 0.339
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000027966  time_per_window : 0.001705   progress : 0.350
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000024330  time_per_window : 0.001751   progress : 0.360
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000023527  time_per_window : 0.001732   progress : 0.371
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000026183  time_per_window : 0.001635   progress : 0.382
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000023736  time_per_window : 0.001769   progress : 0.393
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000022462  time_per_window : 0.001784   progress : 0.404
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000021246  time_per_window : 0.001739   progress : 0.415
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000022319  time_per_window : 0.001734   progress : 0.426
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000023004  time_per_window : 0.001774   progress : 0.437
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000023319  time_per_window : 0.001761   progress : 0.448
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000021564  time_per_window : 0.001655   progress : 0.459
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000021298  time_per_window : 0.001703   progress : 0.470
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000020139  time_per_window : 0.001641   progress : 0.481
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000022114  time_per_window : 0.001764   progress : 0.492
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000020426  time_per_window : 0.001664   progress : 0.502
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000021324  time_per_window : 0.001841   progress : 0.513
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000022380  time_per_window : 0.001752   progress : 0.524
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000021887  time_per_window : 0.001699   progress : 0.535
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018072  time_per_window : 0.001642   progress : 0.546
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018798  time_per_window : 0.001746   progress : 0.557
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000019256  time_per_window : 0.001665   progress : 0.568
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000019352  time_per_window : 0.001702   progress : 0.579
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018747  time_per_window : 0.001756   progress : 0.590
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000019794  time_per_window : 0.001774   progress : 0.601
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018925  time_per_window : 0.001660   progress : 0.612
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000019015  time_per_window : 0.001666   progress : 0.623
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018870  time_per_window : 0.001666   progress : 0.634
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000019050  time_per_window : 0.001780   progress : 0.644
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017852  time_per_window : 0.001651   progress : 0.655
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017412  time_per_window : 0.001761   progress : 0.666
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000020142  time_per_window : 0.001587   progress : 0.677
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017236  time_per_window : 0.001817   progress : 0.688
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018264  time_per_window : 0.001617   progress : 0.699
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000020499  time_per_window : 0.001705   progress : 0.710
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000016792  time_per_window : 0.001629   progress : 0.721
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017283  time_per_window : 0.001719   progress : 0.732
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017678  time_per_window : 0.001721   progress : 0.743
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000016574  time_per_window : 0.001555   progress : 0.754
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000016308  time_per_window : 0.001767   progress : 0.765
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000018585  time_per_window : 0.001801   progress : 0.775
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017733  time_per_window : 0.001781   progress : 0.786
+name: models.architecture.block_type=simple
+models.architecture.mamba_type=mamba
+training.mode=rollout
+training.rollout_steps=48    avg_loss: 0.000000017382  time_per_window : 0.001791   progress : 0.797Traceback (most recent call last):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+            ^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 177, in sweep
+    results = self.launcher.launch(batch, initial_job_idx=initial_job_idx)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/joblib_launcher.py", line 45, in launch
+    return _core.launch(
+           ^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/_core.py", line 103, in launch
+    runs = Parallel(**joblib_cfg)(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGTERM(-15)}
+Detailed tracebacks of the workers should have been printed to stderr in the executor process if faulthandler was not disabled.
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

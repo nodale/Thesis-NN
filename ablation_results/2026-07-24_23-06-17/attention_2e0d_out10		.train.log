@@ -1,0 +1,96 @@
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda device
+[2026-07-24 23:06:22,941][HYDRA] Joblib.Parallel(n_jobs=4,backend=loky,prefer=processes,require=None,verbose=0,timeout=None,pre_dispatch=2*n_jobs,batch_size=auto,temp_folder=None,max_nbytes=None,mmap_mode=r) is launching 1 jobs
+[2026-07-24 23:06:22,941][HYDRA] Launching jobs, sweep output dir : ablation_runs/2026-07-24_23-06-17/attention_2e0d_out10
+[2026-07-24 23:06:22,941][HYDRA] 	#0 : models.architecture.block_type=attention training.mode=rollout models.out_dim=10 models.architecture.n_encoder_layers=2 models.architecture.n_decoder_layers=0
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 2
+    n_decoder_layers: 0
+    block_type: attention
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba
+    mamba_kwargs:
+      d_state: 16
+      d_conv: 2
+      expand: 2
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 32
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /home/jdihardjo/simdata/train.zarr/
+  training_size: 1500000
+evaluation:
+  path: /home/jdihardjo/simdata/evaluation.zarr/
+  evaluation_size: 50
+training:
+  mode: rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 16
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_inductor/cudagraph_trees.py:2622: UserWarning: Unable to hit fast path of CUDAGraphs because outputs from a previous step still require backward. Ensure backward() is invoked or detach outputs. You may also call torch.compiler.cudagraph_mark_step_begin() before each model invocation.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+            ^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 177, in sweep
+    results = self.launcher.launch(batch, initial_job_idx=initial_job_idx)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/joblib_launcher.py", line 45, in launch
+    return _core.launch(
+           ^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/_core.py", line 103, in launch
+    runs = Parallel(**joblib_cfg)(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGTERM(-15)}
+Detailed tracebacks of the workers should have been printed to stderr in the executor process if faulthandler was not disabled.
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

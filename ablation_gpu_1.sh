@@ -48,7 +48,7 @@ CONFIGS=(
 )
 
 
-MAX_PARALLEL="${MAX_PARALLEL:-1}"
+MAX_PARALLEL="${MAX_PARALLEL:-2}"
 SEEDS="${SEEDS:-0,1,2,3,4}"
 
 RUN_ID="$(date +%Y-%m-%d_%H-%M-%S)"

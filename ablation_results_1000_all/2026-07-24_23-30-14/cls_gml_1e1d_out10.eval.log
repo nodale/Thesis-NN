@@ -1,0 +1,18 @@
+Loading: ablation_runs/2026-07-24_23-30-14/cls_gml_1e1d_out10/0/hydra-test.pth
+
+RUN: 0
+
+===== Average Odometry Metrics =====
+trajectory_length: 4.712171
+ate_rmse: 0.547145
+mean_error: 0.532909
+max_error: 0.686958
+endpoint_error: 0.540924
+kitti_translation_drift: 59.540047
+drift_percent: 11.992495
+drift_m_per_km: 119.924927
+
+DONE
+0 {'trajectory_length': np.float32(4.712171), 'ate_rmse': np.float32(0.5471455), 'mean_error': np.float32(0.532909), 'max_error': np.float32(0.6869577), 'endpoint_error': np.float32(0.54092443), 'kitti_translation_drift': np.float32(59.540047), 'drift_percent': np.float32(11.992495), 'drift_m_per_km': np.float32(119.92493)}
+
+Saved results to ablation_results_1000_all/2026-07-24_23-30-14/cls_gml_1e1d_out10.json

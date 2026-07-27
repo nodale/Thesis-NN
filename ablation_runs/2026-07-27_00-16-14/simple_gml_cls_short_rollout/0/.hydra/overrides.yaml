@@ -1,0 +1,4 @@
+- models.architecture.block_type=simple_cls
+- training.mode=gml_rollout
+- training.rollout_steps=4
+- seed=0

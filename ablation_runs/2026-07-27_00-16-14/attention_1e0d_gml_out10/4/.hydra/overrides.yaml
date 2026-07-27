@@ -1,0 +1,6 @@
+- models.architecture.block_type=attention
+- training.mode=gml_rollout
+- models.out_dim=10
+- models.architecture.n_encoder_layers=1
+- models.architecture.n_decoder_layers=0
+- seed=4

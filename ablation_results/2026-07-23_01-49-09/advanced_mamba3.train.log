@@ -1,0 +1,633 @@
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda:1 device
+[2026-07-23 01:49:14,701][HYDRA] Joblib.Parallel(n_jobs=4,backend=loky,prefer=processes,require=None,verbose=0,timeout=None,pre_dispatch=2*n_jobs,batch_size=auto,temp_folder=None,max_nbytes=None,mmap_mode=r) is launching 1 jobs
+[2026-07-23 01:49:14,701][HYDRA] Launching jobs, sweep output dir : ablation_runs/2026-07-23_01-49-09/advanced_mamba3
+[2026-07-23 01:49:14,701][HYDRA] 	#0 : models.architecture.block_type=advanced models.architecture.mamba_type=mamba3 training.mode=rollout
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 2
+    n_decoder_layers: 0
+    block_type: advanced
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba3
+    mamba_kwargs:
+      d_state: 16
+      d_conv: 2
+      expand: 2
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 64
+output_len: 1
+batch_size: 128
+epochs: 5
+seed: 0
+dataset:
+  path: /home/jdihardjo/simdata/train.zarr/
+  training_size: 1500000
+evaluation:
+  path: /home/jdihardjo/simdata/evaluation.zarr/
+  evaluation_size: 50
+training:
+  mode: rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 32
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Encountered an exception in identify_accessed_tensors, assuming every input is mutated
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1386, in call_Function
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = fn(*args, **extra_kwargs, **kws)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 43, in wrapper
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return fn(*args, **kwargs)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 2361, in make_tensor_descriptor
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return _semantic.make_tensor_descriptor(base, shape, strides, block_shape, padding_option)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/semantic.py", line 1954, in make_tensor_descriptor
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if last_stride != 1:
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]        ^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 41, in wrapper
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise ValueError("Did you forget to add @triton.jit ? "
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] ValueError: Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] The above exception was the direct cause of the following exception:
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 1112, in identify_accessed_tensors
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module, ordered_arg_names = generate_ttir(
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                                      ^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 539, in generate_ttir
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module = src.make_ir(target, options, codegen_fns, module_map, context)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1651, in ast_to_ttir
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     generator.visit(fn.parse())
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 508, in visit_Module
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ast.NodeVisitor.generic_visit(self, node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 426, in generic_visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(item)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 653, in visit_FunctionDef
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit_compound_statement(node.body)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 501, in visit_compound_statement
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(stmt)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 725, in visit_Assign
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     values = _sanitize_value(self.visit(node.value))
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                              ^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1437, in visit_Call
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return self.call_Function(node, fn, args, kws)
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1400, in call_Function
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise CompilationError(self.jit_fn.src, node, str(e)) from e
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] triton.compiler.errors.CompilationError: at 175:13:
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_store_ptr = Q_store + pid_batch * stride_q_store_batch + pid_head * stride_q_store_head + seq_offset * stride_q_store_seqlen
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     k_store_ptr = K_store + pid_batch * stride_k_store_batch + pid_head * stride_k_store_head + seq_offset * stride_k_store_seqlen
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     qk_store_ptr = QK_store + pid_batch * stride_qk_store_batch + pid_head * stride_qk_store_head + seq_offset * stride_qk_store_seqlen
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     scale_store_ptr = Scale_store + pid_batch * stride_scale_store_batch + pid_head * stride_scale_store_head + seq_offset * stride_scale_store_seqlen
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     gamma_store_ptr = Gamma_store + pid_batch * stride_gamma_store_batch + pid_head * stride_gamma_store_head + seq_offset * stride_gamma_store_seqlen
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if RETURN_FINAL_STATES:
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_ssm_state_ptr = Final_SSM_State + seq_idx * stride_final_ssm_state_seq + pid_head * stride_final_ssm_state_head
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_k_state_ptr = Final_K_State + seq_idx * stride_final_k_state_seq + pid_head * stride_final_k_state_head
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     # Create TMA tensor descriptors
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_desc = tl.make_tensor_descriptor(
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]              ^
+W0723 01:49:23.733000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Encountered an exception in identify_accessed_tensors, assuming every input is mutated
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1386, in call_Function
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = fn(*args, **extra_kwargs, **kws)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 43, in wrapper
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return fn(*args, **kwargs)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 2361, in make_tensor_descriptor
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return _semantic.make_tensor_descriptor(base, shape, strides, block_shape, padding_option)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/semantic.py", line 1954, in make_tensor_descriptor
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if last_stride != 1:
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]        ^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 41, in wrapper
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise ValueError("Did you forget to add @triton.jit ? "
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] ValueError: Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] The above exception was the direct cause of the following exception:
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 1112, in identify_accessed_tensors
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module, ordered_arg_names = generate_ttir(
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                                      ^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 539, in generate_ttir
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module = src.make_ir(target, options, codegen_fns, module_map, context)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1651, in ast_to_ttir
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     generator.visit(fn.parse())
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 508, in visit_Module
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ast.NodeVisitor.generic_visit(self, node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 426, in generic_visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(item)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 653, in visit_FunctionDef
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit_compound_statement(node.body)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 501, in visit_compound_statement
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(stmt)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 725, in visit_Assign
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     values = _sanitize_value(self.visit(node.value))
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                              ^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1437, in visit_Call
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return self.call_Function(node, fn, args, kws)
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1400, in call_Function
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise CompilationError(self.jit_fn.src, node, str(e)) from e
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] triton.compiler.errors.CompilationError: at 175:13:
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_store_ptr = Q_store + pid_batch * stride_q_store_batch + pid_head * stride_q_store_head + seq_offset * stride_q_store_seqlen
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     k_store_ptr = K_store + pid_batch * stride_k_store_batch + pid_head * stride_k_store_head + seq_offset * stride_k_store_seqlen
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     qk_store_ptr = QK_store + pid_batch * stride_qk_store_batch + pid_head * stride_qk_store_head + seq_offset * stride_qk_store_seqlen
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     scale_store_ptr = Scale_store + pid_batch * stride_scale_store_batch + pid_head * stride_scale_store_head + seq_offset * stride_scale_store_seqlen
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     gamma_store_ptr = Gamma_store + pid_batch * stride_gamma_store_batch + pid_head * stride_gamma_store_head + seq_offset * stride_gamma_store_seqlen
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if RETURN_FINAL_STATES:
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_ssm_state_ptr = Final_SSM_State + seq_idx * stride_final_ssm_state_seq + pid_head * stride_final_ssm_state_head
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_k_state_ptr = Final_K_State + seq_idx * stride_final_k_state_seq + pid_head * stride_final_k_state_head
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     # Create TMA tensor descriptors
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_desc = tl.make_tensor_descriptor(
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]              ^
+W0723 01:49:23.889000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Encountered an exception in identify_accessed_tensors, assuming every input is mutated
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1386, in call_Function
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = fn(*args, **extra_kwargs, **kws)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 43, in wrapper
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return fn(*args, **kwargs)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 2361, in make_tensor_descriptor
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return _semantic.make_tensor_descriptor(base, shape, strides, block_shape, padding_option)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/semantic.py", line 1954, in make_tensor_descriptor
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if last_stride != 1:
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]        ^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 41, in wrapper
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise ValueError("Did you forget to add @triton.jit ? "
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] ValueError: Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] The above exception was the direct cause of the following exception:
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 1112, in identify_accessed_tensors
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module, ordered_arg_names = generate_ttir(
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                                      ^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 539, in generate_ttir
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module = src.make_ir(target, options, codegen_fns, module_map, context)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1651, in ast_to_ttir
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     generator.visit(fn.parse())
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 508, in visit_Module
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ast.NodeVisitor.generic_visit(self, node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 426, in generic_visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(item)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 653, in visit_FunctionDef
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit_compound_statement(node.body)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 501, in visit_compound_statement
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(stmt)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 725, in visit_Assign
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     values = _sanitize_value(self.visit(node.value))
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                              ^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1437, in visit_Call
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return self.call_Function(node, fn, args, kws)
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1400, in call_Function
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise CompilationError(self.jit_fn.src, node, str(e)) from e
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] triton.compiler.errors.CompilationError: at 175:13:
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_store_ptr = Q_store + pid_batch * stride_q_store_batch + pid_head * stride_q_store_head + seq_offset * stride_q_store_seqlen
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     k_store_ptr = K_store + pid_batch * stride_k_store_batch + pid_head * stride_k_store_head + seq_offset * stride_k_store_seqlen
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     qk_store_ptr = QK_store + pid_batch * stride_qk_store_batch + pid_head * stride_qk_store_head + seq_offset * stride_qk_store_seqlen
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     scale_store_ptr = Scale_store + pid_batch * stride_scale_store_batch + pid_head * stride_scale_store_head + seq_offset * stride_scale_store_seqlen
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     gamma_store_ptr = Gamma_store + pid_batch * stride_gamma_store_batch + pid_head * stride_gamma_store_head + seq_offset * stride_gamma_store_seqlen
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if RETURN_FINAL_STATES:
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_ssm_state_ptr = Final_SSM_State + seq_idx * stride_final_ssm_state_seq + pid_head * stride_final_ssm_state_head
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_k_state_ptr = Final_K_State + seq_idx * stride_final_k_state_seq + pid_head * stride_final_k_state_head
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     # Create TMA tensor descriptors
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_desc = tl.make_tensor_descriptor(
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]              ^
+W0723 01:49:24.121000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Encountered an exception in identify_accessed_tensors, assuming every input is mutated
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1386, in call_Function
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = fn(*args, **extra_kwargs, **kws)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 43, in wrapper
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return fn(*args, **kwargs)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 2361, in make_tensor_descriptor
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return _semantic.make_tensor_descriptor(base, shape, strides, block_shape, padding_option)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/semantic.py", line 1954, in make_tensor_descriptor
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if last_stride != 1:
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]        ^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 41, in wrapper
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise ValueError("Did you forget to add @triton.jit ? "
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] ValueError: Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] The above exception was the direct cause of the following exception:
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 1112, in identify_accessed_tensors
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module, ordered_arg_names = generate_ttir(
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                                      ^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 539, in generate_ttir
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module = src.make_ir(target, options, codegen_fns, module_map, context)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1651, in ast_to_ttir
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     generator.visit(fn.parse())
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 508, in visit_Module
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ast.NodeVisitor.generic_visit(self, node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 426, in generic_visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(item)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 653, in visit_FunctionDef
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit_compound_statement(node.body)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 501, in visit_compound_statement
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(stmt)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 725, in visit_Assign
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     values = _sanitize_value(self.visit(node.value))
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                              ^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1437, in visit_Call
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return self.call_Function(node, fn, args, kws)
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1400, in call_Function
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise CompilationError(self.jit_fn.src, node, str(e)) from e
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] triton.compiler.errors.CompilationError: at 175:13:
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_store_ptr = Q_store + pid_batch * stride_q_store_batch + pid_head * stride_q_store_head + seq_offset * stride_q_store_seqlen
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     k_store_ptr = K_store + pid_batch * stride_k_store_batch + pid_head * stride_k_store_head + seq_offset * stride_k_store_seqlen
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     qk_store_ptr = QK_store + pid_batch * stride_qk_store_batch + pid_head * stride_qk_store_head + seq_offset * stride_qk_store_seqlen
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     scale_store_ptr = Scale_store + pid_batch * stride_scale_store_batch + pid_head * stride_scale_store_head + seq_offset * stride_scale_store_seqlen
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     gamma_store_ptr = Gamma_store + pid_batch * stride_gamma_store_batch + pid_head * stride_gamma_store_head + seq_offset * stride_gamma_store_seqlen
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if RETURN_FINAL_STATES:
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_ssm_state_ptr = Final_SSM_State + seq_idx * stride_final_ssm_state_seq + pid_head * stride_final_ssm_state_head
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         final_k_state_ptr = Final_K_State + seq_idx * stride_final_k_state_seq + pid_head * stride_final_k_state_head
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     # Create TMA tensor descriptors
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_desc = tl.make_tensor_descriptor(
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]              ^
+W0723 01:49:24.293000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Encountered an exception in identify_accessed_tensors, assuming every input is mutated
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1386, in call_Function
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = fn(*args, **extra_kwargs, **kws)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 43, in wrapper
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return fn(*args, **kwargs)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 2361, in make_tensor_descriptor
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return _semantic.make_tensor_descriptor(base, shape, strides, block_shape, padding_option)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/semantic.py", line 1954, in make_tensor_descriptor
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if last_stride != 1:
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]        ^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 41, in wrapper
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise ValueError("Did you forget to add @triton.jit ? "
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] ValueError: Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] The above exception was the direct cause of the following exception:
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 1112, in identify_accessed_tensors
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module, ordered_arg_names = generate_ttir(
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                                      ^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 539, in generate_ttir
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module = src.make_ir(target, options, codegen_fns, module_map, context)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1651, in ast_to_ttir
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     generator.visit(fn.parse())
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 508, in visit_Module
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ast.NodeVisitor.generic_visit(self, node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 426, in generic_visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(item)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 653, in visit_FunctionDef
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit_compound_statement(node.body)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 501, in visit_compound_statement
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(stmt)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 725, in visit_Assign
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     values = _sanitize_value(self.visit(node.value))
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                              ^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1437, in visit_Call
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return self.call_Function(node, fn, args, kws)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1400, in call_Function
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise CompilationError(self.jit_fn.src, node, str(e)) from e
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] triton.compiler.errors.CompilationError: at 136:13:
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     # Accumulates gradients flowing backward through states across chunks
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if HAS_D_OSSM_STATE:
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_ptrs =  d_OSSM_State + d_ossm_state_offset + tl.arange(0, HEADDIM_V)[:, None] * stride_d_ossm_state_vdim + tl.arange(0, HEADDIM_QK)[None, :] * stride_d_ossm_state_qkdim
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_states_mask = (tl.arange(0, HEADDIM_V)[:, None] < headdim_v) & (tl.arange(0, HEADDIM_QK)[None, :] < headdim_qk)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_states_acc = tl.load(d_ssm_ptrs, mask=d_ssm_states_mask, other=0.0).to(tl.float32)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     else:
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_states_acc = tl.zeros([HEADDIM_V, HEADDIM_QK], dtype=tl.float32)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     num_chunks = tl.cdiv(seqlen, CHUNK_SIZE)
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     #  TMA Descriptors for Efficient Memory Access 
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_desc = tl.make_tensor_descriptor(
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]              ^
+W0723 01:49:24.531000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Encountered an exception in identify_accessed_tensors, assuming every input is mutated
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1386, in call_Function
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = fn(*args, **extra_kwargs, **kws)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 43, in wrapper
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return fn(*args, **kwargs)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 2361, in make_tensor_descriptor
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return _semantic.make_tensor_descriptor(base, shape, strides, block_shape, padding_option)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/semantic.py", line 1954, in make_tensor_descriptor
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if last_stride != 1:
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]        ^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/language/core.py", line 41, in wrapper
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise ValueError("Did you forget to add @triton.jit ? "
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] ValueError: Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] The above exception was the direct cause of the following exception:
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Traceback (most recent call last):
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 1112, in identify_accessed_tensors
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module, ordered_arg_names = generate_ttir(
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                                      ^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/torch/_higher_order_ops/triton_kernel_wrap.py", line 539, in generate_ttir
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ttir_module = src.make_ir(target, options, codegen_fns, module_map, context)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1651, in ast_to_ttir
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     generator.visit(fn.parse())
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 508, in visit_Module
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ast.NodeVisitor.generic_visit(self, node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 426, in generic_visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(item)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 653, in visit_FunctionDef
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit_compound_statement(node.body)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 501, in visit_compound_statement
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     self.visit(stmt)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 725, in visit_Assign
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     values = _sanitize_value(self.visit(node.value))
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]                              ^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1556, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     ret = super().visit(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]           ^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/ast.py", line 418, in visit
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return visitor(node)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1437, in visit_Call
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     return self.call_Function(node, fn, args, kws)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]   File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/triton/compiler/code_generator.py", line 1400, in call_Function
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     raise CompilationError(self.jit_fn.src, node, str(e)) from e
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] triton.compiler.errors.CompilationError: at 136:13:
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     # Accumulates gradients flowing backward through states across chunks
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     if HAS_D_OSSM_STATE:
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_ptrs =  d_OSSM_State + d_ossm_state_offset + tl.arange(0, HEADDIM_V)[:, None] * stride_d_ossm_state_vdim + tl.arange(0, HEADDIM_QK)[None, :] * stride_d_ossm_state_qkdim
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_states_mask = (tl.arange(0, HEADDIM_V)[:, None] < headdim_v) & (tl.arange(0, HEADDIM_QK)[None, :] < headdim_qk)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_states_acc = tl.load(d_ssm_ptrs, mask=d_ssm_states_mask, other=0.0).to(tl.float32)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     else:
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]         d_ssm_states_acc = tl.zeros([HEADDIM_V, HEADDIM_QK], dtype=tl.float32)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     num_chunks = tl.cdiv(seqlen, CHUNK_SIZE)
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] 
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     #  TMA Descriptors for Efficient Memory Access 
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]     q_desc = tl.make_tensor_descriptor(
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0]              ^
+W0723 01:49:24.992000 4074749 site-packages/torch/_higher_order_ops/triton_kernel_wrap.py:1152] [0/0] Did you forget to add @triton.jit ? (`_semantic` argument must be provided outside of JIT functions.)
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/externals/loky/process_executor.py", line 373, in _sendback_result
+    result_queue.put(
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/externals/loky/backend/queues.py", line 230, in put
+    obj = dumps(obj, reducers=self._reducers)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/externals/loky/backend/reduction.py", line 214, in dumps
+    dump(obj, buf, reducers=reducers, protocol=protocol)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/externals/loky/backend/reduction.py", line 207, in dump
+    _LokyPickler(file, reducers=reducers, protocol=protocol).dump(obj)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/externals/cloudpickle/cloudpickle.py", line 1313, in dump
+    return super().dump(obj)
+           ^^^^^^^^^^^^^^^^^
+TypeError: cannot pickle 'PyCapsule' object
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+            ^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 177, in sweep
+    results = self.launcher.launch(batch, initial_job_idx=initial_job_idx)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/joblib_launcher.py", line 45, in launch
+    return _core.launch(
+           ^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra_plugins/hydra_joblib_launcher/_core.py", line 103, in launch
+    runs = Parallel(**joblib_cfg)(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+TypeError: cannot pickle 'PyCapsule' object
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

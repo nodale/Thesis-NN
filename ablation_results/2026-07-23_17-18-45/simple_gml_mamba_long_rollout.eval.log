@@ -1,0 +1,32 @@
+Loading: ablation_runs/2026-07-23_17-18-45/simple_gml_mamba_long_rollout/0/hydra-test.pth
+Traceback (most recent call last):
+  File "/home/jdihardjo/Thesis/Thesis-NN/evaluate/batched_evaluator.py", line 282, in main
+    for f in as_completed(futures):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/concurrent/futures/_base.py", line 243, in as_completed
+    waiter.event.wait(wait_timeout)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/threading.py", line 629, in wait
+    signaled = self._cond.wait(timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/jdihardjo/Thesis/Thesis-NN/evaluate/batched_evaluator.py", line 308, in <module>
+    main()
+  File "/home/jdihardjo/Thesis/Thesis-NN/evaluate/batched_evaluator.py", line 275, in main
+    with ProcessPoolExecutor(max_workers=min(len(runs), os.cpu_count())) as ex:
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/concurrent/futures/_base.py", line 647, in __exit__
+    self.shutdown(wait=True)
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/concurrent/futures/process.py", line 851, in shutdown
+    self._executor_manager_thread.join()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/threading.py", line 1119, in join
+    self._wait_for_tstate_lock()
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/threading.py", line 1139, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

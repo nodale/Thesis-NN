@@ -1,0 +1,72 @@
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Using cuda device
+[2026-07-22 19:18:25,466][HYDRA] Joblib.Parallel(n_jobs=4,backend=loky,prefer=processes,require=None,verbose=0,timeout=None,pre_dispatch=2*n_jobs,batch_size=auto,temp_folder=None,max_nbytes=None,mmap_mode=r) is launching 1 jobs
+[2026-07-22 19:18:25,466][HYDRA] Launching jobs, sweep output dir : ablation_runs/2026-07-22_19-18-20/simple_mamba_gml_rollout
+[2026-07-22 19:18:25,466][HYDRA] 	#0 : models.architecture.block_type=simple models.architecture.mamba_type=mamba training.mode=gml_rollout
+/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'config': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+models:
+  n_dim: 23
+  out_dim: 10
+  architecture:
+    d_model: 128
+    n_encoder_layers: 2
+    n_decoder_layers: 0
+    block_type: simple
+    time_adapter: last_token
+    in_norm: none
+    out_norm: none
+    layer_scale: 0.0001
+    drop_path: 0.05
+    mamba_type: mamba
+    mamba_kwargs:
+      d_state: 16
+      d_conv: 2
+      expand: 2
+      norm: rms
+    skip: false
+    cls_kwargs:
+      n_heads: 2
+      n_mlp: 2
+      positional_encoding: false
+      max_len: 5000
+input_len: 64
+output_len: 1
+batch_size: 128
+epochs: 1
+seed: 0
+dataset:
+  path: /home/jdihardjo/simdata/train.zarr/
+  training_size: 1500000
+evaluation:
+  path: /home/jdihardjo/simdata/evaluation.zarr/
+  evaluation_size: 50
+training:
+  mode: gml_rollout
+  lr: 0.0002
+  weight_decay: 0.1
+  rollout_steps: 32
+checkpoint:
+  save_path: hydra-test.pth
+  load: false
+  path: hydra-test.pth
+compile: true
+
+Error executing job with overrides: ['models.architecture.block_type=simple', 'models.architecture.mamba_type=mamba', 'training.mode=gml_rollout']
+Traceback (most recent call last):
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           ^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/utils.py", line 466, in <lambda>
+    lambda: hydra.multirun(
+            ^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/hydra.py", line 162, in multirun
+    ret = sweeper.sweep(arguments=task_overrides)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/_internal/core_plugins/basic_sweeper.py", line 181, in sweep
+    _ = r.return_value
+        ^^^^^^^^^^^^^^
+  File "/home/jdihardjo/miniconda3/envs/mavenv/lib/python3.11/site-packages/hydra/core/utils.py", line 260, in return_value
+    raise self._return_value
+ZeroDivisionError: float division by zero
